@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Ignore IDE project files to avoid committing workspace-specific settings
+/.idea/
