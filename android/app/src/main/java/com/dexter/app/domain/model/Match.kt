@@ -1,7 +1,6 @@
 package com.dexter.app.domain.model
 
 import java.util.Date
-import com.dexter.app.domain.model.MatchStatus
 
 /**
  * Represents a match between two users with a compatibility score.

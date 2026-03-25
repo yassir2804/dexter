@@ -1,7 +1,6 @@
 package com.dexter.app.domain.model
 
 import java.util.Date
-import com.dexter.app.domain.model.SessionStatus
 
 /**
  * Domain representation of a session within a match.

@@ -2,7 +2,6 @@
 package com.dexter.app.domain.model
 
 import java.util.Date
-import com.dexter.app.domain.model.NotificationType
 
 /**
  * Push or in-app notification targeted to a user.

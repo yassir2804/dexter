@@ -1,8 +1,5 @@
 package com.dexter.app.domain.model
 
-import com.dexter.app.domain.model.SkillLevel
-import com.dexter.app.domain.model.SkillRole
-
 /**
  * Domain model for a user skill.
  *
