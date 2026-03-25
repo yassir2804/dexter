@@ -1,4 +1,4 @@
-package com.dexter.app.data.model
+package com.dexter.app.data.datasource.model
 
 /** DTO for Notification objects exchanged with the backend. */
 data class NotificationDto(

@@ -1,4 +1,4 @@
-package com.dexter.app.data.model
+package com.dexter.app.data.datasource.model
 
 /** DTO for Conversation wire format. */
 data class ConversationDto(

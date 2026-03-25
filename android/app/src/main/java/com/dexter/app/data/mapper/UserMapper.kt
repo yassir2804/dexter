@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.UserDto
+import com.dexter.app.data.datasource.model.UserDto
 import com.dexter.app.domain.model.User
 import java.util.Date
 

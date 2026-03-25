@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.MatchDto
+import com.dexter.app.data.datasource.model.MatchDto
 import com.dexter.app.domain.model.Match
 import com.dexter.app.domain.model.MatchStatus
 import java.util.Date

@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.MessageDto
+import com.dexter.app.data.datasource.model.MessageDto
 import com.dexter.app.domain.model.Message
 import com.dexter.app.domain.model.MessageStatus
 import java.util.Date

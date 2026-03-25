@@ -7,5 +7,5 @@ interface AvailabilityRepository {
     suspend fun getAvailabilityForUser(userId: Long): List<Availability>
     suspend fun getAvailabilityById(id: Long): Availability?
     suspend fun saveAvailability(availability: Availability): Availability
-    suspend fun deleteAvailability(id: Long)
+    suspend fun deleteAvailability(id: Long): Any
 }

@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.SkillDto
+import com.dexter.app.data.datasource.model.SkillDto
 import com.dexter.app.domain.model.Skill
 import com.dexter.app.domain.model.SkillLevel
 import com.dexter.app.domain.model.SkillRole

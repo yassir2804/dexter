@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.SessionInvitationDto
+import com.dexter.app.data.datasource.model.SessionInvitationDto
 import com.dexter.app.domain.model.SessionInvitation
 import com.dexter.app.domain.model.InvitationStatus
 import java.util.Date

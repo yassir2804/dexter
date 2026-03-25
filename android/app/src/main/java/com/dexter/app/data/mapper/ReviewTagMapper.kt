@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.ReviewTagDto
+import com.dexter.app.data.datasource.model.ReviewTagDto
 import com.dexter.app.domain.model.ReviewTag
 
 /** Mapper for `ReviewTagDto` ↔ `ReviewTag`. */

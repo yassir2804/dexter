@@ -1,4 +1,4 @@
-package com.dexter.app.data.model
+package com.dexter.app.data.datasource.model
 
 /** DTO for SessionInvitation. */
 data class SessionInvitationDto(

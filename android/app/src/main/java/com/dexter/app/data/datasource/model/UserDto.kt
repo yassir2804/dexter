@@ -1,4 +1,4 @@
-package com.dexter.app.data.model
+package com.dexter.app.data.datasource.model
 
 /**
  * Data Transfer Object for user data coming from remote APIs or local storage.

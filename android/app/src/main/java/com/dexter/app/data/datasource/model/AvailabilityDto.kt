@@ -1,4 +1,4 @@
-package com.dexter.app.data.model
+package com.dexter.app.data.datasource.model
 
 /** DTO for Availability entries. */
 data class AvailabilityDto(

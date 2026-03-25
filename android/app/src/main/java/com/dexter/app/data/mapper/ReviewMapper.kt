@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.ReviewDto
+import com.dexter.app.data.datasource.model.ReviewDto
 import com.dexter.app.domain.model.Review
 import java.util.Date
 

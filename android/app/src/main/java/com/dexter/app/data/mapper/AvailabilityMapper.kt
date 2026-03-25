@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.AvailabilityDto
+import com.dexter.app.data.datasource.model.AvailabilityDto
 import com.dexter.app.domain.model.Availability
 
 /** Mapper for `AvailabilityDto` ↔ `Availability`. */

@@ -1,6 +1,6 @@
 package com.dexter.app.data.mapper
 
-import com.dexter.app.data.model.ConversationDto
+import com.dexter.app.data.datasource.model.ConversationDto
 import com.dexter.app.domain.model.Conversation
 import java.util.Date
 
