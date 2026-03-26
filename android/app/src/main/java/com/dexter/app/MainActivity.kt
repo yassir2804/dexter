@@ -5,12 +5,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.dexter.app.data.datasource.UserDataSourceImpl
@@ -22,6 +24,7 @@ import com.dexter.app.presentation.navigation.NavRoutes
 import com.dexter.app.presentation.ui.components.BottomNavigationBar
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.LoginViewModel
+import com.dexter.app.presentation.ui.layout.MainLayout
 
 class MainActivity : ComponentActivity() {
 
@@ -71,7 +74,9 @@ fun MainScreen(loginViewModel: LoginViewModel) {
             }
         }
     ) { paddingValues ->
-        NavGraph(navController, loginViewModel, paddingValues)
+        MainLayout(paddingValues = paddingValues) {
+            NavGraph(navController, loginViewModel, PaddingValues(0.dp))
+        }
     }
 }
 

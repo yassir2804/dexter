@@ -10,10 +10,10 @@ import com.dexter.app.domain.model.User
  * implementations (Dependency Inversion).
  */
 interface UserRepository {
-    suspend fun getUserById(id: Long): User?
-    suspend fun getAllUsers(): List<User>
-    suspend fun findUsersByName(query: String): List<User>
-    suspend fun saveUser(user: User): User
-    suspend fun deleteUser(id: Long)
-    suspend fun login(email: String, password: String): User?
+    suspend fun getUserById(id: Long): Result<User>
+    suspend fun getAllUsers(): Result<List<User>>
+    suspend fun findUsersByName(query: String): Result<List<User>>
+    suspend fun saveUser(user: User): Result<User>
+    suspend fun deleteUser(id: Long): Result<Unit>
+    suspend fun login(email: String, password: String): Result<User>
 }
