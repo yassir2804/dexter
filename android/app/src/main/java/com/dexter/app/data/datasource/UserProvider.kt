@@ -12,7 +12,7 @@ class UserProvider {
             User(
                 id = 1,
                 email = "alice@example.com",
-                password = null,
+                password = "password123",
                 firstName = "Alice",
                 lastName = "Gonzalez",
                 username = "alice",
@@ -30,7 +30,7 @@ class UserProvider {
             User(
                 id = 2,
                 email = "bob@example.com",
-                password = null,
+                password = "password123",
                 firstName = "Bob",
                 lastName = "Smith",
                 username = "bob",
@@ -50,5 +50,7 @@ class UserProvider {
         fun findUserById(id: Long): User? = userList.find { it.id == id }
 
         fun findAllUsers(): List<User> = userList
+
+        fun findUserByEmail(email: String): User? = userList.find { it.email == email }
     }
 }

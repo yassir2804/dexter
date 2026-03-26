@@ -15,4 +15,5 @@ interface UserRepository {
     suspend fun findUsersByName(query: String): List<User>
     suspend fun saveUser(user: User): User
     suspend fun deleteUser(id: Long)
+    suspend fun login(email: String, password: String): User?
 }
