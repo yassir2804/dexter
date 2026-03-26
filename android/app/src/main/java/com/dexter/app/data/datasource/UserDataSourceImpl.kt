@@ -20,6 +20,9 @@ class UserDataSourceImpl(
     override suspend fun getUserById(id: Long): UserDto? =
         UserProvider.findUserById(id)?.let { userMapper.mapToDto(it) }
 
+    override suspend fun getUserByEmail(email: String): UserDto? =
+        UserProvider.findUserByEmail(email)?.let { userMapper.mapToDto(it) }
+
     override suspend fun insertUser(userDto: UserDto) {
         // Mock implementation: no persistence in provider
     }

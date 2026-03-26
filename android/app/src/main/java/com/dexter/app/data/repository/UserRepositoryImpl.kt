@@ -1,6 +1,7 @@
 package com.dexter.app.data.repository
 
 import android.util.Log
+import com.dexter.app.data.datasource.UserDataSource
 import com.dexter.app.data.mapper.UserMapper
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
@@ -13,6 +14,7 @@ import java.io.IOException
  * integrating a backend.
  */
 class UserRepositoryImpl(
+    private val dataSource: UserDataSource,
     private val userMapper: UserMapper
 ) : UserRepository {
 
@@ -65,4 +67,16 @@ class UserRepositoryImpl(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in deleteUser", e)
     } }
+
+    override suspend fun login(email: String, password: String): User? = try {
+        val userDto = dataSource.getUserByEmail(email)
+        val user = userDto?.let { userMapper.mapToDomain(it) }
+        if (user != null && user.password == password) user else null
+    } catch (e: IOException) {
+        Log.e(TAG, "Network error during login", e)
+        null
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in login", e)
+        null
+    }
 }
