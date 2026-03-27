@@ -21,6 +21,8 @@ import com.dexter.app.data.repository.UserRepositoryImpl
 import com.dexter.app.data.datasource.ReviewDataSourceImpl
 import com.dexter.app.data.datasource.SkillDataSourceImpl
 import com.dexter.app.data.mapper.MatchMapper
+import com.dexter.app.data.mapper.MatchSummaryMapper
+import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.datasource.MatchDataSourceImpl
 import com.dexter.app.data.mapper.ReviewMapper
 import com.dexter.app.data.mapper.SkillMapper
@@ -42,34 +44,31 @@ import com.dexter.app.presentation.ui.layout.MainLayout
 
 class MainActivity : ComponentActivity() {
 
-    // Manual DI chain (same pattern as TaskApp)
+    // Login ViewModel (manual DI)
     private val loginViewModel: LoginViewModel by viewModels {
         val userMapper = UserMapper()
-        val dataSource = UserDataSourceImpl(userMapper)
-        val repository = UserRepositoryImpl(dataSource, userMapper)
+        val profileSummaryMapper = ProfileSummaryMapper()
+        val dataSource = UserDataSourceImpl(userMapper, profileSummaryMapper)
+        val repository = UserRepositoryImpl(dataSource, userMapper, profileSummaryMapper)
         LoginViewModelFactory(repository)
     }
 
     // Home ViewModel (manual DI)
     private val homeViewModel: HomeViewModel by viewModels {
         val matchMapper = MatchMapper()
-        val matchDataSource = MatchDataSourceImpl(matchMapper)
-        val matchRepository = MatchRepositoryImpl(matchDataSource, matchMapper)
+        val matchSummaryMapper = MatchSummaryMapper()
+        val matchDataSource = MatchDataSourceImpl(matchMapper, matchSummaryMapper)
+        val matchRepository = MatchRepositoryImpl(matchDataSource, matchMapper, matchSummaryMapper)
         HomeViewModelFactory(matchRepository)
     }
 
     // Profile ViewModel (manual DI)
     private val profileViewModel: ProfileViewModel by viewModels {
         val userMapper = UserMapper()
-        val userDataSource = UserDataSourceImpl(userMapper)
-        val userRepository = UserRepositoryImpl(userDataSource, userMapper)
-        val skillMapper = SkillMapper()
-        val skillDataSource = SkillDataSourceImpl(skillMapper)
-        val skillRepository = SkillRepositoryImpl(skillDataSource, skillMapper)
-        val reviewMapper = ReviewMapper()
-        val reviewDataSource = ReviewDataSourceImpl(reviewMapper)
-        val reviewRepository = ReviewRepositoryImpl(reviewDataSource, reviewMapper)
-        ProfileViewModelFactory(userRepository, skillRepository, reviewRepository)
+        val profileSummaryMapper = ProfileSummaryMapper()
+        val userDataSource = UserDataSourceImpl(userMapper, profileSummaryMapper)
+        val userRepository = UserRepositoryImpl(userDataSource, userMapper, profileSummaryMapper)
+        ProfileViewModelFactory(userRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,6 +115,9 @@ fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel, pro
             paddingValues = paddingValues,
             currentRoute = currentRoute,
             userName = userName,
+            onNotificationsClick = {
+                navController.navigate(NavRoutes.Notifications.ROUTE)
+            },
             onSettingsClick = {
                 navController.navigate(NavRoutes.Settings.ROUTE)
             }

@@ -1,5 +1,6 @@
 package com.dexter.app.domain.repository
 
+import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.model.User
 
 /**
@@ -16,4 +17,5 @@ interface UserRepository {
     suspend fun saveUser(user: User): Result<User>
     suspend fun deleteUser(id: Long): Result<Unit>
     suspend fun login(email: String, password: String): Result<User>
+    suspend fun getProfileSummary(userId: Long): Result<ProfileSummary>
 }

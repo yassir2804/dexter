@@ -38,11 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
-import com.dexter.app.domain.model.Review
-import com.dexter.app.domain.model.Skill
-import com.dexter.app.domain.model.SkillLevel
-import com.dexter.app.domain.model.SkillRole
-import com.dexter.app.domain.model.User
+import com.dexter.app.domain.model.ProfileReviewItem
+import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.components.ReviewCard
@@ -52,8 +49,6 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
 import com.dexter.app.presentation.viewmodel.ProfileState
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
-import com.dexter.app.presentation.viewmodel.ReviewWithReviewer
-import java.util.Date
 
 /**
  * Profile screen — Stateful composable.
@@ -107,10 +102,7 @@ private fun ProfileContent(
 
             is ProfileState.Success -> {
                 ProfileSuccessContent(
-                    user = profileState.user,
-                    skillsOffered = profileState.skillsOffered,
-                    skillsSought = profileState.skillsSought,
-                    reviews = profileState.reviews,
+                    profile = profileState.profile,
                     onEditProfileClick = onEditProfileClick
                 )
             }
@@ -148,15 +140,10 @@ private fun ProfileContent(
 
 @Composable
 private fun ProfileSuccessContent(
-    user: User,
-    skillsOffered: List<Skill>,
-    skillsSought: List<Skill>,
-    reviews: List<ReviewWithReviewer>,
+    profile: ProfileSummary,
     onEditProfileClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val initials = "${user.firstName.firstOrNull() ?: ""}${user.lastName.firstOrNull() ?: ""}"
-
     Column(modifier = modifier) {
         // ── Profile Header ──────────────────────────────────────────
         Surface(
@@ -168,12 +155,11 @@ private fun ProfileSuccessContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.padding(24.dp)
             ) {
-                // Avatar with camera badge
                 Box {
                     AvatarCircle(
-                        initials = initials,
+                        initials = profile.initials,
                         size = 80.dp,
-                        imageUrl = user.avatarUrl
+                        imageUrl = profile.avatarUrl
                     )
                     Box(
                         modifier = Modifier
@@ -196,22 +182,22 @@ private fun ProfileSuccessContent(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = "${user.firstName} ${user.lastName}",
+                    text = profile.firstName + " " + profile.lastName,
                     style = MaterialTheme.typography.headlineSmall
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 Text(
-                    text = user.bio ?: stringResource(R.string.profile_bio_default),
+                    text = profile.bio,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                if (!user.country.isNullOrBlank()) {
+                if (!profile.country.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = countryCodeToFlag(user.country),
+                        text = countryCodeToFlag(profile.country),
                         style = MaterialTheme.typography.bodySmall,
                         fontStyle = FontStyle.Italic,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -228,17 +214,17 @@ private fun ProfileSuccessContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             StatCard(
-                value = user.totalMatches.toString(),
+                value = profile.totalMatches.toString(),
                 label = R.string.profile_stat_matches,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                value = user.totalSessions.toString(),
+                value = profile.totalSessions.toString(),
                 label = R.string.profile_stat_sessions,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
-                value = user.rating.toString(),
+                value = profile.rating.toString(),
                 label = R.string.profile_stat_rating,
                 valueColor = StarColor,
                 modifier = Modifier.weight(1f)
@@ -248,7 +234,7 @@ private fun ProfileSuccessContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         // ── Skills Offered ──────────────────────────────────────────
-        if (skillsOffered.isNotEmpty()) {
+        if (profile.skillsOffered.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.profile_skills_offered),
                 style = MaterialTheme.typography.titleMedium,
@@ -262,8 +248,8 @@ private fun ProfileSuccessContent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    skillsOffered.forEach { skill ->
-                        SkillChip(label = skill.name, selected = true)
+                    for (skillName in profile.skillsOffered) {
+                        SkillChip(label = skillName, selected = true)
                     }
                 }
             }
@@ -271,7 +257,7 @@ private fun ProfileSuccessContent(
         }
 
         // ── Skills Wanted ───────────────────────────────────────────
-        if (skillsSought.isNotEmpty()) {
+        if (profile.skillsSought.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.profile_skills_wanted),
                 style = MaterialTheme.typography.titleMedium,
@@ -285,8 +271,8 @@ private fun ProfileSuccessContent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(16.dp)
                 ) {
-                    skillsSought.forEach { skill ->
-                        SkillChip(label = skill.name, isError = true)
+                    for (skillName in profile.skillsSought) {
+                        SkillChip(label = skillName, isError = true)
                     }
                 }
             }
@@ -294,18 +280,18 @@ private fun ProfileSuccessContent(
         }
 
         // ── Reviews ─────────────────────────────────────────────────
-        if (reviews.isNotEmpty()) {
+        if (profile.reviews.isNotEmpty()) {
             Text(
                 text = stringResource(R.string.profile_reviews),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
-            reviews.forEach { item ->
+            for (review in profile.reviews) {
                 ReviewCard(
-                    reviewerName = item.reviewerName,
-                    reviewerImageUrl = item.reviewerAvatarUrl,
-                    rating = item.review.rating,
-                    comment = item.review.comment ?: ""
+                    reviewerName = review.reviewerName,
+                    reviewerImageUrl = review.reviewerAvatarUrl,
+                    rating = review.rating,
+                    comment = review.comment
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -348,31 +334,21 @@ private fun ProfileScreenPreview() {
     AppTheme(dynamicColor = false) {
         ProfileContent(
             profileState = ProfileState.Success(
-                user = User(
-                    id = 1, email = "alice@example.com", password = null,
-                    firstName = "Alice", lastName = "Gonzalez", username = "alice",
-                    bio = "Guitar teacher", avatarUrl = null, country = "CR",
-                    enabled = true, tokenExpired = false, rating = 4.8,
-                    totalSessions = 12, totalMatches = 5,
-                    createDate = Date(), updatedAt = Date()
-                ),
-                skillsOffered = listOf(
-                    Skill(1, 1, "Guitarra", "Musica", SkillRole.OFFERED, SkillLevel.ADVANCED),
-                    Skill(3, 1, "Ingles", "Idiomas", SkillRole.OFFERED, SkillLevel.INTERMEDIATE),
-                    Skill(4, 1, "Marketing", "Negocios", SkillRole.OFFERED, SkillLevel.INTERMEDIATE)
-                ),
-                skillsSought = listOf(
-                    Skill(5, 1, "Fotografia", "Arte", SkillRole.SOUGHT, SkillLevel.BEGINNER),
-                    Skill(6, 1, "Piano", "Musica", SkillRole.SOUGHT, SkillLevel.BEGINNER)
-                ),
-                reviews = listOf(
-                    ReviewWithReviewer(
-                        review = Review(1, 2, 1, 1, 5, "Excelente profesora de guitarra.", Date()),
-                        reviewerName = "Bob Smith"
-                    ),
-                    ReviewWithReviewer(
-                        review = Review(2, 2, 1, 2, 4, "Buenas sesiones de ingles.", Date()),
-                        reviewerName = "Bob Smith"
+                profile = ProfileSummary(
+                    initials = "AG",
+                    firstName = "Alice",
+                    lastName = "Gonzalez",
+                    avatarUrl = null,
+                    bio = "Guitar teacher",
+                    country = "CR",
+                    rating = 4.8,
+                    totalSessions = 12,
+                    totalMatches = 5,
+                    skillsOffered = listOf("Guitarra", "Inglés", "Marketing"),
+                    skillsSought = listOf("Fotografía", "Piano"),
+                    reviews = listOf(
+                        ProfileReviewItem("Bob Smith", null, 5, "Excelente profesora de guitarra."),
+                        ProfileReviewItem("Bob Smith", null, 4, "Buenas sesiones de inglés.")
                     )
                 )
             ),

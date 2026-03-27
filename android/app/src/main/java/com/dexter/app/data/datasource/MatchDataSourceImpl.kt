@@ -1,7 +1,9 @@
 package com.dexter.app.data.datasource
 
 import com.dexter.app.data.datasource.model.MatchDto
+import com.dexter.app.data.datasource.model.MatchSummaryDto
 import com.dexter.app.data.mapper.MatchMapper
+import com.dexter.app.data.mapper.MatchSummaryMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -11,7 +13,8 @@ import kotlinx.coroutines.flow.flow
  * MatchDataSource implementation backed by an in-memory provider.
  */
 class MatchDataSourceImpl(
-    private val matchMapper: MatchMapper
+    private val matchMapper: MatchMapper,
+    private val matchSummaryMapper: MatchSummaryMapper
 ) : MatchDataSource {
 
     override suspend fun getMatches(): Flow<List<MatchDto>> = flow {
@@ -37,4 +40,7 @@ class MatchDataSourceImpl(
 
     override suspend fun getMatchesForUser(userId: Long): List<MatchDto> =
         MatchProvider.findMatchesForUser(userId).map { matchMapper.mapToDto(it) }
+
+    override suspend fun getMatchSummaries(userId: Long): List<MatchSummaryDto> =
+        MatchProvider.findMatchSummaries(userId).map { matchSummaryMapper.mapToDto(it) }
 }

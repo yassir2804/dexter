@@ -2,8 +2,10 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.UserDataSource
+import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
 import com.dexter.app.domain.error.DomainError
+import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
 import java.io.IOException
@@ -16,7 +18,8 @@ import java.io.IOException
  */
 class UserRepositoryImpl(
     private val dataSource: UserDataSource,
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
+    private val profileSummaryMapper: ProfileSummaryMapper
 ) : UserRepository {
 
     companion object { private const val TAG = "UserRepository" }
@@ -78,6 +81,21 @@ class UserRepositoryImpl(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in deleteUser", e)
         Result.failure(DomainError.UnknownError("Unknown error deleting user $id", e))
+    }
+
+    override suspend fun getProfileSummary(userId: Long): Result<ProfileSummary> = try {
+        val dto = dataSource.getProfileSummary(userId)
+        if (dto != null) {
+            Result.success(profileSummaryMapper.mapToDomain(dto))
+        } else {
+            Result.failure(DomainError.UnknownError("Profile not found"))
+        }
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get profile summary for user: $userId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching profile", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in getProfileSummary", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching profile", e))
     }
 
     override suspend fun login(email: String, password: String): Result<User> = try {

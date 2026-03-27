@@ -3,14 +3,17 @@ package com.dexter.app.data.repository
 import android.util.Log
 import com.dexter.app.data.datasource.MatchDataSource
 import com.dexter.app.data.mapper.MatchMapper
+import com.dexter.app.data.mapper.MatchSummaryMapper
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Match
+import com.dexter.app.domain.model.MatchSummary
 import com.dexter.app.domain.repository.MatchRepository
 import java.io.IOException
 
 class MatchRepositoryImpl(
     private val dataSource: MatchDataSource,
-    private val matchMapper: MatchMapper
+    private val matchMapper: MatchMapper,
+    private val matchSummaryMapper: MatchSummaryMapper
 ) : MatchRepository {
 
     companion object { private const val TAG = "MatchRepository" }
@@ -59,5 +62,16 @@ class MatchRepositoryImpl(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in updateMatch", e)
         Result.failure(DomainError.UnknownError("Unknown error updating match", e))
+    }
+
+    override suspend fun getMatchSummaries(userId: Long): Result<List<MatchSummary>> = try {
+        val summaries = dataSource.getMatchSummaries(userId).map { matchSummaryMapper.mapToDomain(it) }
+        Result.success(summaries)
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get match summaries for user: $userId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching match summaries", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in getMatchSummaries", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching match summaries", e))
     }
 }

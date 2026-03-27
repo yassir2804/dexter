@@ -1,6 +1,8 @@
 package com.dexter.app.data.datasource
 
+import com.dexter.app.data.datasource.model.ProfileSummaryDto
 import com.dexter.app.data.datasource.model.UserDto
+import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -9,7 +11,8 @@ import kotlinx.coroutines.flow.flow
  * UserDataSource implementation backed by an in-memory provider.
  */
 class UserDataSourceImpl(
-    private val userMapper: UserMapper
+    private val userMapper: UserMapper,
+    private val profileSummaryMapper: ProfileSummaryMapper
 ) : UserDataSource {
 
     override suspend fun getUsers(): Flow<List<UserDto>> = flow {
@@ -34,4 +37,7 @@ class UserDataSourceImpl(
     override suspend fun deleteUser(userDto: UserDto) {
         // Mock implementation
     }
+
+    override suspend fun getProfileSummary(userId: Long): ProfileSummaryDto? =
+        UserProvider.findProfileSummary(userId)?.let { profileSummaryMapper.mapToDto(it) }
 }

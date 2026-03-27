@@ -1,7 +1,5 @@
 package com.dexter.app.presentation.ui.components
 
-
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,43 +8,116 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.ui.res.stringResource
-import com.dexter.app.R
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import java.util.Date
-import com.dexter.app.domain.model.MatchStatus
-import com.dexter.app.domain.model.Match
+import androidx.compose.ui.unit.dp
+import com.dexter.app.R
+import com.dexter.app.domain.model.MatchSummary
 import com.dexter.app.presentation.ui.theme.AppTheme
+import com.dexter.app.presentation.ui.theme.StarColor
 
 @Composable
 fun MatchCard(
-    match: Match,
-    initials: String = "U",
-    onClick: () -> Unit = {}
+    match: MatchSummary,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = Modifier
+    ElevatedCard(
+        modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(bottom = 12.dp)
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+        )
     ) {
-        Row(modifier = Modifier.padding(12.dp), horizontalArrangement = Arrangement.Start) {
-            AvatarCircle(initials = initials)
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AvatarCircle(
+                initials = match.initials,
+                size = 48.dp,
+                imageUrl = match.avatarUrl
+            )
+
             Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(text = stringResource(id = R.string.match_label, match.id), style = MaterialTheme.typography.titleMedium)
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = match.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.home_offers, match.offers)
+                            + " · " + stringResource(R.string.home_seeks, match.seeks),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 Spacer(modifier = Modifier.height(4.dp))
-                val percent = (match.compatibilityScore * 100).toInt()
-                Text(text = stringResource(id = R.string.match_compatibility_percent, percent), style = MaterialTheme.typography.bodyMedium)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = StarColor
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = match.rating,
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "· " + stringResource(R.string.home_sessions_count, match.sessions),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = match.compatibilityPercent,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
+                Icon(
+                    imageVector = Icons.Default.ChevronRight,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }
@@ -54,16 +125,18 @@ fun MatchCard(
 
 @Preview(showBackground = true)
 @Composable
-fun MatchCardPreview() {
-    val sample = Match(
-        id = 42,
-        initiatorId = 2,
-        receiverId = 1,
-        compatibilityScore = 0.88,
-        status = MatchStatus.ACCEPTED,
-        createdAt = Date()
+private fun MatchCardPreview() {
+    val sample = MatchSummary(
+        initials = "ML",
+        name = "Maria Lopez",
+        avatarUrl = null,
+        offers = "Guitarra",
+        seeks = "Inglés",
+        rating = "4.8",
+        sessions = 23,
+        compatibilityPercent = "95%"
     )
-    AppTheme {
-        MatchCard(match = sample, initials = "SF")
+    AppTheme(dynamicColor = false) {
+        MatchCard(match = sample)
     }
 }

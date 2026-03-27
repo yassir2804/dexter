@@ -1,5 +1,6 @@
 package com.dexter.app.data.datasource
 
+import com.dexter.app.data.datasource.model.ProfileSummaryDto
 import com.dexter.app.data.datasource.model.UserDto
 import kotlinx.coroutines.flow.Flow
 
@@ -13,4 +14,5 @@ interface UserDataSource {
     suspend fun insertUser(userDto: UserDto)
     suspend fun updateUser(userDto: UserDto)
     suspend fun deleteUser(userDto: UserDto)
+    suspend fun getProfileSummary(userId: Long): ProfileSummaryDto?
 }

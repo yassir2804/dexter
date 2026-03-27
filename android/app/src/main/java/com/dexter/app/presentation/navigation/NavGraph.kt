@@ -59,8 +59,11 @@ fun NavGraph(
 
         // ── Main flow ───────────────────────────────────────────────
         composable(NavRoutes.Home.ROUTE) {
-            val userId = CurrentUserSession.userId ?: 1L
-            HomeScreen(viewModel = homeViewModel, userId = userId, onMatchClick = { /* TODO */ })
+            HomeScreen(
+                viewModel = homeViewModel,
+                onMatchClick = { /* TODO: navigate to match detail */ },
+                onActiveSessionClick = { /* TODO: navigate to active session */ }
+            )
         }
 
         composable(NavRoutes.Search.ROUTE) {

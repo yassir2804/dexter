@@ -4,6 +4,7 @@ package com.dexter.app.data.datasource
 
 import com.dexter.app.domain.model.Match
 import com.dexter.app.domain.model.MatchStatus
+import com.dexter.app.domain.model.MatchSummary
 import java.util.Date
 
 /**
@@ -91,5 +92,41 @@ class MatchProvider {
         }
 
         fun findAll(): List<Match> = sampleMatches
+
+        // Mock data matching the React prototype (HomeScreen.tsx)
+        private val sampleSummaries = listOf(
+            MatchSummary(
+                initials = "ML",
+                name = "Maria Lopez",
+                avatarUrl = null,
+                offers = "Guitarra",
+                seeks = "Inglés",
+                rating = "4.8",
+                sessions = 23,
+                compatibilityPercent = "95%"
+            ),
+            MatchSummary(
+                initials = "JP",
+                name = "Juan Perez",
+                avatarUrl = null,
+                offers = "Programación",
+                seeks = "Diseño gráfico",
+                rating = "4.2",
+                sessions = 15,
+                compatibilityPercent = "87%"
+            ),
+            MatchSummary(
+                initials = "AR",
+                name = "Ana Ramirez",
+                avatarUrl = null,
+                offers = "Fotografía",
+                seeks = "Marketing",
+                rating = "4.9",
+                sessions = 31,
+                compatibilityPercent = "82%"
+            )
+        )
+
+        fun findMatchSummaries(userId: Long): List<MatchSummary> = sampleSummaries
     }
 }
