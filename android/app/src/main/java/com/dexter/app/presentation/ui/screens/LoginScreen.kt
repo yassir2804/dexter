@@ -42,6 +42,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -54,18 +56,30 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dexter.app.R
+import com.dexter.app.presentation.ui.components.AuthFooterLink
+import com.dexter.app.presentation.ui.components.DexterPasswordField
+import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
 
 /**
- * Login screen — Stateful composable.
+ * LoginScreen — Stateful composable.
  *
- * Receives navigation callbacks as lambdas (NOT the NavController)
- * following the professor's navigation guide: "Pass navigation callbacks
- * as parameters instead of the NavController directly."
+ * Collects state from [LoginViewModel] and delegates all rendering
+ * to [LoginContent]. Navigation is handled via lambdas — the
+ * NavController never enters this composable, following the
+ * navigation guide: "Pass navigation callbacks as parameters instead
+ * of the NavController directly." The NavController only lives in
+ * NavGraph.kt.
  *
- * The NavController only lives in NavGraph.kt.
+ * @param loginViewModel ViewModel that manages login state and business logic.
+ * @param onLoginSuccess Callback invoked when authentication succeeds.
+ * @param onForgotPasswordClick Callback invoked when the user taps "Forgot password".
+ * @param onRegisterClick Callback invoked when the user taps the register link.
+ * @param onGoogleClick Callback invoked when the user taps "Sign in with Google".
+ * @param paddingValues Scaffold padding forwarded from the parent layout.
+ * @param modifier Optional [Modifier] applied to the root layout.
  */
 @Composable
 fun LoginScreen(
@@ -107,10 +121,30 @@ fun LoginScreen(
 }
 
 /**
- * Login content — Stateless composable.
+ * LoginContent — Stateless composable.
  *
- * Receives plain data and lambdas. Can be previewed and tested
+ * Receives plain data and lambdas; can be previewed and tested
  * without a ViewModel or NavController.
+ *
+ * The form is always visible regardless of [loginState] because
+ * login errors and loading are communicated inline (error text
+ * above the button, spinner inside the button) — the user must
+ * always be able to read and correct their credentials without
+ * the screen replacing itself.
+ *
+ * @param email Current value of the email input.
+ * @param password Current value of the password input.
+ * @param passwordVisible Whether the password is shown in plain text.
+ * @param loginState Current [LoginState] emitted by the ViewModel.
+ * @param onEmailChange Invoked on every email keystroke.
+ * @param onPasswordChange Invoked on every password keystroke.
+ * @param onTogglePasswordVisibility Invoked when the visibility icon is tapped.
+ * @param onLoginClick Invoked when the login button is tapped.
+ * @param onForgotPasswordClick Invoked when "Forgot password?" is tapped.
+ * @param onRegisterClick Invoked when the register link is tapped.
+ * @param onGoogleClick Invoked when "Sign in with Google" is tapped.
+ * @param paddingValues Scaffold padding forwarded from the parent layout.
+ * @param modifier Optional [Modifier] applied to the root column.
  */
 @Composable
 private fun LoginContent(
@@ -131,9 +165,7 @@ private fun LoginContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(paddingValues)
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -143,63 +175,28 @@ private fun LoginContent(
         Spacer(modifier = Modifier.height(40.dp))
 
         // ── Email Field ─────────────────────────────────────────────
-        OutlinedTextField(
+        DexterTextField(
             value = email,
             onValueChange = onEmailChange,
-            label = { Text(stringResource(R.string.login_email_label)) },
-            placeholder = { Text(stringResource(R.string.login_email_placeholder)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Email,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            shape = RoundedCornerShape(4.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
-            modifier = Modifier.fillMaxWidth()
+            label = stringResource(R.string.login_email_label),
+            placeholder = stringResource(R.string.login_email_placeholder),
+            leadingIcon = Icons.Default.Email,
+            keyboardType = KeyboardType.Email,
+            contentDescriptionLabel = stringResource(R.string.cd_email_input),
+            modifier = Modifier
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // ── Password Field ──────────────────────────────────────────
-        OutlinedTextField(
+        DexterPasswordField(
             value = password,
             onValueChange = onPasswordChange,
-            label = { Text(stringResource(R.string.login_password_label)) },
-            placeholder = { Text(stringResource(R.string.login_password_placeholder)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.Lock,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            },
-            trailingIcon = {
-                IconButton(onClick = onTogglePasswordVisibility) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Default.VisibilityOff
-                        else Icons.Default.Visibility,
-                        contentDescription = stringResource(R.string.cd_toggle_password),
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            },
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None
-            else PasswordVisualTransformation(),
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-            shape = RoundedCornerShape(4.dp),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline
-            ),
-            modifier = Modifier.fillMaxWidth()
+            label = stringResource(R.string.login_password_label),
+            passwordVisible = passwordVisible,
+            onToggleVisibility = onTogglePasswordVisibility,
+            placeholder = stringResource(R.string.login_password_placeholder),
+            modifier = Modifier
         )
 
         // ── Forgot Password ─────────────────────────────────────────
@@ -216,16 +213,26 @@ private fun LoginContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         // ── Error Message ───────────────────────────────────────────
+        // Shown inline so the user can read and fix credentials
+        // without the form disappearing from the screen.
         if (loginState is LoginState.Error) {
+            val errorDescription = stringResource(R.string.login_error_content_description, loginState.message)
             Text(
-                text = (loginState as LoginState.Error).message,
+                text = loginState.message,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
-                modifier = Modifier.padding(bottom = 8.dp)
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .semantics {
+                        contentDescription = errorDescription
+                    }
             )
         }
 
         // ── Login Button ────────────────────────────────────────────
+        // Loading is communicated via a spinner inside the button,
+        // not by replacing the screen, so the form stays visible.
+        val loginButtonCD = stringResource(R.string.cd_login_button)
         Button(
             onClick = onLoginClick,
             enabled = loginState !is LoginState.Loading,
@@ -236,6 +243,7 @@ private fun LoginContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp)
+                .semantics { contentDescription = loginButtonCD }
         ) {
             if (loginState is LoginState.Loading) {
                 CircularProgressIndicator(
@@ -254,7 +262,7 @@ private fun LoginContent(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // ── Divider "o" ─────────────────────────────────────────────
+        // ── Divider ─────────────────────────────────────────────────
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -278,6 +286,7 @@ private fun LoginContent(
         Spacer(modifier = Modifier.height(12.dp))
 
         // ── Google Button ───────────────────────────────────────────
+        val googleButtonCD = stringResource(R.string.cd_google_button)
         OutlinedButton(
             onClick = onGoogleClick,
             shape = RoundedCornerShape(50),
@@ -287,6 +296,7 @@ private fun LoginContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp)
+                .semantics { contentDescription = googleButtonCD }
         ) {
             Text(
                 text = stringResource(R.string.login_google_button),
@@ -298,36 +308,28 @@ private fun LoginContent(
         Spacer(modifier = Modifier.height(24.dp))
 
         // ── Register Link ───────────────────────────────────────────
-        val noAccountText = stringResource(R.string.login_no_account)
-        val registerLinkText = stringResource(R.string.login_register_link)
-
-        val registerText = buildAnnotatedString {
-            withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                append("$noAccountText ")
-            }
-            pushStringAnnotation(tag = "register", annotation = "register")
-            withStyle(
-                SpanStyle(
-                    color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.Medium
-                )
-            ) {
-                append(registerLinkText)
-            }
-            pop()
-        }
-
-        Text(
-            text = registerText,
-            fontSize = 14.sp,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.clickable { onRegisterClick() }
+        AuthFooterLink(
+            prefixText = stringResource(R.string.login_no_account),
+            linkText = stringResource(R.string.login_register_link),
+            onClick = onRegisterClick,
+            contentDescriptionLabel = stringResource(R.string.cd_register_link),
+            modifier = Modifier
         )
     }
 }
 
 // ── Brand Logo Component ────────────────────────────────────────────
 
+/**
+ * BrandLogo — Displays the app icon, name, and tagline.
+ *
+ * Composed of two nested [Surface] composables (outer 72×72 dp with
+ * primaryContainer color, inner 52×52 dp with primary color) centered
+ * around a [Icons.Default.Layers] icon, followed by the app name and
+ * tagline as [Text] elements.
+ *
+ * @param modifier Optional [Modifier] applied to the root column.
+ */
 @Composable
 private fun BrandLogo(modifier: Modifier = Modifier) {
     Column(
@@ -387,20 +389,22 @@ private fun BrandLogo(modifier: Modifier = Modifier) {
 @Composable
 private fun LoginScreenPreview() {
     AppTheme(dynamicColor = false) {
-        LoginContent(
-            email = "",
-            password = "",
-            passwordVisible = false,
-            loginState = LoginState.Empty,
-            onEmailChange = {},
-            onPasswordChange = {},
-            onTogglePasswordVisibility = {},
-            onLoginClick = {},
-            onForgotPasswordClick = {},
-            onRegisterClick = {},
-            onGoogleClick = {},
-            paddingValues = PaddingValues(0.dp)
-        )
+        com.dexter.app.presentation.ui.layout.MainLayout(paddingValues = PaddingValues(16.dp)) {
+            LoginContent(
+                email = "",
+                password = "",
+                passwordVisible = false,
+                loginState = LoginState.Empty,
+                onEmailChange = {},
+                onPasswordChange = {},
+                onTogglePasswordVisibility = {},
+                onLoginClick = {},
+                onForgotPasswordClick = {},
+                onRegisterClick = {},
+                onGoogleClick = {},
+                paddingValues = PaddingValues(16.dp)
+            )
+        }
     }
 }
 
@@ -408,11 +412,12 @@ private fun LoginScreenPreview() {
 @Composable
 private fun LoginScreenErrorPreview() {
     AppTheme(dynamicColor = false) {
-        LoginContent(
+        com.dexter.app.presentation.ui.layout.MainLayout(paddingValues = PaddingValues(16.dp)) {
+            LoginContent(
             email = "test@test.com",
             password = "wrong",
             passwordVisible = false,
-            loginState = LoginState.Error("Credenciales inválidas"),
+            loginState = LoginState.Error(stringResource(R.string.login_error_invalid_credentials)),
             onEmailChange = {},
             onPasswordChange = {},
             onTogglePasswordVisibility = {},
@@ -420,8 +425,32 @@ private fun LoginScreenErrorPreview() {
             onForgotPasswordClick = {},
             onRegisterClick = {},
             onGoogleClick = {},
-            paddingValues = PaddingValues(0.dp)
+            paddingValues = PaddingValues(16.dp)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun LoginScreenLoadingPreview() {
+    AppTheme(dynamicColor = false) {
+        com.dexter.app.presentation.ui.layout.MainLayout(paddingValues = PaddingValues(16.dp)) {
+            LoginContent(
+            email = "test@test.com",
+            password = "password123",
+            passwordVisible = false,
+            loginState = LoginState.Loading,
+            onEmailChange = {},
+            onPasswordChange = {},
+            onTogglePasswordVisibility = {},
+            onLoginClick = {},
+            onForgotPasswordClick = {},
+            onRegisterClick = {},
+            onGoogleClick = {},
+            paddingValues = PaddingValues(16.dp)
         )
+        }
     }
 }
 
