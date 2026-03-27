@@ -20,7 +20,7 @@ class ReviewRepositoryImpl(
         if (dto != null) {
             Result.success(reviewMapper.mapToDomain(dto))
         } else {
-            Result.failure(DomainError.UnknownError("Review not found"))
+            Result.failure(DomainError.ReviewError("Review not found"))
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get review by id: $id", e)

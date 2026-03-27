@@ -20,7 +20,7 @@ class SkillRepositoryImpl(
         if (dto != null) {
             Result.success(skillMapper.mapToDomain(dto))
         } else {
-            Result.failure(DomainError.UnknownError("Skill not found"))
+            Result.failure(DomainError.SkillError("Skill not found"))
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get skill by id: $id", e)

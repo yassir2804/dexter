@@ -23,7 +23,7 @@ class MatchRepositoryImpl(
         if (dto != null) {
             Result.success(matchMapper.mapToDomain(dto))
         } else {
-            Result.failure(DomainError.UnknownError("Match not found"))
+            Result.failure(DomainError.MatchError("Match not found"))
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get match by id: $id", e)

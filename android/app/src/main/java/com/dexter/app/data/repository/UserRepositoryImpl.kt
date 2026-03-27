@@ -29,7 +29,7 @@ class UserRepositoryImpl(
         if (userDto != null) {
             Result.success(userMapper.mapToDomain(userDto))
         } else {
-            Result.failure(DomainError.UnknownError("User not found"))
+            Result.failure(DomainError.UserError("User not found"))
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get user by id: $id", e)
@@ -88,7 +88,7 @@ class UserRepositoryImpl(
         if (dto != null) {
             Result.success(profileSummaryMapper.mapToDomain(dto))
         } else {
-            Result.failure(DomainError.UnknownError("Profile not found"))
+            Result.failure(DomainError.UserError("Profile not found"))
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get profile summary for user: $userId", e)

@@ -20,6 +20,7 @@ import com.dexter.app.R
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
 
+
 @Composable
 fun StatCard(
     value: String,
