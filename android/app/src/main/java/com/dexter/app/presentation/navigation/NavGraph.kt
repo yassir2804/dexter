@@ -6,7 +6,9 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.dexter.app.presentation.ui.screens.LoginScreen
+import com.dexter.app.presentation.ui.screens.HomeScreen
 import com.dexter.app.presentation.viewmodel.LoginViewModel
+import com.dexter.app.presentation.viewmodel.HomeViewModel
 
 /**
  * Main navigation graph for the app.
@@ -19,6 +21,7 @@ import com.dexter.app.presentation.viewmodel.LoginViewModel
 fun NavGraph(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
+    homeViewModel: HomeViewModel,
     paddingValues: PaddingValues
 ) {
     NavHost(
@@ -47,7 +50,7 @@ fun NavGraph(
 
         // ── Main flow ───────────────────────────────────────────────
         composable(NavRoutes.Home.ROUTE) {
-            // TODO: HomeScreen
+            HomeScreen(viewModel = homeViewModel, userId = 1L, onMatchClick = { /* TODO */ })
         }
 
         composable(NavRoutes.Search.ROUTE) {

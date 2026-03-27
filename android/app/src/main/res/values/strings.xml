@@ -415,4 +415,10 @@
     <string name="skill_animation">Animación</string>
     <string name="skill_3d_modeling">3D modeling</string>
 
+    <!-- Local strings for Home UI components -->
+    <string name="home_no_matches">Aún no hay matches</string>
+    <string name="match_label">Match #%1$d</string>
+    <string name="match_compatibility_percent">Compatibilidad: %1$d%%</string>
+    <string name="error_with_message">Error: %1$s</string>
+
 </resources>

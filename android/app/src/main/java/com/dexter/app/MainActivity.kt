@@ -18,6 +18,11 @@ import androidx.navigation.compose.rememberNavController
 import com.dexter.app.data.datasource.UserDataSourceImpl
 import com.dexter.app.data.mapper.UserMapper
 import com.dexter.app.data.repository.UserRepositoryImpl
+import com.dexter.app.data.mapper.MatchMapper
+import com.dexter.app.data.datasource.MatchDataSourceImpl
+import com.dexter.app.data.repository.MatchRepositoryImpl
+import com.dexter.app.presentation.factory.HomeViewModelFactory
+import com.dexter.app.presentation.viewmodel.HomeViewModel
 import com.dexter.app.presentation.factory.LoginViewModelFactory
 import com.dexter.app.presentation.navigation.NavGraph
 import com.dexter.app.presentation.navigation.NavRoutes
@@ -36,12 +41,20 @@ class MainActivity : ComponentActivity() {
         LoginViewModelFactory(repository)
     }
 
+    // Home ViewModel (manual DI)
+    private val homeViewModel: HomeViewModel by viewModels {
+        val matchMapper = MatchMapper()
+        val matchDataSource = MatchDataSourceImpl(matchMapper)
+        val matchRepository = MatchRepositoryImpl(matchDataSource, matchMapper)
+        HomeViewModelFactory(matchRepository)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             AppTheme(dynamicColor = false) {
-                MainScreen(loginViewModel)
+                MainScreen(loginViewModel, homeViewModel)
             }
         }
     }
@@ -54,7 +67,7 @@ class MainActivity : ComponentActivity() {
  * and the BottomNavigationBar only appears on main-flow screens.
  */
 @Composable
-fun MainScreen(loginViewModel: LoginViewModel) {
+fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -74,8 +87,8 @@ fun MainScreen(loginViewModel: LoginViewModel) {
             }
         }
     ) { paddingValues ->
-        MainLayout(paddingValues = paddingValues) {
-            NavGraph(navController, loginViewModel, PaddingValues(0.dp))
+            MainLayout(paddingValues = paddingValues) {
+            NavGraph(navController, loginViewModel, homeViewModel, PaddingValues(0.dp))
         }
     }
 }
