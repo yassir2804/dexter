@@ -415,6 +415,12 @@
     <string name="skill_animation">Animación</string>
     <string name="skill_3d_modeling">3D modeling</string>
 
+    <!-- ══ Content Descriptions (Accesibilidad) ═══════════════ -->
+    <string name="cd_back">Volver</string>
+    <string name="cd_more_options">Más opciones</string>
+    <string name="cd_camera">Cambiar foto</string>
+    <string name="cd_star_rating">Calificación %1$d de 5</string>
+
     <!-- Local strings for Home UI components -->
     <string name="home_no_matches">Aún no hay matches</string>
     <string name="match_label">Match #%1$d</string>

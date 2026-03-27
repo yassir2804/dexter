@@ -5,10 +5,14 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.screens.LoginScreen
 import com.dexter.app.presentation.ui.screens.HomeScreen
+import com.dexter.app.presentation.ui.screens.ProfileScreen
+import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
 import com.dexter.app.presentation.viewmodel.HomeViewModel
+import com.dexter.app.presentation.viewmodel.ProfileViewModel
 
 /**
  * Main navigation graph for the app.
@@ -22,6 +26,7 @@ fun NavGraph(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel,
+    profileViewModel: ProfileViewModel,
     paddingValues: PaddingValues
 ) {
     NavHost(
@@ -33,6 +38,10 @@ fun NavGraph(
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onLoginSuccess = {
+                    val state = loginViewModel.loginState.value
+                    if (state is LoginState.Success) {
+                        CurrentUserSession.userId = state.user.id
+                    }
                     navController.navigate(NavRoutes.Home.ROUTE) {
                         popUpTo(NavRoutes.Login.ROUTE) { inclusive = true }
                     }
@@ -50,7 +59,8 @@ fun NavGraph(
 
         // ── Main flow ───────────────────────────────────────────────
         composable(NavRoutes.Home.ROUTE) {
-            HomeScreen(viewModel = homeViewModel, userId = 1L, onMatchClick = { /* TODO */ })
+            val userId = CurrentUserSession.userId ?: 1L
+            HomeScreen(viewModel = homeViewModel, userId = userId, onMatchClick = { /* TODO */ })
         }
 
         composable(NavRoutes.Search.ROUTE) {
@@ -62,7 +72,21 @@ fun NavGraph(
         }
 
         composable(NavRoutes.Profile.ROUTE) {
-            // TODO: ProfileScreen
+            ProfileScreen(
+                profileViewModel = profileViewModel,
+                onEditProfileClick = {
+                    navController.navigate(NavRoutes.EditProfile.ROUTE)
+                }
+            )
+        }
+
+        // ── Detail screens (placeholders) ───────────────────────────
+        composable(NavRoutes.Settings.ROUTE) {
+            // TODO: SettingsScreen
+        }
+
+        composable(NavRoutes.EditProfile.ROUTE) {
+            // TODO: EditProfileScreen
         }
     }
 }

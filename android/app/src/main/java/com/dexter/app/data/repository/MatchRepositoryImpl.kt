@@ -1,54 +1,63 @@
 package com.dexter.app.data.repository
 
 import android.util.Log
+import com.dexter.app.data.datasource.MatchDataSource
 import com.dexter.app.data.mapper.MatchMapper
+import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Match
 import com.dexter.app.domain.repository.MatchRepository
 import java.io.IOException
 
 class MatchRepositoryImpl(
+    private val dataSource: MatchDataSource,
     private val matchMapper: MatchMapper
 ) : MatchRepository {
 
     companion object { private const val TAG = "MatchRepository" }
 
-    override suspend fun getMatchById(id: Long): Match? = try {
-        null
+    override suspend fun getMatchById(id: Long): Result<Match> = try {
+        val dto = dataSource.getMatchById(id)
+        if (dto != null) {
+            Result.success(matchMapper.mapToDomain(dto))
+        } else {
+            Result.failure(DomainError.UnknownError("Match not found"))
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get match by id: $id", e)
-        null
+        Result.failure(DomainError.NetworkError("Network error fetching match $id", e))
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in getMatchById", e)
-        null
+        Result.failure(DomainError.UnknownError("Unknown error fetching match $id", e))
     }
 
-    override suspend fun getMatchesForUser(userId: Long): List<Match> = try {
-        emptyList()
+    override suspend fun getMatchesForUser(userId: Long): Result<List<Match>> = try {
+        val matches = dataSource.getMatchesForUser(userId).map { matchMapper.mapToDomain(it) }
+        Result.success(matches)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get matches for user: $userId", e)
-        emptyList()
+        Result.failure(DomainError.NetworkError("Network error fetching matches", e))
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in getMatchesForUser", e)
-        emptyList()
+        Result.failure(DomainError.UnknownError("Unknown error fetching matches", e))
     }
 
-    override suspend fun createMatch(match: Match): Match = try {
-        match
+    override suspend fun createMatch(match: Match): Result<Match> = try {
+        Result.success(match)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to create match", e)
-        match
+        Result.failure(DomainError.NetworkError("Network error creating match", e))
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in createMatch", e)
-        match
+        Result.failure(DomainError.UnknownError("Unknown error creating match", e))
     }
 
-    override suspend fun updateMatch(match: Match): Match = try {
-        match
+    override suspend fun updateMatch(match: Match): Result<Match> = try {
+        Result.success(match)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to update match", e)
-        match
+        Result.failure(DomainError.NetworkError("Network error updating match", e))
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in updateMatch", e)
-        match
+        Result.failure(DomainError.UnknownError("Unknown error updating match", e))
     }
 }

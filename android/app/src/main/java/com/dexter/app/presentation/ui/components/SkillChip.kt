@@ -18,15 +18,25 @@ import androidx.compose.ui.unit.dp
 fun SkillChip(
     label: String,
     selected: Boolean = false,
-    onClick: () -> Unit = {}
+    isError: Boolean = false,
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
 ) {
-    val bg = if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceVariant
-    val color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    val bg = when {
+        isError -> MaterialTheme.colorScheme.errorContainer
+        selected -> MaterialTheme.colorScheme.secondaryContainer
+        else -> MaterialTheme.colorScheme.surfaceVariant
+    }
+    val textColor = when {
+        isError -> MaterialTheme.colorScheme.onErrorContainer
+        selected -> MaterialTheme.colorScheme.onSecondaryContainer
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
 
     Text(
         text = label,
-        color = color,
-        modifier = Modifier
+        color = textColor,
+        modifier = modifier
             .clip(RoundedCornerShape(8.dp))
             .background(bg)
             .clickable { onClick() }
@@ -48,5 +58,13 @@ fun SkillChipSelectedPreview() {
 fun SkillChipUnselectedPreview() {
     MaterialTheme {
         SkillChip(label = "Inglés", selected = false)
+    }
+}
+
+@Preview(showBackground = true, name = "SkillChip - Error (Sought)")
+@Composable
+fun SkillChipErrorPreview() {
+    MaterialTheme {
+        SkillChip(label = "Fotografía", isError = true)
     }
 }

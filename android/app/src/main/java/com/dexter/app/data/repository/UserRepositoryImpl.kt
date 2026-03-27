@@ -22,8 +22,12 @@ class UserRepositoryImpl(
     companion object { private const val TAG = "UserRepository" }
 
     override suspend fun getUserById(id: Long): Result<User> = try {
-        // TODO: replace with dataSource call + mapping
-        Result.failure(DomainError.UnknownError("User not found"))
+        val userDto = dataSource.getUserById(id)
+        if (userDto != null) {
+            Result.success(userMapper.mapToDomain(userDto))
+        } else {
+            Result.failure(DomainError.UnknownError("User not found"))
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get user by id: $id", e)
         Result.failure(DomainError.NetworkError("Network error fetching user $id", e))

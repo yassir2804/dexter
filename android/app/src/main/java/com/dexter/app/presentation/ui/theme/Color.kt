@@ -248,3 +248,6 @@ val onCustomColor1DarkHighContrast = Color(0xFF000000)
 val customColor1ContainerDarkHighContrast = Color(0xFFBABEFD)
 val onCustomColor1ContainerDarkHighContrast = Color(0xFF00003C)
 
+// ── Custom semantic colors ──────────────────────────────────────────
+val StarColor = Color(0xFFF5A623)
+val OnlineStatusColor = Color(0xFF4CAF50)

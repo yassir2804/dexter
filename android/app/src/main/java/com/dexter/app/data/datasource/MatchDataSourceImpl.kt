@@ -34,4 +34,7 @@ class MatchDataSourceImpl(
     override suspend fun updateMatch(matchDto: MatchDto) {
         // no-op for in-memory provider
     }
+
+    override suspend fun getMatchesForUser(userId: Long): List<MatchDto> =
+        MatchProvider.findMatchesForUser(userId).map { matchMapper.mapToDto(it) }
 }

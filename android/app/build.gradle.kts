@@ -58,5 +58,6 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.compose.ui:ui-text-google-fonts:1.10.5")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
 }

@@ -14,4 +14,5 @@ interface MatchDataSource {
     suspend fun findMatchesForUser(userId: Long): Flow<List<MatchDto>>
     suspend fun insertMatch(matchDto: MatchDto)
     suspend fun updateMatch(matchDto: MatchDto)
+    suspend fun getMatchesForUser(userId: Long): List<MatchDto>
 }
