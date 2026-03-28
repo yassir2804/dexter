@@ -281,3 +281,11 @@ private fun HomeScreenLoadingPreview() {
         HomeContent(homeState = HomeState.Loading)
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun HomeScreenErrorPreview() {
+    AppTheme(dynamicColor = false) {
+        HomeContent(homeState = HomeState.Error("Network error fetching match summaries"))
+    }
+}
