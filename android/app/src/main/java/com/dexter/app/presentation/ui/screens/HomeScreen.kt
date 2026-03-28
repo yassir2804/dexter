@@ -149,10 +149,8 @@ private fun HomeSuccessContent(
     // ── Search Bar ──────────────────────────────────────────────
     SearchBar()
 
-    // ── Active Session Banner ───────────────────────────────────
-    ActiveSessionBanner(onClick = onActiveSessionClick)
-
-    Spacer(modifier = Modifier.height(8.dp))
+    // TODO: uncomment when active sessions are implemented
+    // ActiveSessionBanner(onClick = onActiveSessionClick)
 
     // ── "Matches sugeridos" + AI chip ───────────────────────────
     Row(
@@ -197,58 +195,58 @@ private fun HomeSuccessContent(
         )
     }
 
-    // ── "ACTIVIDAD RECIENTE" section ────────────────────────────
-    Text(
-        text = stringResource(R.string.home_activity_recent).uppercase(),
-        style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 0.8.sp
-        ),
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-    )
-
-    // ── Activity Card (FilledCard) ──────────────────────────────
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 16.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(16.dp)
-        ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
-                    Icon(
-                        imageVector = Icons.Default.Check,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            Column {
-                Text(
-                    text = stringResource(R.string.home_session_completed),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = stringResource(R.string.home_session_completed_time),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
+    // TODO: uncomment when session history is implemented
+    // // ── "ACTIVIDAD RECIENTE" section ────────────────────────────
+    // Text(
+    //     text = stringResource(R.string.home_activity_recent).uppercase(),
+    //     style = MaterialTheme.typography.labelSmall.copy(
+    //         fontWeight = FontWeight.SemiBold,
+    //         letterSpacing = 0.8.sp
+    //     ),
+    //     color = MaterialTheme.colorScheme.primary,
+    //     modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    // )
+    // // ── Activity Card (FilledCard) ──────────────────────────────
+    // Surface(
+    //     shape = RoundedCornerShape(12.dp),
+    //     color = MaterialTheme.colorScheme.surfaceVariant,
+    //     modifier = Modifier
+    //         .fillMaxWidth()
+    //         .padding(bottom = 16.dp)
+    // ) {
+    //     Row(
+    //         verticalAlignment = Alignment.CenterVertically,
+    //         modifier = Modifier.padding(16.dp)
+    //     ) {
+    //         Surface(
+    //             shape = RoundedCornerShape(12.dp),
+    //             color = MaterialTheme.colorScheme.secondaryContainer,
+    //             modifier = Modifier.size(40.dp)
+    //         ) {
+    //             Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+    //                 Icon(
+    //                     imageVector = Icons.Default.Check,
+    //                     contentDescription = null,
+    //                     modifier = Modifier.size(20.dp),
+    //                     tint = MaterialTheme.colorScheme.onSecondaryContainer
+    //                 )
+    //             }
+    //         }
+    //         Spacer(modifier = Modifier.width(12.dp))
+    //         Column {
+    //             Text(
+    //                 text = stringResource(R.string.home_session_completed),
+    //                 style = MaterialTheme.typography.titleSmall,
+    //                 color = MaterialTheme.colorScheme.onSurface
+    //             )
+    //             Text(
+    //                 text = stringResource(R.string.home_session_completed_time),
+    //                 style = MaterialTheme.typography.bodySmall,
+    //                 color = MaterialTheme.colorScheme.onSurfaceVariant
+    //             )
+    //         }
+    //     }
+    // }
 }
 
 // ── Previews ────────────────────────────────────────────────────

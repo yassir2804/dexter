@@ -34,6 +34,9 @@ import com.dexter.app.presentation.ui.theme.OnlineStatusColor
 
 @Composable
 fun ActiveSessionBanner(
+    // TODO: these will come from the ViewModel when active sessions are implemented
+    // userName: String,
+    // sessionTitle: String,
     onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
