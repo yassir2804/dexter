@@ -95,6 +95,8 @@ fun NavGraph(
                 OnboardingScreen(
                     registerViewModel = registerViewModel,
                     onFinishClick = {
+                        // Set mock user for profile (Alice = 1L)
+                        CurrentUserSession.userId = 1L
                         navController.navigate(NavRoutes.Home.ROUTE) {
                             popUpTo("auth_graph") { inclusive = true }
                         }
