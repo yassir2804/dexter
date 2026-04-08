@@ -59,6 +59,12 @@
     <string name="onboard_add_skill">Agregar</string>
     <string name="onboard_finish">Finalizar</string>
 
+    <!-- Validation errors -->
+    <string name="error_invalid_email">Ingresa un correo válido</string>
+    <string name="error_password_short">La contraseña debe tener al menos %1$d caracteres</string>
+    <string name="error_password_mismatch">Las contraseñas no coinciden</string>
+    <string name="error_name_required">Ingresa tu nombre</string>
+
     <!-- ══ Skill Search Screen ════════════════════════════════ -->
     <string name="skill_search_add_title">Añadir habilidad</string>
     <string name="skill_search_add_interest_title">Añadir interés</string>
@@ -410,6 +416,9 @@
     <string name="skill_writing">Escritura</string>
     <string name="skill_dance">Baile</string>
     <string name="skill_meditation">Meditación</string>
+    <string name="skill_videogames">Videojuegos</string>
+    <string name="skill_gardening">Jardinería</string>
+    <string name="skill_cinema">Cine</string>
     <string name="skill_chess">Ajedrez</string>
     <string name="skill_video_editing">Edición de video</string>
     <string name="skill_animation">Animación</string>

@@ -22,6 +22,10 @@ sealed class NavRoutes {
         const val ROUTE = "forgotPassword"
     }
 
+    data object Onboarding : NavRoutes() {
+        const val ROUTE = "onboarding"
+    }
+
     // ── Main flow (with bottom bar) ─────────────────────────────────
 
     data object Home : NavRoutes() {
