@@ -18,4 +18,5 @@ interface UserRepository {
     suspend fun deleteUser(id: Long): Result<Unit>
     suspend fun login(email: String, password: String): Result<User>
     suspend fun getProfileSummary(userId: Long): Result<ProfileSummary>
+    suspend fun updateProfile(profile: ProfileSummary): Result<ProfileSummary>
 }

@@ -42,6 +42,8 @@ androidx-compose-material-icons-extended = { group = "androidx.compose.material"
 # LAB 3: Hilt - inyeccion de dependencias
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+# Hilt + Compose Navigation (hiltViewModel() en composables)
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
 # LAB 3: Retrofit - cliente HTTP
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 # LAB 3: Gson - convierte JSON a objetos Kotlin

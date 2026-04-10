@@ -29,7 +29,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -58,6 +57,8 @@ import com.dexter.app.presentation.viewmodel.RegisterViewModel
 @Composable
 fun OnboardingScreen(
     registerViewModel: RegisterViewModel,
+    email: String,
+    password: String,
     onFinishClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -67,13 +68,6 @@ fun OnboardingScreen(
     val country by registerViewModel.country.collectAsState()
     val skillsToTeach by registerViewModel.skillsToTeach.collectAsState()
     val skillsToLearn by registerViewModel.skillsToLearn.collectAsState()
-
-    LaunchedEffect(state) {
-        if (state is RegisterState.Success) {
-            onFinishClick()
-            registerViewModel.resetState()
-        }
-    }
 
     OnboardingContent(
         state = state,
@@ -85,7 +79,13 @@ fun OnboardingScreen(
         onCountryChange = registerViewModel::onCountryChange,
         onToggleTeach = registerViewModel::toggleSkillToTeach,
         onToggleLearn = registerViewModel::toggleSkillToLearn,
-        onFinishClick = registerViewModel::register,
+        onFinishClick = {
+            registerViewModel.register(
+                email = email,
+                password = password,
+                onRegisterSuccess = onFinishClick
+            )
+        },
         onBackClick = onBackClick,
         modifier = modifier
     )
@@ -110,7 +110,11 @@ private fun OnboardingContent(
     modifier: Modifier = Modifier
 ) {
     val isLoading = state is RegisterState.Loading
-    val errorMessage = (state as? RegisterState.Error)?.messageRes?.let { stringResource(it) }
+    val errorMessage = when (state) {
+        is RegisterState.Error -> stringResource(state.messageRes)
+        is RegisterState.ApiError -> state.message
+        else -> null
+    }
 
     val teachOptions = listOf(
         stringResource(R.string.skill_programming),

@@ -2,6 +2,7 @@ package com.dexter.app.data.di
 
 import com.dexter.app.data.remote.api.MatchApiService
 import com.dexter.app.data.remote.api.SearchApiService
+import com.dexter.app.data.remote.api.UserApiService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module
@@ -69,4 +70,9 @@ object NetworkModule {
     @Singleton
     fun provideSearchApiService(retrofit: Retrofit): SearchApiService =
         retrofit.create(SearchApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideUserApiService(retrofit: Retrofit): UserApiService =
+        retrofit.create(UserApiService::class.java)
 }

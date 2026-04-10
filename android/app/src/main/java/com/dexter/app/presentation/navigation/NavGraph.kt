@@ -1,7 +1,13 @@
 package com.dexter.app.presentation.navigation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -26,8 +32,12 @@ import com.dexter.app.presentation.ui.screens.SettingsScreen
 import com.dexter.app.presentation.session.ThemePreference
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import com.dexter.app.presentation.viewmodel.SearchViewModel
 import com.dexter.app.presentation.ui.screens.SearchScreen
+import com.dexter.app.presentation.ui.screens.PeopleListScreen
+import com.dexter.app.presentation.ui.screens.EditProfileScreen
 
 /**
  * Main navigation graph for the app.
@@ -90,24 +100,40 @@ fun NavGraph(
             }
 
             composable(NavRoutes.Welcome.ROUTE) {
-                val registerViewModel: RegisterViewModel = viewModel()
+                val registerViewModel: RegisterViewModel = hiltViewModel()
                 WelcomeScreen(
                     registerViewModel = registerViewModel,
                     onContinueClick = {
-                        navController.navigate(NavRoutes.Onboarding.ROUTE)
+                        // Pass email & password as nav arguments to Onboarding
+                        val email = registerViewModel.email.value
+                        val password = registerViewModel.password.value
+                        navController.navigate(
+                            NavRoutes.Onboarding.createRoute(email, password)
+                        )
                     },
                     onLoginClick = { navController.navigateUp() }
                 )
             }
 
-            composable(NavRoutes.Onboarding.ROUTE) {
-                val registerViewModel: RegisterViewModel = viewModel()
+            composable(
+                route = NavRoutes.Onboarding.ROUTE,
+                arguments = listOf(
+                    navArgument(NavRoutes.Onboarding.ARG_EMAIL) { type = NavType.StringType },
+                    navArgument(NavRoutes.Onboarding.ARG_PASSWORD) { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val email = backStackEntry.arguments
+                    ?.getString(NavRoutes.Onboarding.ARG_EMAIL) ?: ""
+                val password = backStackEntry.arguments
+                    ?.getString(NavRoutes.Onboarding.ARG_PASSWORD) ?: ""
+                val registerViewModel: RegisterViewModel = hiltViewModel()
                 OnboardingScreen(
                     registerViewModel = registerViewModel,
+                    email = email,
+                    password = password,
                     onFinishClick = {
-                        // Set mock user for profile (Alice = 1L)
-                        CurrentUserSession.userId = 1L
-                        navController.navigate(NavRoutes.Home.ROUTE) {
+                        // Registration successful — go back to Login
+                        navController.navigate(NavRoutes.Login.ROUTE) {
                             popUpTo("auth_graph") { inclusive = true }
                         }
                     },
@@ -151,11 +177,31 @@ fun NavGraph(
             ) {
                 SearchScreen(
                     searchViewModel = searchViewModel,
-                    onPersonClick = { userId ->
-                        // TODO: navigate to UserProfile with userId
+                    onSkillClick = { skillName ->
+                        navController.navigate(NavRoutes.PeopleList.createRoute(skillName))
                     }
                 )
             }
+        }
+
+        // ── People List (detail, no bottom bar) ─────────────────
+        composable(
+            route = NavRoutes.PeopleList.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.PeopleList.ARG_SKILL_NAME) {
+                    type = NavType.StringType
+                }
+            )
+        ) { backStackEntry ->
+            val skillName = backStackEntry.arguments
+                ?.getString(NavRoutes.PeopleList.ARG_SKILL_NAME) ?: ""
+            PeopleListScreen(
+                skillName = skillName,
+                onPersonClick = { userId ->
+                    navController.navigate(NavRoutes.UserProfile.createRoute(userId))
+                },
+                onBackClick = { navController.navigateUp() }
+            )
         }
 
         composable(NavRoutes.Messages.ROUTE) {
@@ -222,7 +268,39 @@ fun NavGraph(
         }
 
         composable(NavRoutes.EditProfile.ROUTE) {
-            // TODO: EditProfileScreen
+            // Get current profile from ProfileViewModel (shared via activity scope)
+            val profileState by profileViewModel.profileState.collectAsState()
+            val profile = (profileState as? ProfileState.Success)?.profile
+
+            if (profile != null) {
+                EditProfileScreen(
+                    profile = profile,
+                    onBackClick = { navController.navigateUp() },
+                    onSaved = {
+                        // Reload profile with fresh data after PUT, then go back
+                        CurrentUserSession.userId?.let { profileViewModel.loadProfile(it) }
+                        navController.navigateUp()
+                    }
+                )
+            }
+        }
+
+        // ── User Profile (placeholder until screen is implemented) ──
+        composable(
+            route = NavRoutes.UserProfile.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.UserProfile.ARG_USER_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            // TODO: UserProfileScreen
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("User Profile — próximamente")
+            }
         }
     }
 }

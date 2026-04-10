@@ -75,6 +75,8 @@ dependencies {
     // LAB 3: INYECCION DE DEPENDENCIAS (Hilt)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    // Hilt + Compose Navigation (hiltViewModel() en composables)
+    implementation(libs.hilt.navigation.compose)
 
     // LAB 3: CONSUMO DE APIs (HTTP + JSON)
     implementation(libs.retrofit)

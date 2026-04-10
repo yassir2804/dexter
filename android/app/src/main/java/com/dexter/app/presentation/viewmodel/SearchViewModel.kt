@@ -3,7 +3,6 @@ package com.dexter.app.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dexter.app.domain.model.PersonResult
 import com.dexter.app.domain.model.SkillSummary
 import com.dexter.app.domain.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -14,19 +13,16 @@ import javax.inject.Inject
 
 /**
  * UI state for the Search screen.
- * Has two content states: [SkillList] for the main view
- * and [PeopleList] for the drill-down view.
+ *
+ * Follows the same Loading / Success / Empty / Error pattern
+ * used in [HomeState] (professor's approved architecture).
  */
 sealed class SearchState {
     data object Loading : SearchState()
-    data class SkillList(
+    data class Success(
         val categories: List<String>,
         val skills: List<SkillSummary>,
         val selectedCategory: String
-    ) : SearchState()
-    data class PeopleList(
-        val skillName: String,
-        val people: List<PersonResult>
     ) : SearchState()
     data object Empty : SearchState()
     data class Error(val message: String) : SearchState()
@@ -34,12 +30,20 @@ sealed class SearchState {
 
 /**
  * ViewModel for the Search screen.
- * Manages search query, category filtering, and skill drill-down.
+ *
+ * Loads categories and skills from the API on init, then
+ * filters locally (no extra API calls for category / text filters).
+ * Navigation to PeopleListScreen is handled by NavGraph callbacks.
  */
 @HiltViewModel
 class SearchViewModel @Inject constructor(
     private val repository: SearchRepository
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "SearchViewModel"
+        private const val DEFAULT_CATEGORY = "Todas"
+    }
 
     private val _searchState = MutableStateFlow<SearchState>(SearchState.Loading)
     val searchState = _searchState.asStateFlow()
@@ -60,91 +64,77 @@ class SearchViewModel @Inject constructor(
                     repository.getPopularSkills()
                         .onSuccess { skills ->
                             allSkills = skills
-                            _searchState.value = SearchState.SkillList(
-                                categories = categories,
-                                skills = skills,
-                                selectedCategory = categories.firstOrNull() ?: ""
-                            )
+                            if (skills.isNotEmpty()) {
+                                _searchState.value = SearchState.Success(
+                                    categories = categories,
+                                    skills = skills,
+                                    selectedCategory = categories.firstOrNull() ?: DEFAULT_CATEGORY
+                                )
+                            } else {
+                                _searchState.value = SearchState.Empty
+                            }
                         }
                         .onFailure { e ->
-                            Log.e("SearchViewModel", "Error loading skills", e)
-                            _searchState.value = SearchState.Error(e.message ?: "Error loading skills")
+                            Log.e(TAG, "Error loading skills: ${e.message}")
+                            _searchState.value = SearchState.Error(e.message ?: "Error desconocido")
                         }
                 }
                 .onFailure { e ->
-                    Log.e("SearchViewModel", "Error loading categories", e)
-                    _searchState.value = SearchState.Error(e.message ?: "Error loading categories")
+                    Log.e(TAG, "Error loading categories: ${e.message}")
+                    _searchState.value = SearchState.Error(e.message ?: "Error desconocido")
                 }
         }
     }
 
+    /**
+     * Filters skills locally by text query.
+     * No API call needed — filters from the cached [allSkills] list.
+     *
+     * Always keeps [SearchState.Success] so categories remain visible.
+     * An empty [skills] list shows "Sin resultados" inline (not a separate Empty state).
+     */
     fun onQueryChange(newQuery: String) {
         _query.value = newQuery
-        viewModelScope.launch {
-            if (newQuery.isBlank()) {
-                _searchState.value = SearchState.SkillList(
-                    categories = allCategories,
-                    skills = allSkills,
-                    selectedCategory = allCategories.firstOrNull() ?: ""
-                )
-            } else {
-                repository.searchSkills(newQuery)
-                    .onSuccess { filtered ->
-                        if (filtered.isEmpty()) {
-                            _searchState.value = SearchState.Empty
-                        } else {
-                            _searchState.value = SearchState.SkillList(
-                                categories = allCategories,
-                                skills = filtered,
-                                selectedCategory = allCategories.firstOrNull() ?: ""
-                            )
-                        }
-                    }
-                    .onFailure { e ->
-                        _searchState.value = SearchState.Error(e.message ?: "Error searching")
-                    }
-            }
-        }
-    }
 
-    fun onCategorySelect(category: String) {
-        viewModelScope.launch {
-            repository.filterSkillsByCategory(category)
-                .onSuccess { filtered ->
-                    _searchState.value = SearchState.SkillList(
-                        categories = allCategories,
-                        skills = filtered,
-                        selectedCategory = category
-                    )
-                }
-                .onFailure { e ->
-                    _searchState.value = SearchState.Error(e.message ?: "Error filtering")
-                }
+        if (newQuery.isBlank()) {
+            // Reset to full list with default category
+            _searchState.value = SearchState.Success(
+                categories = allCategories,
+                skills = allSkills,
+                selectedCategory = allCategories.firstOrNull() ?: DEFAULT_CATEGORY
+            )
+            return
         }
-    }
 
-    fun onSkillClick(skillName: String) {
-        viewModelScope.launch {
-            _searchState.value = SearchState.Loading
-            repository.getPeopleForSkill(skillName)
-                .onSuccess { people ->
-                    _searchState.value = SearchState.PeopleList(
-                        skillName = skillName,
-                        people = people
-                    )
-                }
-                .onFailure { e ->
-                    _searchState.value = SearchState.Error(e.message ?: "Error loading people")
-                }
+        val filtered = allSkills.filter {
+            it.name.contains(newQuery, ignoreCase = true)
         }
-    }
 
-    fun onBackToSkills() {
-        _query.value = ""
-        _searchState.value = SearchState.SkillList(
+        _searchState.value = SearchState.Success(
             categories = allCategories,
-            skills = allSkills,
-            selectedCategory = allCategories.firstOrNull() ?: ""
+            skills = filtered,
+            selectedCategory = allCategories.firstOrNull() ?: DEFAULT_CATEGORY
+        )
+    }
+
+    /**
+     * Filters skills locally by category.
+     * No API call needed — filters from the cached [allSkills] list.
+     *
+     * Always keeps [SearchState.Success] so categories remain visible.
+     * An empty [skills] list shows "Sin resultados" inline (not a separate Empty state).
+     */
+    fun onCategorySelect(category: String) {
+        val filtered = if (category == DEFAULT_CATEGORY) {
+            allSkills
+        } else {
+            allSkills.filter { it.category == category }
+        }
+
+        _searchState.value = SearchState.Success(
+            categories = allCategories,
+            skills = filtered,
+            selectedCategory = category
         )
     }
 }

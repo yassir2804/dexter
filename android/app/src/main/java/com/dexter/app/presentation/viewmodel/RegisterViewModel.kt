@@ -1,13 +1,18 @@
 package com.dexter.app.presentation.viewmodel
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.R
-import kotlinx.coroutines.delay
+import com.dexter.app.domain.model.User
+import com.dexter.app.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Date
+import javax.inject.Inject
 
 /**
  * Sealed class representing the various states of the registration flow.
@@ -24,18 +29,24 @@ sealed class RegisterState {
 
     /** Validation or registration error */
     data class Error(@StringRes val messageRes: Int) : RegisterState()
+
+    /** API error with a dynamic message (not a string resource) */
+    data class ApiError(val message: String) : RegisterState()
 }
 
 /**
  * ViewModel shared between WelcomeScreen (step 1) and OnboardingScreen (step 2).
  *
- * Scoped to the auth_graph navigation subgraph so both screens share the same instance.
- * No repository dependency — registration is mocked with a delay.
+ * Now uses @HiltViewModel to inject [UserRepository] and call
+ * POST /auth/register via Retrofit instead of simulating with delay.
  */
-class RegisterViewModel : ViewModel() {
+@HiltViewModel
+class RegisterViewModel @Inject constructor(
+    private val repository: UserRepository
+) : ViewModel() {
 
     companion object {
-        private const val SIMULATED_DELAY_MS = 1500L
+        private const val TAG = "RegisterViewModel"
         private const val MIN_PASSWORD_LENGTH = 6
     }
 
@@ -127,12 +138,15 @@ class RegisterViewModel : ViewModel() {
         }
     }
 
-    // ── Registration ────────────────────────────────────────────
+    // ── Registration — now calls the API via repository ─────────
 
     /**
-     * Simulates user registration after validating onboarding fields.
+     * Registers the user by calling POST /auth/register via the repository.
+     *
+     * [email] and [password] come from navigation arguments (collected in WelcomeScreen).
+     * [onRegisterSuccess] is called after a successful API call to trigger navigation.
      */
-    fun register() {
+    fun register(email: String, password: String, onRegisterSuccess: () -> Unit) {
         if (_name.value.trim().isBlank()) {
             _state.value = RegisterState.Error(R.string.error_name_required)
             return
@@ -140,12 +154,43 @@ class RegisterViewModel : ViewModel() {
 
         viewModelScope.launch {
             _state.value = RegisterState.Loading
-            delay(SIMULATED_DELAY_MS)
-            _state.value = RegisterState.Success
+
+            // Split "name" into firstName and lastName
+            val nameParts = _name.value.trim().split(" ", limit = 2)
+            val firstName = nameParts.first()
+            val lastName = if (nameParts.size > 1) nameParts[1] else ""
+
+            val user = User(
+                id = 0L,
+                email = email,
+                password = password,
+                firstName = firstName,
+                lastName = lastName,
+                username = email.substringBefore("@"),
+                bio = null,
+                avatarUrl = null,
+                country = _country.value.trim().ifBlank { null },
+                enabled = true,
+                tokenExpired = false,
+                rating = 0.0,
+                totalSessions = 0,
+                totalMatches = 0,
+                createDate = Date(),
+                updatedAt = Date()
+            )
+
+            repository.saveUser(user)
+                .onSuccess { createdUser ->
+                    Log.d(TAG, "Registration successful for $email, userId=${createdUser.id}")
+                    onRegisterSuccess()
+                }
+                .onFailure { exception ->
+                    Log.e(TAG, "Registration failed: ${exception.message}")
+                    _state.value = RegisterState.ApiError(
+                        exception.message ?: "Error desconocido"
+                    )
+                }
         }
     }
 
-    fun resetState() {
-        _state.value = RegisterState.Idle
-    }
 }

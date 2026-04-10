@@ -26,6 +26,10 @@ class ProfileViewModel @Inject constructor(
     private val _profileState = MutableStateFlow<ProfileState>(ProfileState.Empty)
     val profileState = _profileState.asStateFlow()
 
+    companion object {
+        private const val TAG = "ProfileViewModel"
+    }
+
     fun loadProfile(userId: Long) {
         viewModelScope.launch {
             _profileState.value = ProfileState.Loading
@@ -35,7 +39,27 @@ class ProfileViewModel @Inject constructor(
                     _profileState.value = ProfileState.Success(profile)
                 }
                 .onFailure { exception ->
-                    Log.e("ProfileViewModel", "Error loading profile: ${exception.message}")
+                    Log.e(TAG, "Error loading profile: ${exception.message}")
+                    _profileState.value = ProfileState.Error(exception.message ?: "Error desconocido")
+                }
+        }
+    }
+
+    /**
+     * Sends a PUT /profile-summary to update the user's profile.
+     * On success, updates the local state with the server response.
+     */
+    fun updateProfile(profile: ProfileSummary) {
+        viewModelScope.launch {
+            _profileState.value = ProfileState.Loading
+
+            repository.updateProfile(profile)
+                .onSuccess { updatedProfile ->
+                    Log.d(TAG, "Profile updated successfully")
+                    _profileState.value = ProfileState.Success(updatedProfile)
+                }
+                .onFailure { exception ->
+                    Log.e(TAG, "Error updating profile: ${exception.message}")
                     _profileState.value = ProfileState.Error(exception.message ?: "Error desconocido")
                 }
         }

@@ -2,6 +2,7 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.UserDataSource
+import com.dexter.app.data.datasource.model.RegisterRequestDto
 import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
 import com.dexter.app.domain.error.DomainError
@@ -63,8 +64,24 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun saveUser(user: User): Result<User> = try {
-        // TODO: replace with dataSource call + mapping
-        Result.success(user)
+        // Build the request DTO from the domain model
+        val request = RegisterRequestDto(
+            email = user.email,
+            password = user.password ?: "",
+            firstName = user.firstName,
+            lastName = user.lastName,
+            country = user.country ?: "",
+            skillsToTeach = emptyList(),
+            skillsToLearn = emptyList()
+        )
+
+        // Call the API via DataSource
+        val createdDto = dataSource.insertUser(request)
+        if (createdDto != null) {
+            Result.success(userMapper.mapToDomain(createdDto))
+        } else {
+            Result.failure(DomainError.NetworkError("Registration failed — server unavailable"))
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to save user", e)
         Result.failure(DomainError.NetworkError("Network error saving user", e))
@@ -97,6 +114,22 @@ class UserRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in getProfileSummary", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching profile", e))
+    }
+
+    override suspend fun updateProfile(profile: ProfileSummary): Result<ProfileSummary> = try {
+        val dto = profileSummaryMapper.mapToDto(profile)
+        val updatedDto = dataSource.updateProfile(dto)
+        if (updatedDto != null) {
+            Result.success(profileSummaryMapper.mapToDomain(updatedDto))
+        } else {
+            Result.failure(DomainError.NetworkError("Failed to update profile — server unavailable"))
+        }
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to update profile", e)
+        Result.failure(DomainError.NetworkError("Network error updating profile", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in updateProfile", e)
+        Result.failure(DomainError.UnknownError("Unknown error updating profile", e))
     }
 
     override suspend fun login(email: String, password: String): Result<User> = try {
