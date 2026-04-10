@@ -9,7 +9,7 @@ import com.dexter.app.domain.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /**
@@ -44,16 +44,16 @@ class LoginViewModel @Inject constructor(
     }
 
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Empty)
-    val loginState: StateFlow<LoginState> = _loginState
+    val loginState = _loginState.asStateFlow()
 
     private val _email = MutableStateFlow("")
-    val email: StateFlow<String> = _email
+    val email = _email.asStateFlow()
 
     private val _password = MutableStateFlow("")
-    val password: StateFlow<String> = _password
+    val password = _password.asStateFlow()
 
     private val _passwordVisible = MutableStateFlow(false)
-    val passwordVisible: StateFlow<Boolean> = _passwordVisible
+    val passwordVisible = _passwordVisible.asStateFlow()
 
     fun onEmailChange(value: String) {
         _email.value = value

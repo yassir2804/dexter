@@ -22,6 +22,10 @@ import com.dexter.app.presentation.viewmodel.HomeViewModel
 import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
+import com.dexter.app.presentation.viewmodel.SearchViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
+import com.dexter.app.presentation.session.ThemePreference
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -30,13 +34,17 @@ class MainActivity : ComponentActivity() {
     private val loginViewModel: LoginViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
     private val profileViewModel: ProfileViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme(dynamicColor = false) {
-                MainScreen(loginViewModel, homeViewModel, profileViewModel)
+            val darkModePref by ThemePreference.isDarkMode.collectAsState()
+            val isDark = darkModePref ?: isSystemInDarkTheme()
+
+            AppTheme(dynamicColor = false, darkTheme = isDark) {
+                MainScreen(loginViewModel, homeViewModel, profileViewModel, searchViewModel)
             }
         }
     }
@@ -46,7 +54,8 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(
     loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel,
-    profileViewModel: ProfileViewModel
+    profileViewModel: ProfileViewModel,
+    searchViewModel: SearchViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -74,6 +83,7 @@ fun MainScreen(
             loginViewModel = loginViewModel,
             homeViewModel = homeViewModel,
             profileViewModel = profileViewModel,
+            searchViewModel = searchViewModel,
             paddingValues = paddingValues,
             userName = userName
         )

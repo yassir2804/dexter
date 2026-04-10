@@ -120,6 +120,11 @@
     <string name="search_category_tech">Tech</string>
     <string name="search_category_design">Diseño</string>
     <string name="search_category_sports">Deporte</string>
+    <string name="search_no_results">Sin resultados</string>
+    <string name="search_sessions_count">%1$d sesiones</string>
+    <string name="cd_search_back">Volver a la lista de habilidades</string>
+    <string name="cd_person_card">Ver perfil de %1$s</string>
+    <string name="cd_ai_badge">%1$d por ciento de compatibilidad</string>
 
     <!-- ══ Match Detail Screen ════════════════════════════════ -->
     <string name="match_title">Detalle del Match</string>
@@ -315,6 +320,10 @@
     <string name="settings_section_privacy">PRIVACIDAD</string>
     <string name="settings_privacy_visible">Perfil visible</string>
     <string name="settings_privacy_availability">Compartir disponibilidad</string>
+
+    <!-- Appearance section -->
+    <string name="settings_section_appearance">APARIENCIA</string>
+    <string name="settings_dark_mode">Modo oscuro</string>
 
     <!-- Account section -->
     <string name="settings_section_account">CUENTA</string>

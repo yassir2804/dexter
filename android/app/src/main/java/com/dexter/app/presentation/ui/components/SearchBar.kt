@@ -28,15 +28,20 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 
 @Composable
 fun SearchBar(
+    query: String? = null,
     onQueryChanged: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val (query, setQuery) = remember { mutableStateOf("") }
+    val (internalQuery, setInternalQuery) = remember { mutableStateOf("") }
+    val displayQuery = query ?: internalQuery
 
     TextField(
-        value = query,
-        onValueChange = { value -> setQuery(value); onQueryChanged(value) },
+        value = displayQuery,
+        onValueChange = { value ->
+            if (query == null) setInternalQuery(value)
+            onQueryChanged(value)
+        },
         leadingIcon = {
             Icon(
                 imageVector = Icons.Default.Search,

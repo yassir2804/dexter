@@ -20,7 +20,14 @@ import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
 import com.dexter.app.presentation.viewmodel.HomeViewModel
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
+import com.dexter.app.presentation.viewmodel.ProfileState
 import com.dexter.app.presentation.viewmodel.RegisterViewModel
+import com.dexter.app.presentation.ui.screens.SettingsScreen
+import com.dexter.app.presentation.session.ThemePreference
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.dexter.app.presentation.viewmodel.SearchViewModel
+import com.dexter.app.presentation.ui.screens.SearchScreen
 
 /**
  * Main navigation graph for the app.
@@ -38,6 +45,7 @@ fun NavGraph(
     loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel,
     profileViewModel: ProfileViewModel,
+    searchViewModel: SearchViewModel,
     paddingValues: PaddingValues,
     userName: String = ""
 ) {
@@ -141,7 +149,12 @@ fun NavGraph(
                     navController.navigate(NavRoutes.Settings.ROUTE)
                 }
             ) {
-                // TODO: SearchScreen
+                SearchScreen(
+                    searchViewModel = searchViewModel,
+                    onPersonClick = { userId ->
+                        // TODO: navigate to UserProfile with userId
+                    }
+                )
             }
         }
 
@@ -184,7 +197,28 @@ fun NavGraph(
 
         // ── Detail screens (placeholders) ───────────────────────────
         composable(NavRoutes.Settings.ROUTE) {
-            // TODO: SettingsScreen
+            val profileState by profileViewModel.profileState.collectAsState()
+            val profile = (profileState as? ProfileState.Success)?.profile
+            val isDarkMode by ThemePreference.isDarkMode.collectAsState()
+
+            SettingsScreen(
+                userName = profile?.let { "${it.firstName} ${it.lastName}" } ?: "",
+                userInitials = profile?.initials ?: "",
+                userAvatarUrl = profile?.avatarUrl,
+                isDarkMode = isDarkMode ?: false,
+                onDarkModeToggle = { ThemePreference.toggle(it) },
+                onBackClick = { navController.navigateUp() },
+                onEditProfileClick = {
+                    navController.navigate(NavRoutes.EditProfile.ROUTE)
+                },
+                onLogoutClick = {
+                    CurrentUserSession.clear()
+                    ThemePreference.clear()
+                    navController.navigate(NavRoutes.Login.ROUTE) {
+                        popUpTo(navController.graph.id) { inclusive = true }
+                    }
+                }
+            )
         }
 
         composable(NavRoutes.EditProfile.ROUTE) {

@@ -1,8 +1,10 @@
 package com.dexter.app.data.di
 
 import com.dexter.app.data.repository.MatchRepositoryImpl
+import com.dexter.app.data.repository.SearchRepositoryImpl
 import com.dexter.app.data.repository.UserRepositoryImpl
 import com.dexter.app.domain.repository.MatchRepository
+import com.dexter.app.domain.repository.SearchRepository
 import com.dexter.app.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -73,4 +75,10 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSearchRepository(
+        searchRepositoryImpl: SearchRepositoryImpl
+    ): SearchRepository
 }

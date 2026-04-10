@@ -43,6 +43,8 @@ fun MainLayout(
     paddingValues: PaddingValues,
     currentRoute: String? = null,
     userName: String = "",
+    notificationCount: Int = 0,
+    hideHeader: Boolean = false,
     onNotificationsClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
     content: @Composable () -> Unit
@@ -58,7 +60,7 @@ fun MainLayout(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            when (currentRoute) {
+            if (!hideHeader) when (currentRoute) {
                 NavRoutes.Home.ROUTE -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -93,7 +95,7 @@ fun MainLayout(
                                     .offset(x = (-6).dp, y = 6.dp)
                             ) {
                                 Text(
-                                    text = "3",
+                                    text = notificationCount.toString(),
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.SemiBold
