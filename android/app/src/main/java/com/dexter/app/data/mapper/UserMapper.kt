@@ -3,6 +3,7 @@ package com.dexter.app.data.mapper
 import com.dexter.app.data.datasource.model.UserDto
 import com.dexter.app.domain.model.User
 import java.util.Date
+import javax.inject.Inject
 
 /**
  * Mapper for converting between `UserDto` (wire) and `User` (domain).
@@ -11,7 +12,7 @@ import java.util.Date
  * from DTO/data model declarations. Style follows TaskApp frontend comments:
  * concise KDoc and safe, conservative mappings.
  */
-class UserMapper {
+class UserMapper @Inject constructor() {
 
     /**
      * Maps a `UserDto` to domain `User`.

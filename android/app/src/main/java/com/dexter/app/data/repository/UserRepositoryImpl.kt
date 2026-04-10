@@ -9,6 +9,7 @@ import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
 import java.io.IOException
+import javax.inject.Inject
 
 /**
  * Placeholder implementation of [UserRepository]:
@@ -16,7 +17,7 @@ import java.io.IOException
  * safe defaults. Replace the internals with real data-source calls when
  * integrating a backend.
  */
-class UserRepositoryImpl(
+class UserRepositoryImpl @Inject constructor(
     private val dataSource: UserDataSource,
     private val userMapper: UserMapper,
     private val profileSummaryMapper: ProfileSummaryMapper

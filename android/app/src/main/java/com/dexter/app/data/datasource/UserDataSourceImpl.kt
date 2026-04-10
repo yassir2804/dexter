@@ -6,11 +6,12 @@ import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
 /**
  * UserDataSource implementation backed by an in-memory provider.
  */
-class UserDataSourceImpl(
+class UserDataSourceImpl @Inject constructor(
     private val userMapper: UserMapper,
     private val profileSummaryMapper: ProfileSummaryMapper
 ) : UserDataSource {

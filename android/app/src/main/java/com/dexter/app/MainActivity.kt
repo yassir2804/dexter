@@ -12,64 +12,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.dexter.app.data.datasource.UserDataSourceImpl
-import com.dexter.app.data.mapper.UserMapper
-import com.dexter.app.data.repository.UserRepositoryImpl
-import com.dexter.app.data.datasource.ReviewDataSourceImpl
-import com.dexter.app.data.datasource.SkillDataSourceImpl
-import com.dexter.app.data.mapper.MatchMapper
-import com.dexter.app.data.mapper.MatchSummaryMapper
-import com.dexter.app.data.mapper.ProfileSummaryMapper
-import com.dexter.app.data.datasource.MatchDataSourceImpl
-import com.dexter.app.data.mapper.ReviewMapper
-import com.dexter.app.data.mapper.SkillMapper
-import com.dexter.app.data.repository.MatchRepositoryImpl
-import com.dexter.app.data.repository.ReviewRepositoryImpl
-import com.dexter.app.data.repository.SkillRepositoryImpl
-import com.dexter.app.presentation.factory.HomeViewModelFactory
-import com.dexter.app.presentation.factory.ProfileViewModelFactory
-import com.dexter.app.presentation.viewmodel.HomeViewModel
-import com.dexter.app.presentation.viewmodel.ProfileViewModel
-import com.dexter.app.presentation.factory.LoginViewModelFactory
 import com.dexter.app.presentation.navigation.NavGraph
 import com.dexter.app.presentation.navigation.NavRoutes
 import com.dexter.app.presentation.ui.components.BottomNavigationBar
 import com.dexter.app.presentation.ui.theme.AppTheme
+import com.dexter.app.presentation.viewmodel.HomeViewModel
 import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
-import com.dexter.app.presentation.ui.layout.MainLayout
+import com.dexter.app.presentation.viewmodel.ProfileViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    // Login ViewModel (manual DI)
-    private val loginViewModel: LoginViewModel by viewModels {
-        val userMapper = UserMapper()
-        val profileSummaryMapper = ProfileSummaryMapper()
-        val dataSource = UserDataSourceImpl(userMapper, profileSummaryMapper)
-        val repository = UserRepositoryImpl(dataSource, userMapper, profileSummaryMapper)
-        LoginViewModelFactory(repository)
-    }
-
-    // Home ViewModel (manual DI)
-    private val homeViewModel: HomeViewModel by viewModels {
-        val matchMapper = MatchMapper()
-        val matchSummaryMapper = MatchSummaryMapper()
-        val matchDataSource = MatchDataSourceImpl(matchMapper, matchSummaryMapper)
-        val matchRepository = MatchRepositoryImpl(matchDataSource, matchMapper, matchSummaryMapper)
-        HomeViewModelFactory(matchRepository)
-    }
-
-    // Profile ViewModel (manual DI)
-    private val profileViewModel: ProfileViewModel by viewModels {
-        val userMapper = UserMapper()
-        val profileSummaryMapper = ProfileSummaryMapper()
-        val userDataSource = UserDataSourceImpl(userMapper, profileSummaryMapper)
-        val userRepository = UserRepositoryImpl(userDataSource, userMapper, profileSummaryMapper)
-        ProfileViewModelFactory(userRepository)
-    }
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,14 +42,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- * Root composable that sets up the Scaffold with conditional bottom bar.
- *
- * Follows TaskApp's MainScreen pattern: Scaffold wraps the NavGraph,
- * and the BottomNavigationBar only appears on main-flow screens.
- */
 @Composable
-fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel, profileViewModel: ProfileViewModel) {
+fun MainScreen(
+    loginViewModel: LoginViewModel,
+    homeViewModel: HomeViewModel,
+    profileViewModel: ProfileViewModel
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -101,6 +59,8 @@ fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel, pro
         NavRoutes.Profile.ROUTE
     )
 
+    val userName = (loginViewModel.loginState.value as? LoginState.Success)?.user?.firstName ?: ""
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
@@ -109,21 +69,14 @@ fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel, pro
             }
         }
     ) { paddingValues ->
-        val userName = (loginViewModel.loginState.value as? LoginState.Success)?.user?.firstName ?: ""
-
-        MainLayout(
+        NavGraph(
+            navController = navController,
+            loginViewModel = loginViewModel,
+            homeViewModel = homeViewModel,
+            profileViewModel = profileViewModel,
             paddingValues = paddingValues,
-            currentRoute = currentRoute,
-            userName = userName,
-            onNotificationsClick = {
-                navController.navigate(NavRoutes.Notifications.ROUTE)
-            },
-            onSettingsClick = {
-                navController.navigate(NavRoutes.Settings.ROUTE)
-            }
-        ) {
-            NavGraph(navController, loginViewModel, homeViewModel, profileViewModel, PaddingValues(0.dp))
-        }
+            userName = userName
+        )
     }
 }
 
@@ -131,10 +84,10 @@ fun MainScreen(loginViewModel: LoginViewModel, homeViewModel: HomeViewModel, pro
 @Composable
 private fun MainScreenPreview() {
     AppTheme(dynamicColor = false) {
-        // Preview only shows the scaffold structure
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = { BottomNavigationBar(rememberNavController()) }
-        ) { }
+        ) { _: PaddingValues ->
+        }
     }
 }

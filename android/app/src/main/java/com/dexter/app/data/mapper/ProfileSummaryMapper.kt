@@ -4,9 +4,10 @@ import com.dexter.app.data.datasource.model.ProfileReviewItemDto
 import com.dexter.app.data.datasource.model.ProfileSummaryDto
 import com.dexter.app.domain.model.ProfileReviewItem
 import com.dexter.app.domain.model.ProfileSummary
+import javax.inject.Inject
 
 /** Mapper for ProfileSummaryDto <-> ProfileSummary. */
-class ProfileSummaryMapper {
+class ProfileSummaryMapper @Inject constructor() {
 
     fun mapToDomain(dto: ProfileSummaryDto): ProfileSummary = ProfileSummary(
         initials = dto.initials ?: "",

@@ -10,8 +10,9 @@ import com.dexter.app.domain.model.MatchSummary
 import com.dexter.app.domain.repository.MatchRepository
 import kotlinx.coroutines.flow.first
 import java.io.IOException
+import javax.inject.Inject
 
-class MatchRepositoryImpl(
+class MatchRepositoryImpl @Inject constructor(
     private val dataSource: MatchDataSource,
     private val matchMapper: MatchMapper,
     private val matchSummaryMapper: MatchSummaryMapper = MatchSummaryMapper()

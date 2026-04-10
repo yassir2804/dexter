@@ -9,6 +9,18 @@ activityCompose = "1.13.0"
 kotlin = "2.2.10"
 composeBom = "2024.09.00"
 navigationCompose = "2.9.0"
+# LAB 3: Inyeccion de dependencias con Hilt (compatible con AGP 9)
+hilt = "2.57.1"
+# LAB 3: Cliente HTTP para consumir APIs
+retrofit = "2.9.0"
+# LAB 3: Convierte JSON a objetos Kotlin
+converterGson = "2.9.0"
+# LAB 3: Motor HTTP interno
+okhttp = "4.11.0"
+# LAB 3: Logging de peticiones HTTP
+okhttpLoggingInterceptor = "4.11.0"
+# LAB 3: KSP para procesamiento de anotaciones (reemplaza KAPT en AGP 9)
+ksp = "2.2.10-2.0.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -27,8 +39,23 @@ androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-te
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+# LAB 3: Hilt - inyeccion de dependencias
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
+# LAB 3: Retrofit - cliente HTTP
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+# LAB 3: Gson - convierte JSON a objetos Kotlin
+converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
+# LAB 3: OkHttp y logging
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttpLoggingInterceptor" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+# LAB 3: KSP genera codigo para Hilt (compatible con Built-in Kotlin)
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+# LAB 3: Hilt plugin
+hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 

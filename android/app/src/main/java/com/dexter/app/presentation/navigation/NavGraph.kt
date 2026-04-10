@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.dexter.app.presentation.session.CurrentUserSession
+import com.dexter.app.presentation.ui.layout.MainLayout
 import com.dexter.app.presentation.ui.screens.ForgotPasswordScreen
 import com.dexter.app.presentation.ui.screens.LoginScreen
 import com.dexter.app.presentation.ui.screens.HomeScreen
@@ -37,7 +38,8 @@ fun NavGraph(
     loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel,
     profileViewModel: ProfileViewModel,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    userName: String = ""
 ) {
     NavHost(
         navController = navController,
@@ -108,28 +110,76 @@ fun NavGraph(
 
         // ── Main flow ───────────────────────────────────────────────
         composable(NavRoutes.Home.ROUTE) {
-            HomeScreen(
-                viewModel = homeViewModel,
-                onMatchClick = { /* TODO: navigate to match detail */ },
-                onActiveSessionClick = { /* TODO: navigate to active session */ }
-            )
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.Home.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
+                }
+            ) {
+                HomeScreen(
+                    viewModel = homeViewModel,
+                    onMatchClick = { /* TODO: navigate to match detail */ },
+                    onActiveSessionClick = { /* TODO: navigate to active session */ }
+                )
+            }
         }
 
         composable(NavRoutes.Search.ROUTE) {
-            // TODO: SearchScreen
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.Search.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
+                }
+            ) {
+                // TODO: SearchScreen
+            }
         }
 
         composable(NavRoutes.Messages.ROUTE) {
-            // TODO: MessagesScreen
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.Messages.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
+                }
+            ) {
+                // TODO: MessagesScreen
+            }
         }
 
         composable(NavRoutes.Profile.ROUTE) {
-            ProfileScreen(
-                profileViewModel = profileViewModel,
-                onEditProfileClick = {
-                    navController.navigate(NavRoutes.EditProfile.ROUTE)
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.Profile.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
                 }
-            )
+            ) {
+                ProfileScreen(
+                    profileViewModel = profileViewModel,
+                    onEditProfileClick = {
+                        navController.navigate(NavRoutes.EditProfile.ROUTE)
+                    }
+                )
+            }
         }
 
         // ── Detail screens (placeholders) ───────────────────────────

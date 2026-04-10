@@ -2,9 +2,10 @@ package com.dexter.app.data.mapper
 
 import com.dexter.app.data.datasource.model.MatchSummaryDto
 import com.dexter.app.domain.model.MatchSummary
+import javax.inject.Inject
 
 /** Mapper for MatchSummaryDto <-> MatchSummary. */
-class MatchSummaryMapper {
+class MatchSummaryMapper @Inject constructor() {
 
     fun mapToDomain(dto: MatchSummaryDto): MatchSummary = MatchSummary(
         initials = dto.initials ?: "",

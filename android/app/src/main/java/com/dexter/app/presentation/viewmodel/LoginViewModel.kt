@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -32,7 +34,8 @@ sealed class LoginState {
  *
  * @property repository Repository interface for user operations
  */
-class LoginViewModel(
+@HiltViewModel
+class LoginViewModel @Inject constructor(
     private val repository: UserRepository
 ) : ViewModel() {
 
