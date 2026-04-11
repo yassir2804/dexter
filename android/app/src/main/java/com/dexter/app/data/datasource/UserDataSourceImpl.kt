@@ -31,16 +31,8 @@ class UserDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getProfileSummary(userId: Long): ProfileSummaryDto? {
-        // 1. Try API first
         val result = remoteDataSource.getProfileSummary(userId)
-        result.getOrNull()?.let {
-            return it // API success → return DTO directly (already a DTO)
-        }
-
-        // 2. API failed → fallback to mock data
-        Log.w(TAG, "API failed for getProfileSummary($userId), using mock data")
-        return UserProvider.findProfileSummary(userId)
-            ?.let { profileSummaryMapper.mapToDto(it) }
+        return result.getOrNull()
     }
 
     /**
