@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
 import com.dexter.app.domain.model.Notification
@@ -27,8 +28,10 @@ import com.dexter.app.domain.model.NotificationType
 import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.components.NotificationItem
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
+import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.NotificationsState
 import com.dexter.app.presentation.viewmodel.NotificationsViewModel
+import java.util.Date
 
 @Composable
 fun NotificationsScreen(
@@ -179,4 +182,40 @@ sealed class NotificationRoute {
     data class ActiveSession(val sessionId: Long) : NotificationRoute()
     data class UserProfile(val userId: Long) : NotificationRoute()
     data object Home : NotificationRoute()
+}
+
+@Preview(showBackground = true, heightDp = 900)
+@Composable
+private fun NotificationsSuccessPreview() {
+    val now = Date()
+    val unread = listOf(
+        Notification(
+            id = 1L, userId = 1L, referenceId = 10L,
+            title = "Nuevo match", body = "Maria López quiere practicar contigo",
+            notificationType = NotificationType.NEW_MATCH,
+            isRead = false, createdAt = now
+        ),
+        Notification(
+            id = 2L, userId = 1L, referenceId = 20L,
+            title = "Sesión en 1 hora", body = "Guitarra con Pedro a las 15:00",
+            notificationType = NotificationType.SESSION_REMINDER,
+            isRead = false, createdAt = now
+        )
+    )
+    val read = listOf(
+        Notification(
+            id = 3L, userId = 1L, referenceId = 30L,
+            title = "Nueva reseña", body = "Ana te dejó 5 estrellas",
+            notificationType = NotificationType.NEW_REVIEW,
+            isRead = true, createdAt = now
+        )
+    )
+    AppTheme(dynamicColor = false) {
+        NotificationsContent(
+            state = NotificationsState.Success(unread = unread, read = read),
+            onBackClick = {},
+            onMarkAllRead = {},
+            onNotifClick = {}
+        )
+    }
 }

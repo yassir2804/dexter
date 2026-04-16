@@ -3,7 +3,7 @@ package com.dexter.app.presentation.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
+import com.dexter.app.presentation.ui.components.PreviewSafeFlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -145,7 +145,7 @@ private fun MatchDetailBody(
             .padding(horizontal = 16.dp, vertical = 12.dp)
     ) {
         // ── Header card with avatar + name + rating ─────────────────
-        FilledCard(
+        Card(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -233,7 +233,7 @@ private fun MatchDetailBody(
         Spacer(Modifier.height(20.dp))
 
         // ── AI analysis ─────────────────────────────────────────────
-        FilledCard(
+        Card(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -278,7 +278,7 @@ private fun MatchDetailBody(
             R.string.day_sat,
             R.string.day_sun
         )
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             dayLabels.forEachIndexed { index, resId ->
                 SkillChip(
                     label = stringResource(resId),
@@ -339,7 +339,7 @@ private fun SkillsGroupCard(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 skills.forEach { skill ->
                     SkillChip(
                         label = skill,

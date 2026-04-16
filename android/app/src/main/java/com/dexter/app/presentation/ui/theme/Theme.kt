@@ -13,6 +13,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 
 @Immutable
 data class ExtendedColorScheme(
@@ -330,9 +331,13 @@ fun AppTheme(
       else -> lightScheme
   }
 
+  // Google Fonts (Nunito Sans) cannot be resolved in Android Studio preview
+  // without Play Services, causing render failures. Fall back to system font.
+  val typography = if (LocalInspectionMode.current) Typography() else AppTypography
+
   MaterialTheme(
     colorScheme = colorScheme,
-    typography = AppTypography,
+    typography = typography,
     content = content
   )
 }

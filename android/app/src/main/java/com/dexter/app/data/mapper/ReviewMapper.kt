@@ -3,9 +3,10 @@ package com.dexter.app.data.mapper
 import com.dexter.app.data.datasource.model.ReviewDto
 import com.dexter.app.domain.model.Review
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `ReviewDto` ↔ `Review`. */
-class ReviewMapper {
+class ReviewMapper @Inject constructor() {
 
     fun mapToDomain(dto: ReviewDto): Review = Review(
         id = dto.id ?: 0L,

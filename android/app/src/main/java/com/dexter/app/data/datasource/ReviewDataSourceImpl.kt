@@ -2,11 +2,12 @@ package com.dexter.app.data.datasource
 
 import com.dexter.app.data.datasource.model.ReviewDto
 import com.dexter.app.data.mapper.ReviewMapper
+import javax.inject.Inject
 
 /**
  * ReviewDataSource implementation backed by an in-memory provider.
  */
-class ReviewDataSourceImpl(
+class ReviewDataSourceImpl @Inject constructor(
     private val reviewMapper: ReviewMapper
 ) : ReviewDataSource {
 

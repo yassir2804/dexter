@@ -26,7 +26,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -43,12 +43,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
+import com.dexter.app.domain.model.Session
+import com.dexter.app.domain.model.SessionStatus
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
+import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.EditSessionState
 import com.dexter.app.presentation.viewmodel.EditSessionViewModel
+import java.util.Date
 
 @Composable
 fun EditSessionScreen(
@@ -267,7 +272,7 @@ private fun EditSessionForm(
 
 @Composable
 private fun AiSuggestionCard() {
-    FilledCard(
+    Card(
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -348,4 +353,46 @@ private fun DeleteConfirmDialog(
             }
         }
     )
+}
+
+@Preview(showBackground = true, heightDp = 1200)
+@Composable
+private fun EditSessionSuccessPreview() {
+    val sampleSession = Session(
+        id = 1L,
+        matchId = 1L,
+        skillId = 1L,
+        sessionNumber = 2,
+        title = "Guitarra: Acordes",
+        description = "Repasar progresión Am-Em-Dm",
+        status = SessionStatus.SCHEDULED,
+        scheduledAt = Date(),
+        completedAt = null,
+        createdAt = Date()
+    )
+    AppTheme(dynamicColor = false) {
+        EditSessionContent(
+            state = EditSessionState.Editing(
+                session = sampleSession,
+                title = sampleSession.title,
+                description = sampleSession.description,
+                date = "20/04/2026",
+                time = "15:00",
+                duration = "60",
+                showDeleteConfirm = false,
+                saving = false,
+                deleting = false
+            ),
+            onBackClick = {},
+            onTitleChange = {},
+            onDescriptionChange = {},
+            onDateChange = {},
+            onTimeChange = {},
+            onDurationChange = {},
+            onSave = {},
+            onRequestDelete = {},
+            onConfirmDelete = {},
+            onDismissDelete = {}
+        )
+    }
 }

@@ -23,7 +23,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -38,15 +38,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
+import com.dexter.app.domain.model.InvitationStatus
 import com.dexter.app.domain.model.SessionInvitation
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.InfoRow
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
+import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.SessionInviteState
 import com.dexter.app.presentation.viewmodel.SessionInviteViewModel
+import java.util.Date
 
 @Composable
 fun SessionInviteScreen(
@@ -240,7 +244,7 @@ private fun ReceiveBody(
             }
         }
 
-        FilledCard(
+        Card(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -355,5 +359,30 @@ private fun SendBody(
             }
         }
         Spacer(Modifier.height(16.dp))
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1100)
+@Composable
+private fun SessionInviteReceivePreview() {
+    val invite = SessionInvitation(
+        id = 1L,
+        senderId = 2L,
+        receiverId = 1L,
+        matchId = 1L,
+        status = InvitationStatus.PENDING,
+        expiresAt = null,
+        createdAt = Date()
+    )
+    AppTheme(dynamicColor = false) {
+        SessionInviteContent(
+            state = SessionInviteState.Receive(invitation = invite, responding = false),
+            onBackClick = {},
+            onAccept = {},
+            onReject = {},
+            onTopicChange = {},
+            onMessageChange = {},
+            onSend = {}
+        )
     }
 }

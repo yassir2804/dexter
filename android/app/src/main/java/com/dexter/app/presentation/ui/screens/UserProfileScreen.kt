@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,14 +30,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
+import com.dexter.app.domain.model.ProfileReviewItem
 import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.presentation.ui.components.AvatarCircle
+import com.dexter.app.presentation.ui.components.PreviewSafeFlowRow
 import com.dexter.app.presentation.ui.components.ReviewCard
 import com.dexter.app.presentation.ui.components.SkillChip
 import com.dexter.app.presentation.ui.components.StatCard
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
+import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
 import com.dexter.app.presentation.viewmodel.UserProfileState
 import com.dexter.app.presentation.viewmodel.UserProfileViewModel
@@ -249,7 +252,7 @@ private fun UserProfileBody(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 profile.skillsOffered.forEach { SkillChip(label = it, selected = true) }
             }
             Spacer(Modifier.height(16.dp))
@@ -263,7 +266,7 @@ private fun UserProfileBody(
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(Modifier.height(8.dp))
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 profile.skillsSought.forEach { SkillChip(label = it, isError = true) }
             }
             Spacer(Modifier.height(16.dp))
@@ -289,5 +292,44 @@ private fun UserProfileBody(
         }
 
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1800)
+@Composable
+private fun UserProfileSuccessPreview() {
+    val sampleProfile = ProfileSummary(
+        initials = "ML",
+        firstName = "Maria",
+        lastName = "Lopez",
+        avatarUrl = null,
+        bio = "Guitarrista apasionada con 10 años de experiencia. Busco mejorar mi inglés para estudios en el extranjero.",
+        country = "Costa Rica",
+        rating = 4.8,
+        totalSessions = 23,
+        totalMatches = 15,
+        skillsOffered = listOf("Guitarra", "Ukulele", "Solfeo"),
+        skillsSought = listOf("Inglés", "Francés"),
+        reviews = listOf(
+            ProfileReviewItem(
+                reviewerName = "Juan Pérez",
+                reviewerAvatarUrl = null,
+                rating = 5,
+                comment = "Maria es una excelente profesora, muy paciente y clara."
+            ),
+            ProfileReviewItem(
+                reviewerName = "Ana Gómez",
+                reviewerAvatarUrl = null,
+                rating = 4,
+                comment = "Muy buena sesión, aprendí los acordes básicos."
+            )
+        )
+    )
+    AppTheme(dynamicColor = false) {
+        UserProfileContent(
+            state = UserProfileState.Success(sampleProfile),
+            onBackClick = {},
+            onScheduleClick = {}
+        )
     }
 }

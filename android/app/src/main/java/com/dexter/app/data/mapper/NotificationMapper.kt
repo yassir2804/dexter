@@ -4,9 +4,10 @@ import com.dexter.app.data.datasource.model.NotificationDto
 import com.dexter.app.domain.model.Notification
 import com.dexter.app.domain.model.NotificationType
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `NotificationDto` ↔ `Notification`. */
-class NotificationMapper {
+class NotificationMapper @Inject constructor() {
 
     private fun parseType(value: String?): NotificationType = when (value?.uppercase()) {
         "NEW_MATCH" -> NotificationType.NEW_MATCH

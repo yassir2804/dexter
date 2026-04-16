@@ -30,7 +30,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -46,9 +47,12 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
 import com.dexter.app.domain.model.Session
+import com.dexter.app.domain.model.SessionStatus
+import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.InfoRow
@@ -243,9 +247,9 @@ private fun PulsingStatusBadge() {
 
 @Composable
 private fun TimerCard(startedAt: Date) {
-    FilledCard(
+    Card(
         shape = RoundedCornerShape(12.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
         ),
         modifier = Modifier.fillMaxWidth()
@@ -353,6 +357,36 @@ private fun NotesCard(notes: String, onNotesChange: (String) -> Unit) {
             singleLine = false,
             minLines = 4,
             contentDescriptionLabel = stringResource(R.string.cd_notes_input)
+        )
+    }
+}
+
+@Preview(showBackground = true, heightDp = 1400)
+@Composable
+private fun ActiveSessionSuccessPreview() {
+    val sampleSession = Session(
+        id = 1L,
+        matchId = 1L,
+        skillId = 1L,
+        sessionNumber = 3,
+        title = "Guitarra",
+        description = "Acordes básicos",
+        status = SessionStatus.SCHEDULED,
+        scheduledAt = Date(),
+        completedAt = null,
+        createdAt = Date()
+    )
+    AppTheme(dynamicColor = false) {
+        ActiveSessionContent(
+            state = ActiveSessionState.Active(
+                session = sampleSession,
+                notes = "Revisar progresión Am-Em-Dm",
+                ending = false
+            ),
+            onBackClick = {},
+            onNotesChange = {},
+            onEndSession = {},
+            onBackHome = {}
         )
     }
 }

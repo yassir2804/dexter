@@ -2,6 +2,8 @@ package com.dexter.app.data.di
 
 import com.dexter.app.data.datasource.MatchDataSource
 import com.dexter.app.data.datasource.MatchDataSourceImpl
+import com.dexter.app.data.datasource.ReviewDataSource
+import com.dexter.app.data.datasource.ReviewDataSourceImpl
 import com.dexter.app.data.datasource.SearchDataSource
 import com.dexter.app.data.datasource.SearchDataSourceImpl
 import com.dexter.app.data.datasource.UserDataSource
@@ -39,4 +41,10 @@ abstract class DataSourceModule {
     abstract fun bindSearchDataSource(
         searchDataSourceImpl: SearchDataSourceImpl
     ): SearchDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewDataSource(
+        reviewDataSourceImpl: ReviewDataSourceImpl
+    ): ReviewDataSource
 }

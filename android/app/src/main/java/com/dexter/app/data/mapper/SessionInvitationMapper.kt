@@ -4,9 +4,10 @@ import com.dexter.app.data.datasource.model.SessionInvitationDto
 import com.dexter.app.domain.model.SessionInvitation
 import com.dexter.app.domain.model.InvitationStatus
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `SessionInvitationDto` ↔ `SessionInvitation`. */
-class SessionInvitationMapper {
+class SessionInvitationMapper @Inject constructor() {
 
     private fun parseStatus(value: String?): InvitationStatus = when (value?.uppercase()) {
         "PENDING" -> InvitationStatus.PENDING
