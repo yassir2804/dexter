@@ -4,8 +4,11 @@ import com.dexter.app.domain.model.Session
 
 /** Repository contract for sessions. */
 interface SessionRepository {
-    suspend fun getSessionById(id: Long): Session?
-    suspend fun getSessionsForMatch(matchId: Long): List<Session>
-    suspend fun createSession(session: Session): Session
-    suspend fun updateSession(session: Session): Session
+    suspend fun getSessionById(id: Long): Result<Session>
+    suspend fun getSessionsByMatch(matchId: Long): Result<List<Session>>
+    suspend fun getActiveSession(sessionId: Long): Result<Session>
+    suspend fun createSession(session: Session): Result<Session>
+    suspend fun updateSession(session: Session): Result<Session>
+    suspend fun cancelSession(sessionId: Long): Result<Unit>
+    suspend fun completeSession(sessionId: Long, notes: String): Result<Session>
 }

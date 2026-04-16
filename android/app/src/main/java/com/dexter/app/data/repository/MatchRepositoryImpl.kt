@@ -2,10 +2,12 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.MatchDataSource
+import com.dexter.app.data.datasource.MatchProvider
 import com.dexter.app.data.mapper.MatchMapper
 import com.dexter.app.data.mapper.MatchSummaryMapper
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Match
+import com.dexter.app.domain.model.MatchDetail
 import com.dexter.app.domain.model.MatchSummary
 import com.dexter.app.domain.repository.MatchRepository
 import kotlinx.coroutines.flow.first
@@ -56,6 +58,18 @@ class MatchRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in getMatchSummaries", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching match summaries", e))
+    }
+
+    override suspend fun getMatchDetail(matchId: Long): Result<MatchDetail> = try {
+        // Mock only — no API wired yet. Yazir replaces with a call to
+        // `remoteDataSource.getMatchDetail(matchId)` with fallback to this provider.
+        Result.success(MatchProvider.findMatchDetailById(matchId))
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get match detail: $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching match detail", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in getMatchDetail", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching match detail", e))
     }
 
     override suspend fun createMatch(match: Match): Result<Match> = try {

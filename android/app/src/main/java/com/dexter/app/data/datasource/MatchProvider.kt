@@ -3,6 +3,7 @@ package com.dexter.app.data.datasource
 
 
 import com.dexter.app.domain.model.Match
+import com.dexter.app.domain.model.MatchDetail
 import com.dexter.app.domain.model.MatchStatus
 import com.dexter.app.domain.model.MatchSummary
 import java.util.Date
@@ -128,5 +129,62 @@ class MatchProvider {
         )
 
         fun findMatchSummaries(userId: Long): List<MatchSummary> = sampleSummaries
+
+        // Mock MatchDetail matching the React prototype (MatchDetailScreen.tsx).
+        // Indexed by matchId for quick lookup. Falls back to the first one if
+        // the requested id is not found (useful while the API is not wired yet).
+        private val sampleDetails = listOf(
+            MatchDetail(
+                matchId = 1L,
+                otherUserId = 2L,
+                initials = "ML",
+                name = "Maria Lopez",
+                avatarUrl = null,
+                bio = "Diseñadora gráfica apasionada por la música. Me encanta aprender cosas nuevas.",
+                rating = 4.8,
+                sessionsCompleted = 23,
+                compatibilityPercent = 95,
+                offeredSkills = listOf("Guitarra", "Piano"),
+                soughtSkills = listOf("Inglés", "Redacción"),
+                availability = listOf(1, 2, 4),
+                aiAnalysis = "Tu horario coincide con el de Maria los lunes, martes y jueves. Su nivel avanzado en guitarra se alinea con tu objetivo de aprender en 3 meses.",
+                status = MatchStatus.PENDING
+            ),
+            MatchDetail(
+                matchId = 2L,
+                otherUserId = 3L,
+                initials = "JP",
+                name = "Juan Perez",
+                avatarUrl = null,
+                bio = "Developer full-stack con interés en diseño. Busco mejorar mi ojo visual.",
+                rating = 4.2,
+                sessionsCompleted = 15,
+                compatibilityPercent = 87,
+                offeredSkills = listOf("Programación", "React"),
+                soughtSkills = listOf("Diseño gráfico", "Figma"),
+                availability = listOf(0, 2, 5),
+                aiAnalysis = "Juan tiene experiencia en proyectos web similares. Es buen match por su disponibilidad en fines de semana.",
+                status = MatchStatus.ACCEPTED
+            ),
+            MatchDetail(
+                matchId = 3L,
+                otherUserId = 4L,
+                initials = "AR",
+                name = "Ana Ramirez",
+                avatarUrl = null,
+                bio = "Fotógrafa profesional. Trabajo con bodas y retratos. Me interesa el marketing digital.",
+                rating = 4.9,
+                sessionsCompleted = 31,
+                compatibilityPercent = 82,
+                offeredSkills = listOf("Fotografía", "Lightroom"),
+                soughtSkills = listOf("Marketing", "SEO"),
+                availability = listOf(3, 4, 5, 6),
+                aiAnalysis = "Ana tiene 5 estrellas en sus últimas 10 sesiones. Su metodología es muy visual y práctica.",
+                status = MatchStatus.ACCEPTED
+            )
+        )
+
+        fun findMatchDetailById(matchId: Long): MatchDetail =
+            sampleDetails.firstOrNull { it.matchId == matchId } ?: sampleDetails.first()
     }
 }

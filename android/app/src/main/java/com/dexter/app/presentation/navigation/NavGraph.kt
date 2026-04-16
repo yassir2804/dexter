@@ -15,16 +15,34 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.layout.MainLayout
+import com.dexter.app.presentation.ui.screens.ActiveSessionScreen
+import com.dexter.app.presentation.ui.screens.EditSessionScreen
+import com.dexter.app.presentation.ui.screens.NotificationRoute
+import com.dexter.app.presentation.ui.screens.NotificationsScreen
+import com.dexter.app.presentation.ui.screens.RateScreen
+import com.dexter.app.presentation.ui.screens.SessionInviteScreen
+import com.dexter.app.presentation.ui.screens.UserProfileScreen
+import com.dexter.app.presentation.ui.screens.resolveNotificationRoute
 import com.dexter.app.presentation.ui.screens.ForgotPasswordScreen
 import com.dexter.app.presentation.ui.screens.LoginScreen
 import com.dexter.app.presentation.ui.screens.HomeScreen
+import com.dexter.app.presentation.ui.screens.MatchDetailScreen
 import com.dexter.app.presentation.ui.screens.OnboardingScreen
+import com.dexter.app.presentation.ui.screens.PlanScreen
 import com.dexter.app.presentation.ui.screens.ProfileScreen
 import com.dexter.app.presentation.ui.screens.WelcomeScreen
+import com.dexter.app.presentation.viewmodel.ActiveSessionViewModel
+import com.dexter.app.presentation.viewmodel.EditSessionViewModel
+import com.dexter.app.presentation.viewmodel.NotificationsViewModel
+import com.dexter.app.presentation.viewmodel.RateViewModel
+import com.dexter.app.presentation.viewmodel.SessionInviteViewModel
+import com.dexter.app.presentation.viewmodel.UserProfileViewModel
 import com.dexter.app.presentation.viewmodel.ForgotPasswordViewModel
 import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
 import com.dexter.app.presentation.viewmodel.HomeViewModel
+import com.dexter.app.presentation.viewmodel.MatchDetailViewModel
+import com.dexter.app.presentation.viewmodel.PlanViewModel
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
 import com.dexter.app.presentation.viewmodel.ProfileState
 import com.dexter.app.presentation.viewmodel.RegisterViewModel
@@ -157,8 +175,23 @@ fun NavGraph(
             ) {
                 HomeScreen(
                     viewModel = homeViewModel,
-                    onMatchClick = { /* TODO: navigate to match detail */ },
-                    onActiveSessionClick = { /* TODO: navigate to active session */ }
+                    onMatchClick = { match ->
+                        // MatchSummary has no matchId yet — derive one deterministic
+                        // id from the sample mocks so the detail screen can resolve
+                        // the right MatchDetail. Yazir should add `matchId` to
+                        // MatchSummary once the API is wired.
+                        val matchId = when (match.name) {
+                            "Maria Lopez" -> 1L
+                            "Juan Perez" -> 2L
+                            "Ana Ramirez" -> 3L
+                            else -> 1L
+                        }
+                        navController.navigate(NavRoutes.MatchDetail.createRoute(matchId))
+                    },
+                    onActiveSessionClick = {
+                        // Open the currently scheduled session (mock id 13 = match 1 / session 3)
+                        navController.navigate(NavRoutes.ActiveSession.createRoute(13L))
+                    }
                 )
             }
         }
@@ -257,9 +290,8 @@ fun NavGraph(
                 onEditProfileClick = {
                     navController.navigate(NavRoutes.EditProfile.ROUTE)
                 },
-                onLogoutClick = {
-                    CurrentUserSession.clear()
-                    ThemePreference.clear()
+                onLoggedOut = {
+                    // SessionManager already wiped state inside SettingsViewModel.logout().
                     navController.navigate(NavRoutes.Login.ROUTE) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }
@@ -285,7 +317,7 @@ fun NavGraph(
             }
         }
 
-        // ── User Profile (placeholder until screen is implemented) ──
+        // ── User Profile ────────────────────────────────────────────
         composable(
             route = NavRoutes.UserProfile.ROUTE,
             arguments = listOf(
@@ -293,14 +325,175 @@ fun NavGraph(
                     type = NavType.LongType
                 }
             )
-        ) {
-            // TODO: UserProfileScreen
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("User Profile — próximamente")
-            }
+        ) { backStackEntry ->
+            val userId = backStackEntry.arguments
+                ?.getLong(NavRoutes.UserProfile.ARG_USER_ID) ?: 0L
+            val viewModel: UserProfileViewModel = hiltViewModel()
+            UserProfileScreen(
+                userId = userId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onScheduleClick = {
+                    // Open invite flow in "send" mode (id 0 = compose new invite)
+                    navController.navigate(NavRoutes.SessionInvite.createRoute(0L))
+                }
+            )
+        }
+
+        // ── Match Detail ────────────────────────────────────────────
+        composable(
+            route = NavRoutes.MatchDetail.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.MatchDetail.ARG_MATCH_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val matchId = backStackEntry.arguments
+                ?.getLong(NavRoutes.MatchDetail.ARG_MATCH_ID) ?: 0L
+            val viewModel: MatchDetailViewModel = hiltViewModel()
+            MatchDetailScreen(
+                matchId = matchId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onConnectClick = { id ->
+                    navController.navigate(NavRoutes.Plan.createRoute(id))
+                }
+            )
+        }
+
+        // ── Plan ────────────────────────────────────────────────────
+        composable(
+            route = NavRoutes.Plan.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.Plan.ARG_MATCH_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val matchId = backStackEntry.arguments
+                ?.getLong(NavRoutes.Plan.ARG_MATCH_ID) ?: 0L
+            val viewModel: PlanViewModel = hiltViewModel()
+            PlanScreen(
+                matchId = matchId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onEditSession = { sessionId ->
+                    navController.navigate(NavRoutes.EditSession.createRoute(sessionId))
+                },
+                onRateSession = { sessionId ->
+                    navController.navigate(NavRoutes.Rate.createRoute(sessionId))
+                },
+                onChatClick = { /* Chat excluded in this phase */ }
+            )
+        }
+
+        // ── Edit Session ────────────────────────────────────────────
+        composable(
+            route = NavRoutes.EditSession.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.EditSession.ARG_SESSION_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments
+                ?.getLong(NavRoutes.EditSession.ARG_SESSION_ID) ?: 0L
+            val viewModel: EditSessionViewModel = hiltViewModel()
+            EditSessionScreen(
+                sessionId = sessionId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onDoneClick = { navController.navigateUp() }
+            )
+        }
+
+        // ── Rate ────────────────────────────────────────────────────
+        composable(
+            route = NavRoutes.Rate.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.Rate.ARG_SESSION_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments
+                ?.getLong(NavRoutes.Rate.ARG_SESSION_ID) ?: 0L
+            val viewModel: RateViewModel = hiltViewModel()
+            RateScreen(
+                sessionId = sessionId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onDoneClick = { navController.navigateUp() }
+            )
+        }
+
+        // ── Notifications ───────────────────────────────────────────
+        composable(NavRoutes.Notifications.ROUTE) {
+            val viewModel: NotificationsViewModel = hiltViewModel()
+            NotificationsScreen(
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onNotifClick = { notif ->
+                    when (val route = resolveNotificationRoute(notif)) {
+                        is NotificationRoute.MatchDetail ->
+                            navController.navigate(NavRoutes.MatchDetail.createRoute(route.matchId))
+                        is NotificationRoute.ActiveSession ->
+                            navController.navigate(NavRoutes.ActiveSession.createRoute(route.sessionId))
+                        is NotificationRoute.UserProfile ->
+                            navController.navigate(NavRoutes.UserProfile.createRoute(route.userId))
+                        NotificationRoute.Home ->
+                            navController.navigate(NavRoutes.Home.ROUTE) {
+                                popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                            }
+                        null -> { /* Chat excluded in this phase */ }
+                    }
+                }
+            )
+        }
+
+        // ── Session Invite (receive when id>0, send when id==0) ─────
+        composable(
+            route = NavRoutes.SessionInvite.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.SessionInvite.ARG_INVITATION_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val invitationId = backStackEntry.arguments
+                ?.getLong(NavRoutes.SessionInvite.ARG_INVITATION_ID) ?: 0L
+            val viewModel: SessionInviteViewModel = hiltViewModel()
+            SessionInviteScreen(
+                invitationId = invitationId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onDoneClick = { navController.navigateUp() }
+            )
+        }
+
+        // ── Active Session ──────────────────────────────────────────
+        composable(
+            route = NavRoutes.ActiveSession.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.ActiveSession.ARG_SESSION_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val sessionId = backStackEntry.arguments
+                ?.getLong(NavRoutes.ActiveSession.ARG_SESSION_ID) ?: 0L
+            val viewModel: ActiveSessionViewModel = hiltViewModel()
+            ActiveSessionScreen(
+                sessionId = sessionId,
+                viewModel = viewModel,
+                onBackClick = { navController.navigateUp() },
+                onBackHome = {
+                    navController.navigate(NavRoutes.Home.ROUTE) {
+                        popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                    }
+                }
+            )
         }
     }
 }

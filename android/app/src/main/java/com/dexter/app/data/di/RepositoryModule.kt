@@ -1,10 +1,20 @@
 package com.dexter.app.data.di
 
 import com.dexter.app.data.repository.MatchRepositoryImpl
+import com.dexter.app.data.repository.NotificationRepositoryImpl
+import com.dexter.app.data.repository.ReviewRepositoryImpl
+import com.dexter.app.data.repository.ReviewTagRepositoryImpl
 import com.dexter.app.data.repository.SearchRepositoryImpl
+import com.dexter.app.data.repository.SessionInvitationRepositoryImpl
+import com.dexter.app.data.repository.SessionRepositoryImpl
 import com.dexter.app.data.repository.UserRepositoryImpl
 import com.dexter.app.domain.repository.MatchRepository
+import com.dexter.app.domain.repository.NotificationRepository
+import com.dexter.app.domain.repository.ReviewRepository
+import com.dexter.app.domain.repository.ReviewTagRepository
 import com.dexter.app.domain.repository.SearchRepository
+import com.dexter.app.domain.repository.SessionInvitationRepository
+import com.dexter.app.domain.repository.SessionRepository
 import com.dexter.app.domain.repository.UserRepository
 import dagger.Binds
 import dagger.Module
@@ -81,4 +91,34 @@ abstract class RepositoryModule {
     abstract fun bindSearchRepository(
         searchRepositoryImpl: SearchRepositoryImpl
     ): SearchRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionRepository(
+        sessionRepositoryImpl: SessionRepositoryImpl
+    ): SessionRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewRepository(
+        reviewRepositoryImpl: ReviewRepositoryImpl
+    ): ReviewRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindReviewTagRepository(
+        reviewTagRepositoryImpl: ReviewTagRepositoryImpl
+    ): ReviewTagRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSessionInvitationRepository(
+        sessionInvitationRepositoryImpl: SessionInvitationRepositoryImpl
+    ): SessionInvitationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindNotificationRepository(
+        notificationRepositoryImpl: NotificationRepositoryImpl
+    ): NotificationRepository
 }

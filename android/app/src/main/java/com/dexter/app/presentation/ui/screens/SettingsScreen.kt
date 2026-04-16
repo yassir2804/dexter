@@ -18,6 +18,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,10 +30,14 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.dexter.app.presentation.viewmodel.SettingsViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -51,9 +57,43 @@ fun SettingsScreen(
     onDarkModeToggle: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     onEditProfileClick: () -> Unit,
-    onLogoutClick: () -> Unit,
-    modifier: Modifier = Modifier
+    onLoggedOut: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
+    var showConfirm by remember { mutableStateOf(false) }
+    val loggedOut by viewModel.loggedOut.collectAsState()
+
+    LaunchedEffect(loggedOut) {
+        if (loggedOut) onLoggedOut()
+    }
+
+    if (showConfirm) {
+        AlertDialog(
+            onDismissRequest = { showConfirm = false },
+            title = { Text(stringResource(R.string.settings_logout_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_logout_confirm_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showConfirm = false
+                        viewModel.logout()
+                    },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(stringResource(R.string.settings_logout_confirm_yes))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirm = false }) {
+                    Text(stringResource(R.string.settings_logout_confirm_no))
+                }
+            }
+        )
+    }
+
     SettingsContent(
         userName = userName,
         userInitials = userInitials,
@@ -62,7 +102,7 @@ fun SettingsScreen(
         onDarkModeToggle = onDarkModeToggle,
         onBackClick = onBackClick,
         onEditProfileClick = onEditProfileClick,
-        onLogoutClick = onLogoutClick,
+        onLogoutClick = { showConfirm = true },
         modifier = modifier
     )
 }

@@ -330,6 +330,10 @@
     <string name="settings_change_password">Cambiar contraseña</string>
     <string name="settings_language">Idioma de la app</string>
     <string name="settings_logout">Cerrar sesión</string>
+    <string name="settings_logout_confirm_title">¿Cerrar sesión?</string>
+    <string name="settings_logout_confirm_body">Deberás volver a iniciar sesión para acceder a tu cuenta.</string>
+    <string name="settings_logout_confirm_yes">Cerrar sesión</string>
+    <string name="settings_logout_confirm_no">Cancelar</string>
 
     <!-- ══ Active Session Screen ══════════════════════════════ -->
     <string name="active_session_title">Sesión en progreso</string>

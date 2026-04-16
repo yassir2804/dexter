@@ -2,13 +2,15 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.ReviewDataSource
+import com.dexter.app.data.datasource.ReviewProvider
 import com.dexter.app.data.mapper.ReviewMapper
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Review
 import com.dexter.app.domain.repository.ReviewRepository
 import java.io.IOException
+import javax.inject.Inject
 
-class ReviewRepositoryImpl(
+class ReviewRepositoryImpl @Inject constructor(
     private val dataSource: ReviewDataSource,
     private val reviewMapper: ReviewMapper
 ) : ReviewRepository {
@@ -41,7 +43,7 @@ class ReviewRepositoryImpl(
     }
 
     override suspend fun getReviewsForUser(userId: Long): Result<List<Review>> = try {
-        val reviews = dataSource.getReviewsByUserId(userId).map { reviewMapper.mapToDomain(it) }
+        val reviews = ReviewProvider.findReviewsByUserId(userId)
         Result.success(reviews)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get reviews for user: $userId", e)
@@ -52,6 +54,8 @@ class ReviewRepositoryImpl(
     }
 
     override suspend fun createReview(review: Review): Result<Review> = try {
+        // Mock echoes back the submitted review. Yazir replaces with POST call.
+        Log.i(TAG, "Review submitted (mock): rating=${review.rating}, session=${review.sessionId}")
         Result.success(review)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to create review", e)
