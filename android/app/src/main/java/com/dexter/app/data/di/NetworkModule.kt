@@ -1,7 +1,12 @@
 package com.dexter.app.data.di
 
 import com.dexter.app.data.remote.api.MatchApiService
+import com.dexter.app.data.remote.api.NotificationApiService
+import com.dexter.app.data.remote.api.ReviewApiService
+import com.dexter.app.data.remote.api.ReviewTagApiService
 import com.dexter.app.data.remote.api.SearchApiService
+import com.dexter.app.data.remote.api.SessionApiService
+import com.dexter.app.data.remote.api.SessionInvitationApiService
 import com.dexter.app.data.remote.api.UserApiService
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -75,4 +80,29 @@ object NetworkModule {
     @Singleton
     fun provideUserApiService(retrofit: Retrofit): UserApiService =
         retrofit.create(UserApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideNotificationApiService(retrofit: Retrofit): NotificationApiService =
+        retrofit.create(NotificationApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideReviewApiService(retrofit: Retrofit): ReviewApiService =
+        retrofit.create(ReviewApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideReviewTagApiService(retrofit: Retrofit): ReviewTagApiService =
+        retrofit.create(ReviewTagApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideSessionApiService(retrofit: Retrofit): SessionApiService =
+        retrofit.create(SessionApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideSessionInvitationApiService(retrofit: Retrofit): SessionInvitationApiService =
+        retrofit.create(SessionInvitationApiService::class.java)
 }
