@@ -1,8 +1,8 @@
 package com.dexter.app.data.repository
 
 import android.util.Log
-import com.dexter.app.data.datasource.NotificationProvider
 import com.dexter.app.data.mapper.NotificationMapper
+import com.dexter.app.data.remote.NotificationRemoteDataSource
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Notification
 import com.dexter.app.domain.repository.NotificationRepository
@@ -10,13 +10,18 @@ import java.io.IOException
 import javax.inject.Inject
 
 class NotificationRepositoryImpl @Inject constructor(
-    @Suppress("unused") private val notificationMapper: NotificationMapper
+    private val remoteDataSource: NotificationRemoteDataSource,
+    private val notificationMapper: NotificationMapper
 ) : NotificationRepository {
 
     companion object { private const val TAG = "NotificationRepository" }
 
     override suspend fun getNotificationsForUser(userId: Long): Result<List<Notification>> = try {
-        Result.success(NotificationProvider.findForUser(userId))
+        remoteDataSource.getNotifications().map { dtos ->
+            dtos
+                .map { notificationMapper.mapToDomain(it) }
+                .filter { it.userId == userId }
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get notifications for user: $userId", e)
         Result.failure(DomainError.NetworkError("Network error fetching notifications", e))
@@ -26,8 +31,7 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAsRead(notificationId: Long): Result<Unit> = try {
-        Log.i(TAG, "Notification $notificationId marked as read (mock)")
-        Result.success(Unit)
+        remoteDataSource.markAsRead(notificationId)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to mark notification as read: $notificationId", e)
         Result.failure(DomainError.NetworkError("Network error marking as read", e))
@@ -37,8 +41,33 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAllAsRead(userId: Long): Result<Unit> = try {
-        Log.i(TAG, "All notifications marked as read for user $userId (mock)")
-        Result.success(Unit)
+        remoteDataSource.getNotifications()
+            .fold(
+                onSuccess = { dtos ->
+                    val targetIds = dtos
+                        .filter { it.userId == userId && it.isRead != true }
+                        .mapNotNull { it.id }
+
+                    for (notificationId in targetIds) {
+                        remoteDataSource.markAsRead(notificationId)
+                            .onFailure { exception ->
+                                return Result.failure(
+                                    DomainError.NetworkError(
+                                        "Network error marking all as read",
+                                        exception
+                                    )
+                                )
+                            }
+                    }
+
+                    Result.success(Unit)
+                },
+                onFailure = { exception ->
+                    Result.failure(
+                        DomainError.NetworkError("Network error marking all as read", exception)
+                    )
+                }
+            )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to mark all as read", e)
         Result.failure(DomainError.NetworkError("Network error marking all as read", e))
