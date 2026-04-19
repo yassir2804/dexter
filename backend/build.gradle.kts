@@ -6,7 +6,7 @@ plugins {
 	id("io.spring.dependency-management") version "1.1.7"
 }
 
-group = "com.dexter.app"
+group = "com.dexter.backend"
 version = "0.0.1-SNAPSHOT"
 
 java {
