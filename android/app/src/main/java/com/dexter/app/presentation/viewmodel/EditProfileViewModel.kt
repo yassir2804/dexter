@@ -53,6 +53,13 @@ class EditProfileViewModel @Inject constructor(
     private val _skillsOffered = MutableStateFlow<List<String>>(emptyList())
     val skillsOffered = _skillsOffered.asStateFlow()
 
+    private val _skillsSought = MutableStateFlow<List<String>>(emptyList())
+    val skillsSought = _skillsSought.asStateFlow()
+
+    // Custom skills added by the user in this session (not in predefined list)
+    private val _customSkills = MutableStateFlow<List<String>>(emptyList())
+    val customSkills = _customSkills.asStateFlow()
+
     // Non-editable fields kept for building the ProfileSummary
     private var initials = ""
     private var firstName = ""
@@ -61,7 +68,6 @@ class EditProfileViewModel @Inject constructor(
     private var rating = 0.0
     private var totalSessions = 0
     private var totalMatches = 0
-    private var skillsSought = emptyList<String>()
     private var reviews = emptyList<com.dexter.app.domain.model.ProfileReviewItem>()
 
     fun onFullNameChange(value: String) { _fullName.value = value }
@@ -76,6 +82,35 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
+    fun toggleSkillSought(skill: String) {
+        _skillsSought.value = if (skill in _skillsSought.value) {
+            _skillsSought.value - skill
+        } else {
+            _skillsSought.value + skill
+        }
+    }
+
+    /**
+     * Adds a custom (user-created) skill and selects it for the target list.
+     * @param isOffered true to add to offered list, false for sought list.
+     */
+    fun addCustomSkill(skill: String, isOffered: Boolean) {
+        val trimmed = skill.trim()
+        if (trimmed.isBlank()) return
+        if (trimmed !in _customSkills.value) {
+            _customSkills.value = _customSkills.value + trimmed
+        }
+        if (isOffered) {
+            if (trimmed !in _skillsOffered.value) {
+                _skillsOffered.value = _skillsOffered.value + trimmed
+            }
+        } else {
+            if (trimmed !in _skillsSought.value) {
+                _skillsSought.value = _skillsSought.value + trimmed
+            }
+        }
+    }
+
     /**
      * Loads the current profile data into the editable fields.
      * Called once from LaunchedEffect when the screen opens.
@@ -85,6 +120,7 @@ class EditProfileViewModel @Inject constructor(
         _bio.value = profile.bio
         _country.value = profile.country ?: ""
         _skillsOffered.value = profile.skillsOffered
+        _skillsSought.value = profile.skillsSought
 
         // Store non-editable fields for rebuilding the ProfileSummary
         initials = profile.initials
@@ -94,7 +130,6 @@ class EditProfileViewModel @Inject constructor(
         rating = profile.rating
         totalSessions = profile.totalSessions
         totalMatches = profile.totalMatches
-        skillsSought = profile.skillsSought
         reviews = profile.reviews
     }
 
@@ -122,7 +157,7 @@ class EditProfileViewModel @Inject constructor(
                 totalSessions = totalSessions,
                 totalMatches = totalMatches,
                 skillsOffered = _skillsOffered.value,
-                skillsSought = skillsSought,
+                skillsSought = _skillsSought.value,
                 reviews = reviews
             )
 

@@ -1,5 +1,8 @@
 package com.dexter.app.presentation.ui.screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +13,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,8 +35,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,9 +50,13 @@ import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.SkillChip
+import com.dexter.app.presentation.ui.components.SkillPickerBottomSheet
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.EditProfileState
 import com.dexter.app.presentation.viewmodel.EditProfileViewModel
+
+// Which picker is currently open
+private enum class PickerMode { OFFERED, SOUGHT }
 
 /**
  * Edit Profile screen — Stateful composable.
@@ -65,9 +78,13 @@ fun EditProfileScreen(
     val bio by viewModel.bio.collectAsState()
     val country by viewModel.country.collectAsState()
     val skillsOffered by viewModel.skillsOffered.collectAsState()
+    val skillsSought by viewModel.skillsSought.collectAsState()
+    val customSkills by viewModel.customSkills.collectAsState()
 
     val isSaving = state is EditProfileState.Loading
     val errorMessage = (state as? EditProfileState.Error)?.message
+
+    var pickerMode by remember { mutableStateOf<PickerMode?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadFromProfile(profile)
@@ -113,6 +130,7 @@ fun EditProfileScreen(
             bio = bio,
             country = country,
             skillsOffered = skillsOffered,
+            skillsSought = skillsSought,
             avatarUrl = profile.avatarUrl,
             initials = profile.initials,
             isSaving = isSaving,
@@ -120,16 +138,78 @@ fun EditProfileScreen(
             onFullNameChange = viewModel::onFullNameChange,
             onBioChange = viewModel::onBioChange,
             onCountryChange = viewModel::onCountryChange,
-            onToggleSkill = viewModel::toggleSkillOffered,
+            onToggleOffered = viewModel::toggleSkillOffered,
+            onToggleSought = viewModel::toggleSkillSought,
+            onAddOfferedClick = { pickerMode = PickerMode.OFFERED },
+            onAddSoughtClick = { pickerMode = PickerMode.SOUGHT },
             onSaveClick = { viewModel.saveProfile(onSaved = onSaved) },
             modifier = Modifier.padding(innerPadding)
+        )
+    }
+
+    // ── Bottom sheet (open when pickerMode != null) ──
+    if (pickerMode != null) {
+        val isOffered = pickerMode == PickerMode.OFFERED
+        val title = stringResource(
+            if (isOffered) R.string.skill_search_add_title
+            else R.string.skill_search_add_interest_title
+        )
+        val available = rememberAvailableSkills() + customSkills
+        val selected = if (isOffered) skillsOffered else skillsSought
+
+        SkillPickerBottomSheet(
+            title = title,
+            availableSkills = available.distinct(),
+            selectedSkills = selected,
+            onSkillSelected = { skill ->
+                if (isOffered) viewModel.toggleSkillOffered(skill)
+                else viewModel.toggleSkillSought(skill)
+            },
+            onCustomSkillAdded = { skill ->
+                viewModel.addCustomSkill(skill, isOffered = isOffered)
+            },
+            onDismiss = { pickerMode = null }
         )
     }
 }
 
 /**
+ * Builds the catalog of predefined skills from strings.xml.
+ * Only readable inside a @Composable because it needs stringResource().
+ */
+@Composable
+private fun rememberAvailableSkills(): List<String> {
+    return listOf(
+        stringResource(R.string.skill_english),
+        stringResource(R.string.skill_guitar),
+        stringResource(R.string.skill_piano),
+        stringResource(R.string.skill_programming),
+        stringResource(R.string.skill_python),
+        stringResource(R.string.skill_javascript),
+        stringResource(R.string.skill_java),
+        stringResource(R.string.skill_react),
+        stringResource(R.string.skill_marketing),
+        stringResource(R.string.skill_photography),
+        stringResource(R.string.skill_cooking),
+        stringResource(R.string.skill_graphic_design),
+        stringResource(R.string.skill_french),
+        stringResource(R.string.skill_german),
+        stringResource(R.string.skill_singing),
+        stringResource(R.string.skill_drums),
+        stringResource(R.string.skill_yoga),
+        stringResource(R.string.skill_running),
+        stringResource(R.string.skill_painting),
+        stringResource(R.string.skill_writing),
+        stringResource(R.string.skill_dance),
+        stringResource(R.string.skill_chess),
+        stringResource(R.string.skill_video_editing),
+        stringResource(R.string.skill_figma),
+        stringResource(R.string.skill_photoshop)
+    )
+}
+
+/**
  * Edit Profile form — Stateless composable.
- * Follows the same Stateful/Stateless pattern as HomeScreen/ProfileScreen.
  */
 @Composable
 private fun EditProfileForm(
@@ -137,6 +217,7 @@ private fun EditProfileForm(
     bio: String,
     country: String,
     skillsOffered: List<String>,
+    skillsSought: List<String>,
     avatarUrl: String?,
     initials: String,
     isSaving: Boolean,
@@ -144,20 +225,13 @@ private fun EditProfileForm(
     onFullNameChange: (String) -> Unit,
     onBioChange: (String) -> Unit,
     onCountryChange: (String) -> Unit,
-    onToggleSkill: (String) -> Unit,
+    onToggleOffered: (String) -> Unit,
+    onToggleSought: (String) -> Unit,
+    onAddOfferedClick: () -> Unit,
+    onAddSoughtClick: () -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val availableSkills = listOf(
-        stringResource(R.string.skill_english),
-        stringResource(R.string.skill_guitar),
-        stringResource(R.string.skill_programming),
-        stringResource(R.string.skill_marketing),
-        stringResource(R.string.skill_photography),
-        stringResource(R.string.skill_cooking),
-        stringResource(R.string.skill_graphic_design)
-    )
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
@@ -167,7 +241,6 @@ private fun EditProfileForm(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Avatar ──────────────────────────────────────────
         AvatarCircle(
             initials = initials,
             imageUrl = avatarUrl,
@@ -220,33 +293,25 @@ private fun EditProfileForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ── Skills section ──────────────────────────────────
-        Text(
-            text = stringResource(R.string.edit_profile_skills_section),
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.fillMaxWidth()
+        // ── Skills OFFERED section ──────────────────────────
+        SkillsEditableSection(
+            title = stringResource(R.string.edit_profile_skills_offered_title),
+            skills = skillsOffered,
+            isError = false,
+            onChipClick = onToggleOffered,
+            onAddClick = onAddOfferedClick
         )
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-        // Chips in rows of 3 (same pattern as OnboardingScreen)
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            availableSkills.chunked(3).forEach { rowItems ->
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    rowItems.forEach { skill ->
-                        SkillChip(
-                            label = skill,
-                            selected = skill in skillsOffered,
-                            isError = false,
-                            onClick = { onToggleSkill(skill) }
-                        )
-                    }
-                }
-            }
-        }
+        // ── Skills SOUGHT section ───────────────────────────
+        SkillsEditableSection(
+            title = stringResource(R.string.edit_profile_skills_sought_title),
+            skills = skillsSought,
+            isError = true,
+            onChipClick = onToggleSought,
+            onAddClick = onAddSoughtClick
+        )
 
         // ── Error message ───────────────────────────────────
         if (errorMessage != null) {
@@ -260,7 +325,6 @@ private fun EditProfileForm(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // ── Save button ─────────────────────────────────────
         Button(
             onClick = onSaveClick,
             enabled = !isSaving,
@@ -287,6 +351,90 @@ private fun EditProfileForm(
     }
 }
 
+/**
+ * One skills group: title + chips wrapped in rows of 3 + a "+" chip at the end.
+ * Tapping a chip toggles selection (removes the skill). Tapping "+" opens the picker.
+ */
+@Composable
+private fun SkillsEditableSection(
+    title: String,
+    skills: List<String>,
+    isError: Boolean,
+    onChipClick: (String) -> Unit,
+    onAddClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // All visible items = skills + "+"
+        val items: List<Any> = skills + "__ADD__"
+
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            items.chunked(3).forEach { rowItems ->
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    rowItems.forEach { item ->
+                        if (item == "__ADD__") {
+                            AddSkillChip(onClick = onAddClick)
+                        } else {
+                            val skill = item as String
+                            SkillChip(
+                                label = skill,
+                                selected = !isError,
+                                isError = isError,
+                                onClick = { onChipClick(skill) }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A "+" chip used at the end of a skills group to open the picker.
+ * Dashed outline styling to differentiate from regular chips.
+ */
+@Composable
+private fun AddSkillChip(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val shape = RoundedCornerShape(8.dp)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+            .wrapContentWidth()
+            .clip(shape)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline,
+                shape = shape
+            )
+            .clickable(onClick = onClick)
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 12.dp, vertical = 8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Add,
+            contentDescription = stringResource(R.string.cd_add_skill),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(16.dp)
+        )
+    }
+}
+
 // ── Previews ────────────────────────────────────────────────────
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -297,7 +445,8 @@ private fun EditProfilePreview() {
             fullName = "Alice Gonzalez",
             bio = "Guitar teacher",
             country = "CR",
-            skillsOffered = listOf("Inglés", "Guitarra"),
+            skillsOffered = listOf("Inglés", "Guitarra", "Marketing"),
+            skillsSought = listOf("Fotografía", "Piano"),
             avatarUrl = null,
             initials = "AG",
             isSaving = false,
@@ -305,7 +454,10 @@ private fun EditProfilePreview() {
             onFullNameChange = {},
             onBioChange = {},
             onCountryChange = {},
-            onToggleSkill = {},
+            onToggleOffered = {},
+            onToggleSought = {},
+            onAddOfferedClick = {},
+            onAddSoughtClick = {},
             onSaveClick = {}
         )
     }

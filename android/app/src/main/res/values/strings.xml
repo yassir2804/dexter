@@ -73,6 +73,9 @@
     <string name="skill_search_no_results">No se encontraron sugerencias</string>
     <string name="skill_search_custom">AGREGAR PERSONALIZADO</string>
     <string name="skill_search_add_custom">Agregar "%1$s"</string>
+    <string name="edit_profile_skills_offered_title">Habilidades que ofrezco</string>
+    <string name="edit_profile_skills_sought_title">Habilidades que busco</string>
+    <string name="cd_add_skill">Añadir habilidad</string>
 
     <!-- ══ Forgot Password Screen ═════════════════════════════ -->
     <string name="forgot_title">Recuperar contraseña</string>
