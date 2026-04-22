@@ -1,0 +1,73 @@
+package com.dexter.backend.service
+
+import com.dexter.backend.dto.ProfileReviewItemDto
+import com.dexter.backend.dto.ProfileSummaryDto
+import com.dexter.backend.entity.SkillRole
+import com.dexter.backend.repository.ReviewRepository
+import com.dexter.backend.repository.SkillRepository
+import com.dexter.backend.repository.UserRepository
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
+import java.util.Date
+
+@Service
+class AbstractProfileService(
+    @Autowired val userRepository: UserRepository,
+    @Autowired val skillRepository: SkillRepository,
+    @Autowired val reviewRepository: ReviewRepository,
+) : ProfileService {
+
+    override fun findByUserId(userId: Long): ProfileSummaryDto {
+        val user = userRepository.findById(userId).orElseThrow {
+            NoSuchElementException("User with id $userId not found")
+        }
+
+        val skills = skillRepository.findByUserId(userId)
+        val offered = skills.filter { it.skillRole == SkillRole.OFFERED }.map { it.name }
+        val sought = skills.filter { it.skillRole == SkillRole.SOUGHT }.map { it.name }
+
+        val reviews = reviewRepository.findByRevieweeIdOrderByCreatedAtDesc(userId)
+            .take(10)
+            .map { r ->
+                ProfileReviewItemDto(
+                    reviewerName = "${r.reviewer?.firstName ?: ""} ${r.reviewer?.lastName ?: ""}".trim(),
+                    reviewerAvatarUrl = r.reviewer?.avatarUrl,
+                    rating = r.rating,
+                    comment = r.comment,
+                )
+            }
+
+        return ProfileSummaryDto(
+            initials = initialsFrom(user.firstName, user.lastName),
+            firstName = user.firstName,
+            lastName = user.lastName,
+            avatarUrl = user.avatarUrl,
+            bio = user.bio,
+            country = user.country,
+            rating = user.rating,
+            totalSessions = user.totalSessions,
+            totalMatches = user.totalMatches,
+            skillsOffered = offered,
+            skillsSought = sought,
+            reviews = reviews,
+        )
+    }
+
+    override fun update(userId: Long, dto: ProfileSummaryDto): ProfileSummaryDto {
+        val user = userRepository.findById(userId).orElseThrow {
+            NoSuchElementException("User with id $userId not found")
+        }
+        dto.bio?.let { user.bio = it }
+        dto.country?.let { user.country = it }
+        dto.avatarUrl?.let { user.avatarUrl = it }
+        user.updatedAt = Date()
+        userRepository.save(user)
+        return findByUserId(userId)
+    }
+
+    private fun initialsFrom(first: String?, last: String?): String {
+        val f = first?.firstOrNull()?.uppercase() ?: ""
+        val l = last?.firstOrNull()?.uppercase() ?: ""
+        return "$f$l"
+    }
+}
