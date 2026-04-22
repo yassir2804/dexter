@@ -83,4 +83,7 @@ dependencies {
     implementation(libs.converter.gson)
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging.interceptor)
+
+    // Persistencia de datos (DataStore) para persistir el JWT del usuario logueado
+    implementation(libs.androidx.datastore.preferences)
 }

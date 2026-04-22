@@ -21,6 +21,8 @@ okhttp = "4.11.0"
 okhttpLoggingInterceptor = "4.11.0"
 # LAB 3: KSP para procesamiento de anotaciones (reemplaza KAPT en AGP 9)
 ksp = "2.2.10-2.0.2"
+# DataStore Preferences para persistir el JWT del usuario
+datastorePreferences = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -51,6 +53,8 @@ converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", ve
 # LAB 3: OkHttp y logging
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
 okhttp-logging-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttpLoggingInterceptor" }
+# DataStore para guardar el JWT
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -1,5 +1,6 @@
 package com.dexter.app.data.di
 
+import com.dexter.app.data.remote.AuthInterceptor
 import com.dexter.app.data.remote.api.MatchApiService
 import com.dexter.app.data.remote.api.SearchApiService
 import com.dexter.app.data.remote.api.UserApiService
@@ -26,7 +27,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // For Android emulator use 10.0.2.2 to access host machine localhost.
-    private const val BASE_URL = "http://10.0.2.2:3000/"
+    private const val BASE_URL = "http://10.0.2.2:3000/v1/"
 
     @Provides
     @Singleton
@@ -41,8 +42,11 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        authInterceptor: AuthInterceptor,
     ): OkHttpClient = OkHttpClient.Builder()
+        // Registrado antes del logging para que el header Authorization aparezca en los logs.
+        .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
         .connectTimeout(8, TimeUnit.SECONDS)
         .readTimeout(8, TimeUnit.SECONDS)
