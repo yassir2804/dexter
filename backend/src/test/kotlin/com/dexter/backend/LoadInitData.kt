@@ -1,90 +1,101 @@
 package com.dexter.backend
 
-import com.dexter.backend.entity.Privilege
-import com.dexter.backend.entity.Role
-import com.dexter.backend.entity.User
-import com.dexter.backend.repository.PrivilegeRepository
-import com.dexter.backend.repository.RoleRepository
+import com.dexter.backend.repository.MatchRepository
+import com.dexter.backend.repository.ReviewRepository
+import com.dexter.backend.repository.SessionRepository
+import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.test.context.ActiveProfiles
-import java.util.Date
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.transaction.annotation.Transactional
 
 /**
- * Ejecutar con el perfil `initlocal` (ddl-auto=create) para resetear DB y
- * sembrar roles + privilegios + usuario admin:
+ * Carga datos de prueba y valida los repositorios principales.
  *
- *     ./gradlew test --tests com.dexter.backend.LoadInitData -Dspring.profiles.active=initlocal
+ * Ejecutar con perfil initlocal (ddl-auto=create — resetea DB y siembra datos):
+ *
+ *     ./gradlew test --tests com.dexter.backend.LoadInitData
  */
-@SpringBootTest
 @ActiveProfiles("initlocal")
-class LoadInitData {
-
-    @Autowired lateinit var userRepository: UserRepository
-    @Autowired lateinit var roleRepository: RoleRepository
-    @Autowired lateinit var privilegeRepository: PrivilegeRepository
-
-    private val passwordEncoder = BCryptPasswordEncoder()
+@SpringBootTest
+@Transactional
+@Sql("/import-database.sql")
+class LoadInitData(
+    @Autowired val userRepository: UserRepository,
+    @Autowired val skillRepository: SkillRepository,
+    @Autowired val matchRepository: MatchRepository,
+    @Autowired val sessionRepository: SessionRepository,
+    @Autowired val reviewRepository: ReviewRepository,
+) {
 
     @Test
-    fun seed() {
-        val readPrivilege = privilegeRepository.save(Privilege(name = "READ_PRIVILEGE"))
-        val writePrivilege = privilegeRepository.save(Privilege(name = "WRITE_PRIVILEGE"))
+    fun testUserFindAll() {
+        val users = userRepository.findAll()
+        Assertions.assertEquals(2, users.size)
+    }
 
-        val adminRole = roleRepository.save(
-            Role(
-                name = "ROLE_ADMIN",
-                privilegeList = setOf(readPrivilege, writePrivilege),
-            )
-        )
-        val userRole = roleRepository.save(
-            Role(
-                name = "ROLE_USER",
-                privilegeList = setOf(readPrivilege),
-            )
-        )
+    @Test
+    fun testUserFindByEmail() {
+        val user = userRepository.findByEmail("admin@dexter.app")
+        Assertions.assertTrue(user.isPresent)
+        Assertions.assertEquals("Admin", user.get().firstName)
+    }
 
-        userRepository.save(
-            User(
-                email = "admin@dexter.app",
-                password = passwordEncoder.encode("admin123"),
-                firstName = "Admin",
-                lastName = "Dexter",
-                username = "admin",
-                country = "CR",
-                enabled = true,
-                tokenExpired = false,
-                rating = 0.0,
-                totalSessions = 0,
-                totalMatches = 0,
-                createDate = Date(),
-                updatedAt = Date(),
-                roleList = setOf(adminRole),
-            )
-        )
+    @Test
+    fun testSkillFindAll() {
+        val skills = skillRepository.findAll()
+        Assertions.assertEquals(4, skills.size)
+    }
 
-        userRepository.save(
-            User(
-                email = "user@dexter.app",
-                password = passwordEncoder.encode("user123"),
-                firstName = "Regular",
-                lastName = "User",
-                username = "user",
-                country = "CR",
-                enabled = true,
-                tokenExpired = false,
-                rating = 0.0,
-                totalSessions = 0,
-                totalMatches = 0,
-                createDate = Date(),
-                updatedAt = Date(),
-                roleList = setOf(userRole),
-            )
-        )
+    @Test
+    fun testSkillFindByUserId() {
+        val user = userRepository.findByEmail("admin@dexter.app").get()
+        val skills = skillRepository.findByUserId(user.id!!)
+        Assertions.assertEquals(2, skills.size)
+    }
 
-        println("Seeded: ${privilegeRepository.count()} privileges, ${roleRepository.count()} roles, ${userRepository.count()} users")
+    @Test
+    fun testMatchFindAll() {
+        val matches = matchRepository.findAll()
+        Assertions.assertEquals(1, matches.size)
+    }
+
+    @Test
+    fun testMatchFindByUsers() {
+        val user = userRepository.findByEmail("admin@dexter.app").get()
+        val matches = matchRepository.findByInitiatorIdOrReceiverId(user.id!!, user.id!!)
+        Assertions.assertTrue(matches.isNotEmpty())
+    }
+
+    @Test
+    fun testSessionFindAll() {
+        val sessions = sessionRepository.findAll()
+        Assertions.assertEquals(1, sessions.size)
+    }
+
+    @Test
+    fun testSessionFindByMatch() {
+        val match = matchRepository.findAll().first()
+        val sessions = sessionRepository.findByMatchIdOrderBySessionNumberAsc(match.id!!)
+        Assertions.assertEquals(1, sessions.size)
+        Assertions.assertEquals("Guitar Basics", sessions.first().title)
+    }
+
+    @Test
+    fun testReviewFindAll() {
+        val reviews = reviewRepository.findAll()
+        Assertions.assertEquals(1, reviews.size)
+    }
+
+    @Test
+    fun testReviewFindByReviewee() {
+        val admin = userRepository.findByEmail("admin@dexter.app").get()
+        val reviews = reviewRepository.findByRevieweeIdOrderByCreatedAtDesc(admin.id!!)
+        Assertions.assertEquals(1, reviews.size)
+        Assertions.assertEquals(5, reviews.first().rating)
     }
 }
