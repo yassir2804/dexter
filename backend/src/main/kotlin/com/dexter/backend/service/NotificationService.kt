@@ -1,10 +1,13 @@
 package com.dexter.backend.service
 
-/**
- * TODO (Fase 8+): notificaciones cuando el front cablee NotificationsScreen.
- * Requerirá push (FCM) o polling — se evalúa en Fase 8+.
- * Entidad Notification ya existe desde Fase 2.
- */
+import com.dexter.backend.dto.NotificationDetails
+import com.dexter.backend.dto.NotificationRequest
+
 interface NotificationService {
-    // Firmas a definir cuando se implemente.
+    fun findByUser(userId: Long): List<NotificationDetails>
+    fun findUnreadByUser(userId: Long): List<NotificationDetails>
+    fun findById(id: Long): NotificationDetails
+    fun create(request: NotificationRequest): NotificationDetails
+    fun markRead(id: Long)
+    fun delete(id: Long)
 }

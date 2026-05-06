@@ -1,9 +1,14 @@
 package com.dexter.backend.service
 
+import com.dexter.backend.dto.ReviewDetails
+import com.dexter.backend.dto.ReviewRequest
+
 /**
- * TODO (Fase 8+): CRUD de reviews cuando el front cablee RateScreen.
- * Entidad Review ya existe desde Fase 2; lectura parcial se usa en ProfileSummary.
+ * Operaciones sobre reviews (calificaciones post-sesión).
  */
 interface ReviewService {
-    // Firmas a definir cuando se implemente.
+    fun findByReviewee(revieweeId: Long): List<ReviewDetails>
+    fun findBySession(sessionId: Long): List<ReviewDetails>
+    fun findById(id: Long): ReviewDetails
+    fun create(request: ReviewRequest): ReviewDetails
 }
