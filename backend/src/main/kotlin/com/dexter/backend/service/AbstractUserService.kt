@@ -66,6 +66,6 @@ class AbstractUserService(
             ))
         }
 
-        return userMapper.userToUserDto(savedUser)
+        return userMapper.userToUserResult(savedUser)
     }
 }

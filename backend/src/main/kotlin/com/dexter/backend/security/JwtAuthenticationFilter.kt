@@ -75,7 +75,7 @@ class JwtAuthenticationFilter(
             .compact()
 
         val userDto = userRepository.findByEmail(username)
-            .map(userMapper::userToUserDto)
+            .map(userMapper::userToUserResult)
             .orElse(null)
 
         response.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.TOKEN_PREFIX + token)
