@@ -2,9 +2,13 @@ package com.dexter.backend.service
 
 import com.dexter.backend.dto.RegisterRequestDto
 import com.dexter.backend.dto.UserDto
+import com.dexter.backend.entity.Skill
+import com.dexter.backend.entity.SkillLevel
+import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.entity.User
 import com.dexter.backend.mapper.UserMapper
 import com.dexter.backend.repository.RoleRepository
+import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -15,6 +19,7 @@ import java.util.Date
 class AbstractUserService(
     @Autowired val userRepository: UserRepository,
     @Autowired val roleRepository: RoleRepository,
+    @Autowired val skillRepository: SkillRepository,
     @Autowired val userMapper: UserMapper,
     @Autowired val passwordEncoder: BCryptPasswordEncoder,
 ) : UserService {
@@ -42,7 +47,25 @@ class AbstractUserService(
             roleList = if (defaultRole != null) setOf(defaultRole) else null,
         )
 
-        // skillsToTeach / skillsToLearn se persistirán en Fase 2 cuando exista Skill.
-        return userMapper.userToUserDto(userRepository.save(user))
+        val savedUser = userRepository.save(user)
+
+        input.skillsToTeach.filter { it.isNotBlank() }.forEach { name ->
+            skillRepository.save(Skill(
+                user = savedUser,
+                name = name.trim(),
+                skillRole = SkillRole.OFFERED,
+                skillLevel = SkillLevel.BEGINNER,
+            ))
+        }
+        input.skillsToLearn.filter { it.isNotBlank() }.forEach { name ->
+            skillRepository.save(Skill(
+                user = savedUser,
+                name = name.trim(),
+                skillRole = SkillRole.SOUGHT,
+                skillLevel = SkillLevel.BEGINNER,
+            ))
+        }
+
+        return userMapper.userToUserDto(savedUser)
     }
 }

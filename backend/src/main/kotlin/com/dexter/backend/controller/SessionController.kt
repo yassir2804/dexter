@@ -1,34 +1,47 @@
 package com.dexter.backend.controller
 
+import com.dexter.backend.dto.SessionDetails
+import com.dexter.backend.dto.SessionRequest
+import com.dexter.backend.service.SessionService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 
-/**
- * TODO (Fase 8+): CRUD de Session.
- * Depende de: IA service para generar el plan de 5 sesiones automáticamente.
- * Entidad Session ya existe en entity/Session.kt desde Fase 2.
- */
 @RestController
 @RequestMapping("\${url.sessions}")
-class SessionController {
+class SessionController(@Autowired val sessionService: SessionService) {
 
-    @GetMapping
-    fun findAll(): Nothing = TODO("Fase 8+: listar sesiones por match o por user")
+    @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findByMatch(@RequestParam matchId: Long): List<SessionDetails> =
+        sessionService.findByMatch(matchId)
 
-    @GetMapping("/{id}")
-    fun findById(@PathVariable id: Long): Nothing = TODO("Fase 8+")
+    @GetMapping("/{id}", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findById(@PathVariable id: Long): SessionDetails =
+        sessionService.findById(id)
 
-    @PostMapping
-    fun create(): Nothing = TODO("Fase 8+: crear sesión individual o plan de 5 (IA)")
+    @PutMapping(
+        "/{id}",
+        consumes = [MediaType.APPLICATION_JSON_VALUE],
+        produces = [MediaType.APPLICATION_JSON_VALUE]
+    )
+    fun update(@PathVariable id: Long, @RequestBody request: SessionRequest): SessionDetails =
+        sessionService.update(id, request)
 
-    @PutMapping("/{id}")
-    fun update(@PathVariable id: Long): Nothing = TODO("Fase 8+: reprogramar o marcar como completada")
+    @PatchMapping("/{id}/complete", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun complete(@PathVariable id: Long): SessionDetails =
+        sessionService.complete(id)
 
     @DeleteMapping("/{id}")
-    fun cancel(@PathVariable id: Long): Nothing = TODO("Fase 8+: cancelar sesión")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun cancel(@PathVariable id: Long) = sessionService.cancel(id)
 }

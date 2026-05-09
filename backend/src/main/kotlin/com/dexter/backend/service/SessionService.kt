@@ -1,10 +1,12 @@
 package com.dexter.backend.service
 
-/**
- * TODO (Fase 8+): CRUD de Session cuando el front cablee PlanScreen,
- * EditSessionScreen y ActiveSessionScreen.
- * La entidad Session ya existe desde Fase 2 (entity/Session.kt).
- */
+import com.dexter.backend.dto.SessionDetails
+import com.dexter.backend.dto.SessionRequest
+
 interface SessionService {
-    // Firmas a definir cuando se implemente.
+    fun findByMatch(matchId: Long): List<SessionDetails>
+    fun findById(id: Long): SessionDetails
+    fun update(id: Long, request: SessionRequest): SessionDetails
+    fun complete(id: Long): SessionDetails
+    fun cancel(id: Long)
 }
