@@ -5,6 +5,7 @@ import com.dexter.app.data.datasource.UserDataSource
 import com.dexter.app.data.datasource.model.RegisterRequestDto
 import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
+import com.dexter.app.data.remote.UserRemoteDataSource
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.model.User
@@ -20,6 +21,7 @@ import javax.inject.Inject
  */
 class UserRepositoryImpl @Inject constructor(
     private val dataSource: UserDataSource,
+    private val remoteDataSource: UserRemoteDataSource,
     private val userMapper: UserMapper,
     private val profileSummaryMapper: ProfileSummaryMapper
 ) : UserRepository {
@@ -133,13 +135,8 @@ class UserRepositoryImpl @Inject constructor(
     }
 
     override suspend fun login(email: String, password: String): Result<User> = try {
-        val userDto = dataSource.getUserByEmail(email)
-        val user = userDto?.let { userMapper.mapToDomain(it) }
-        if (user != null && user.password == password) {
-            Result.success(user)
-        } else {
-            Result.failure(DomainError.AuthError("Credenciales Inválidas"))
-        }
+        remoteDataSource.login(email, password)
+            .map { userMapper.mapToDomain(it) }
     } catch (e: IOException) {
         Log.e(TAG, "Network error during login", e)
         Result.failure(DomainError.NetworkError("Network error during login", e))

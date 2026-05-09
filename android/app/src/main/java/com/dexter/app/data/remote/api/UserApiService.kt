@@ -1,5 +1,6 @@
 package com.dexter.app.data.remote.api
 
+import com.dexter.app.data.datasource.model.LoginRequestDto
 import com.dexter.app.data.datasource.model.ProfileSummaryDto
 import com.dexter.app.data.datasource.model.RegisterRequestDto
 import com.dexter.app.data.datasource.model.UserDto
@@ -21,6 +22,11 @@ import retrofit2.http.Query
  * Returns `Response<T>` so we can check HTTP status codes in the RemoteDataSource.
  */
 interface UserApiService {
+
+    @POST("users/login")
+    suspend fun login(
+        @Body request: LoginRequestDto
+    ): Response<UserDto>
 
     @GET("profile-summary")
     suspend fun getProfileSummary(

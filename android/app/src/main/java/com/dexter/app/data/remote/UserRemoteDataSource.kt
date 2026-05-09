@@ -1,29 +1,42 @@
 package com.dexter.app.data.remote
 
+import com.dexter.app.data.datasource.model.LoginRequestDto
 import com.dexter.app.data.datasource.model.ProfileSummaryDto
 import com.dexter.app.data.datasource.model.RegisterRequestDto
 import com.dexter.app.data.datasource.model.UserDto
 import com.dexter.app.data.remote.api.UserApiService
+import com.dexter.app.data.util.TokenStore
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import javax.inject.Inject
 
-/**
- * Remote data source for user/profile operations.
- *
- * Wraps Retrofit calls in [Result] using the [safeApiCall] pattern,
- * identical to [SearchRemoteDataSource].
- *
- * This class is the boundary between "network world" (exceptions, HTTP codes)
- * and "app world" (Result.success / Result.failure). Nothing above this layer
- * ever sees a raw exception from the network.
- */
 class UserRemoteDataSource @Inject constructor(
-    private val userApiService: UserApiService
+    private val userApiService: UserApiService,
+    private val tokenStore: TokenStore,
 ) {
     companion object {
         private const val API_TIMEOUT_MS = 10_000L
+    }
+
+    suspend fun login(email: String, password: String): Result<UserDto> {
+        return try {
+            val response = withTimeout(API_TIMEOUT_MS) {
+                userApiService.login(LoginRequestDto(username = email, password = password))
+            }
+            if (response.isSuccessful) {
+                val token = response.headers()["Authorization"]?.removePrefix("Bearer ")
+                if (!token.isNullOrBlank()) tokenStore.saveToken(token)
+                response.body()?.let { Result.success(it) }
+                    ?: Result.failure(Exception("Login response body is null"))
+            } else {
+                Result.failure(Exception("Login failed: ${response.code()}"))
+            }
+        } catch (e: TimeoutCancellationException) {
+            Result.failure(Exception("Network timeout during login", e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     suspend fun getProfileSummary(userId: Long): Result<ProfileSummaryDto> = safeApiCall {
