@@ -1,10 +1,13 @@
 package com.dexter.app.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.dexter.app.data.util.TokenStore
 import com.dexter.app.presentation.session.SessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /**
@@ -16,14 +19,18 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
-    private val sessionManager: SessionManager
+    private val sessionManager: SessionManager,
+    private val tokenStore: TokenStore,
 ) : ViewModel() {
 
     private val _loggedOut = MutableStateFlow(false)
     val loggedOut = _loggedOut.asStateFlow()
 
     fun logout() {
-        sessionManager.logout()
-        _loggedOut.value = true
+        viewModelScope.launch {
+            tokenStore.clearToken()
+            sessionManager.logout()
+            _loggedOut.value = true
+        }
     }
 }

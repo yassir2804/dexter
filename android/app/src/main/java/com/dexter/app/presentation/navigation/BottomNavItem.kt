@@ -2,7 +2,6 @@ package com.dexter.app.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
@@ -32,12 +31,6 @@ sealed class BottomNavItem(
         Icons.Default.Search
     )
 
-    data object Messages : BottomNavItem(
-        NavRoutes.Messages.ROUTE,
-        R.string.nav_messages,
-        Icons.AutoMirrored.Filled.Chat
-    )
-
     data object Profile : BottomNavItem(
         NavRoutes.Profile.ROUTE,
         R.string.nav_profile,
@@ -45,6 +38,6 @@ sealed class BottomNavItem(
     )
 
     companion object {
-        fun items() = listOf(Home, Search, Messages, Profile)
+        fun items() = listOf(Home, Search, Profile)
     }
 }

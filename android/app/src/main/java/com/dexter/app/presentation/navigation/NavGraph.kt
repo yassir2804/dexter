@@ -227,22 +227,6 @@ fun NavGraph(
             )
         }
 
-        composable(NavRoutes.Messages.ROUTE) {
-            MainLayout(
-                paddingValues = paddingValues,
-                currentRoute = NavRoutes.Messages.ROUTE,
-                userName = userName,
-                onNotificationsClick = {
-                    navController.navigate(NavRoutes.Notifications.ROUTE)
-                },
-                onSettingsClick = {
-                    navController.navigate(NavRoutes.Settings.ROUTE)
-                }
-            ) {
-                // TODO: MessagesScreen
-            }
-        }
-
         composable(NavRoutes.Profile.ROUTE) {
             MainLayout(
                 paddingValues = paddingValues,
@@ -281,7 +265,7 @@ fun NavGraph(
                     navController.navigate(NavRoutes.EditProfile.ROUTE)
                 },
                 onLoggedOut = {
-                    // SessionManager already wiped state inside SettingsViewModel.logout().
+                    loginViewModel.resetState()
                     navController.navigate(NavRoutes.Login.ROUTE) {
                         popUpTo(navController.graph.id) { inclusive = true }
                     }

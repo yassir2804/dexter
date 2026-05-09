@@ -115,14 +115,6 @@ fun MainLayout(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                NavRoutes.Messages.ROUTE -> {
-                    Text(
-                        text = stringResource(R.string.messages_title),
-                        style = MaterialTheme.typography.headlineMedium
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-
                 NavRoutes.Profile.ROUTE -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -174,19 +166,6 @@ private fun MainLayoutSearchPreview() {
             currentRoute = NavRoutes.Search.ROUTE
         ) {
             Text("Search content")
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun MainLayoutMessagesPreview() {
-    AppTheme(dynamicColor = false) {
-        MainLayout(
-            paddingValues = PaddingValues(),
-            currentRoute = NavRoutes.Messages.ROUTE
-        ) {
-            Text("Messages content")
         }
     }
 }

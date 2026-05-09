@@ -40,10 +40,6 @@ sealed class NavRoutes {
         const val ROUTE = "search"
     }
 
-    data object Messages : NavRoutes() {
-        const val ROUTE = "messages"
-    }
-
     data object Profile : NavRoutes() {
         const val ROUTE = "profile"
     }
@@ -60,12 +56,6 @@ sealed class NavRoutes {
         const val ROUTE = "plan/{matchId}"
         const val ARG_MATCH_ID = "matchId"
         fun createRoute(matchId: Long) = "plan/$matchId"
-    }
-
-    data object Chat : NavRoutes() {
-        const val ROUTE = "chat/{conversationId}"
-        const val ARG_CONVERSATION_ID = "conversationId"
-        fun createRoute(conversationId: Long) = "chat/$conversationId"
     }
 
     data object UserProfile : NavRoutes() {
