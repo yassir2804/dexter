@@ -1,13 +1,17 @@
 package com.dexter.app.data.datasource.model
 
-/** DTO for MatchSummary — the format data would arrive from an API. */
+/** DTO for MatchSummary — mirrors the backend's MatchSummaryDto response. */
 data class MatchSummaryDto(
-    val initials: String? = null,
-    val name: String? = null,
-    val avatarUrl: String? = null,
-    val offers: String? = null,
-    val seeks: String? = null,
-    val rating: String? = null,
-    val sessions: Int? = null,
-    val compatibilityPercent: String? = null
+    val matchId: Long = 0L,
+    val otherUserId: Long = 0L,
+    val otherUserName: String? = null,
+    val otherUserInitials: String? = null,
+    val otherUserAvatarUrl: String? = null,
+    val skillsOffered: List<String> = emptyList(),
+    val skillsSought: List<String> = emptyList(),
+    val otherUserRating: Double = 0.0,
+    val otherUserTotalSessions: Int = 0,
+    val compatibilityScore: Double = 0.0,
+    val status: String? = null,
+    val sessionsCount: Int = 0,
 )

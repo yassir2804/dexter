@@ -66,9 +66,11 @@ fun MatchCard(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                val offersText = match.skillsOffered.firstOrNull() ?: ""
+                val seeksText = match.skillsSought.firstOrNull() ?: ""
                 Text(
-                    text = stringResource(R.string.home_offers, match.offers)
-                            + " · " + stringResource(R.string.home_seeks, match.seeks),
+                    text = stringResource(R.string.home_offers, offersText) +
+                            " · " + stringResource(R.string.home_seeks, seeksText),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -82,13 +84,13 @@ fun MatchCard(
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = match.rating,
+                        text = "%.1f".format(match.rating),
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "· " + stringResource(R.string.home_sessions_count, match.sessions),
+                        text = "· " + stringResource(R.string.home_sessions_count, match.totalSessions),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -106,7 +108,7 @@ fun MatchCard(
                     color = MaterialTheme.colorScheme.primaryContainer
                 ) {
                     Text(
-                        text = match.compatibilityPercent,
+                        text = "${match.compatibilityScore.toInt()}%",
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -127,14 +129,18 @@ fun MatchCard(
 @Composable
 private fun MatchCardPreview() {
     val sample = MatchSummary(
-        initials = "ML",
+        matchId = 1L,
+        otherUserId = 2L,
         name = "Maria Lopez",
+        initials = "ML",
         avatarUrl = null,
-        offers = "Guitarra",
-        seeks = "Inglés",
-        rating = "4.8",
-        sessions = 23,
-        compatibilityPercent = "95%"
+        skillsOffered = listOf("Guitarra"),
+        skillsSought = listOf("Inglés"),
+        rating = 4.8,
+        totalSessions = 23,
+        compatibilityScore = 95.0,
+        status = "ACCEPTED",
+        sessionsCount = 5,
     )
     AppTheme(dynamicColor = false) {
         MatchCard(match = sample)

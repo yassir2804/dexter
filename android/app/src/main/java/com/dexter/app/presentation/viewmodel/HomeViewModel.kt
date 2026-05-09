@@ -13,7 +13,10 @@ import javax.inject.Inject
 
 sealed class HomeState {
     data object Loading : HomeState()
-    data class Success(val matches: List<MatchSummary>) : HomeState()
+    data class Success(
+        val pendingMatches: List<MatchSummary>,
+        val acceptedMatches: List<MatchSummary>
+    ) : HomeState()
     data object Empty : HomeState()
     data class Error(val message: String) : HomeState()
 }
@@ -22,10 +25,6 @@ sealed class HomeState {
 class HomeViewModel @Inject constructor(
     private val repository: MatchRepository
 ) : ViewModel() {
-
-    companion object {
-        private const val DEMO_USER_ID = 1L
-    }
 
     private val _homeState = MutableStateFlow<HomeState>(HomeState.Empty)
     val homeState = _homeState.asStateFlow()
@@ -36,23 +35,12 @@ class HomeViewModel @Inject constructor(
 
             repository.getMatchSummaries(userId)
                 .onSuccess { matches ->
-                    if (matches.isNotEmpty()) {
-                        _homeState.value = HomeState.Success(matches)
-                    } else if (userId != DEMO_USER_ID) {
-                        repository.getMatchSummaries(DEMO_USER_ID)
-                            .onSuccess { fallbackMatches ->
-                                if (fallbackMatches.isNotEmpty()) {
-                                    _homeState.value = HomeState.Success(fallbackMatches)
-                                } else {
-                                    _homeState.value = HomeState.Empty
-                                }
-                            }
-                            .onFailure { exception ->
-                                Log.e("HomeViewModel", "Error loading fallback matches: ${exception.message}")
-                                _homeState.value = HomeState.Error(exception.message ?: "Error desconocido")
-                            }
-                    } else {
+                    val pending = matches.filter { it.status == "PENDING" }
+                    val accepted = matches.filter { it.status == "ACCEPTED" }
+                    if (pending.isEmpty() && accepted.isEmpty()) {
                         _homeState.value = HomeState.Empty
+                    } else {
+                        _homeState.value = HomeState.Success(pending, accepted)
                     }
                 }
                 .onFailure { exception ->

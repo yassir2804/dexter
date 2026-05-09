@@ -37,11 +37,6 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.HomeState
 import com.dexter.app.presentation.viewmodel.HomeViewModel
 
-/**
- * Home screen — Stateful composable.
- *
- * Receives navigation callbacks as lambdas (NOT the NavController).
- */
 @Composable
 fun HomeScreen(
     viewModel: HomeViewModel,
@@ -64,9 +59,6 @@ fun HomeScreen(
     )
 }
 
-/**
- * Home content — Stateless composable.
- */
 @Composable
 private fun HomeContent(
     homeState: HomeState,
@@ -75,160 +67,152 @@ private fun HomeContent(
     modifier: Modifier = Modifier
 ) {
     when (homeState) {
-        is HomeState.Loading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
+        is HomeState.Loading -> Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) { CircularProgressIndicator() }
 
-        is HomeState.Empty -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.home_no_matches),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-
-        is HomeState.Error -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = homeState.message,
-                    color = MaterialTheme.colorScheme.error
-                )
-            }
-        }
-
-        is HomeState.Success -> {
-            HomeSuccessContent(
-                matches = homeState.matches,
-                onMatchClick = onMatchClick,
-                onActiveSessionClick = onActiveSessionClick,
-                modifier = modifier
+        is HomeState.Empty -> Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = stringResource(R.string.home_no_matches),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
+
+        is HomeState.Error -> Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = homeState.message, color = MaterialTheme.colorScheme.error)
+        }
+
+        is HomeState.Success -> HomeSuccessContent(
+            pendingMatches = homeState.pendingMatches,
+            acceptedMatches = homeState.acceptedMatches,
+            onMatchClick = onMatchClick,
+            modifier = modifier
+        )
     }
 }
 
-/**
- * Content shown when matches loaded successfully.
- * Uses LazyColumn for efficient list rendering.
- */
 @Composable
 private fun HomeSuccessContent(
-    matches: List<MatchSummary>,
+    pendingMatches: List<MatchSummary>,
+    acceptedMatches: List<MatchSummary>,
     onMatchClick: (MatchSummary) -> Unit,
-    onActiveSessionClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
 
-        // ── Search Bar ──────────────────────────────────────────────
         item { SearchBar() }
 
-        // TODO: uncomment when active sessions are implemented
-        // item { ActiveSessionBanner(onClick = onActiveSessionClick) }
-
-        // ── "Matches sugeridos" + AI chip ───────────────────────────
-        item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(bottom = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.home_suggested_matches),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+        // ── Solicitudes recibidas ───────────────────────────────────
+        if (pendingMatches.isNotEmpty()) {
+            item {
+                SectionHeader(
+                    title = stringResource(R.string.home_pending_requests),
+                    modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
                 )
-                Spacer(modifier = Modifier.width(10.dp))
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AutoAwesome,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = stringResource(R.string.home_ai_badge),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
+            }
+            items(pendingMatches) { match ->
+                MatchCard(match = match, onClick = { onMatchClick(match) })
             }
         }
 
-        // ── Match Cards ─────────────────────────────────────────────
-        items(matches) { match ->
-            MatchCard(
-                match = match,
-                onClick = { onMatchClick(match) }
-            )
+        // ── Mis matches (aceptados) ──────────────────────────────────
+        if (acceptedMatches.isNotEmpty()) {
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_suggested_matches),
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.primaryContainer
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.AutoAwesome,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = stringResource(R.string.home_ai_badge),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                }
+            }
+            items(acceptedMatches) { match ->
+                MatchCard(match = match, onClick = { onMatchClick(match) })
+            }
         }
-
-        // TODO: uncomment when session history is implemented
-        // item {
-        //     Text(
-        //         text = stringResource(R.string.home_activity_recent).uppercase(),
-        //         style = MaterialTheme.typography.labelSmall.copy(
-        //             fontWeight = FontWeight.SemiBold,
-        //             letterSpacing = 0.8.sp
-        //         ),
-        //         color = MaterialTheme.colorScheme.primary,
-        //         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        //     )
-        // }
-        // item { ActivityCard() }
     }
+}
+
+@Composable
+private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = modifier.fillMaxWidth()
+    )
 }
 
 // ── Previews ────────────────────────────────────────────────────
 
+private fun sampleMatch(id: Long, name: String, initials: String, status: String) = MatchSummary(
+    matchId = id, otherUserId = id + 10,
+    name = name, initials = initials, avatarUrl = null,
+    skillsOffered = listOf("Guitarra"), skillsSought = listOf("Inglés"),
+    rating = 4.8, totalSessions = 23, compatibilityScore = 95.0,
+    status = status, sessionsCount = 5
+)
+
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenSuccessPreview() {
-    val sampleMatches = listOf(
-        MatchSummary("ML", "Maria Lopez", null, "Guitarra", "Inglés", "4.8", 23, "95%"),
-        MatchSummary("JP", "Juan Perez", null, "Programación", "Diseño gráfico", "4.2", 15, "87%"),
-        MatchSummary("AR", "Ana Ramirez", null, "Fotografía", "Marketing", "4.9", 31, "82%")
-    )
     AppTheme(dynamicColor = false) {
-        HomeContent(homeState = HomeState.Success(sampleMatches))
+        HomeContent(
+            homeState = HomeState.Success(
+                pendingMatches = listOf(sampleMatch(1L, "Maria Lopez", "ML", "PENDING")),
+                acceptedMatches = listOf(
+                    sampleMatch(2L, "Juan Perez", "JP", "ACCEPTED"),
+                    sampleMatch(3L, "Ana Ramirez", "AR", "ACCEPTED")
+                )
+            )
+        )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenEmptyPreview() {
-    AppTheme(dynamicColor = false) {
-        HomeContent(homeState = HomeState.Empty)
-    }
+    AppTheme(dynamicColor = false) { HomeContent(homeState = HomeState.Empty) }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenLoadingPreview() {
-    AppTheme(dynamicColor = false) {
-        HomeContent(homeState = HomeState.Loading)
-    }
+    AppTheme(dynamicColor = false) { HomeContent(homeState = HomeState.Loading) }
 }
 
 @Preview(showBackground = true)

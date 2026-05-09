@@ -94,7 +94,8 @@
     <string name="home_search_placeholder">Buscar habilidad…</string>
     <string name="home_active_session">Sesión en progreso</string>
     <string name="home_active_session_desc">Clase de Guitarra con %1$s</string>
-    <string name="home_suggested_matches">Matches sugeridos</string>
+    <string name="home_suggested_matches">Mis matches</string>
+    <string name="home_pending_requests">Solicitudes recibidas</string>
     <string name="home_ai_badge">por IA</string>
     <string name="home_offers">Ofrece: %1$s</string>
     <string name="home_seeks">Busca: %1$s</string>
@@ -143,6 +144,9 @@
     <string name="match_desired_level">NIVEL QUE DESEAS ALCANZAR</string>
     <string name="match_availability">Disponibilidad</string>
     <string name="match_connect">Conectar con %1$s</string>
+    <string name="match_accept">Aceptar</string>
+    <string name="match_reject">Rechazar</string>
+    <string name="match_view_plan">Ver plan de sesiones</string>
     <string name="match_tap_profile">Toca para ver perfil completo</string>
 
     <!-- Timeframes -->
@@ -266,7 +270,7 @@
     <string name="user_profile_rating">Rating</string>
     <string name="user_profile_match">Match</string>
     <string name="user_profile_message">Mensaje</string>
-    <string name="user_profile_schedule">Agendar</string>
+    <string name="user_profile_schedule">Conectar</string>
     <string name="user_profile_about">Sobre mí</string>
     <string name="user_profile_skills_offered">Habilidades que ofrece</string>
     <string name="user_profile_skills_wanted">Quiere aprender</string>

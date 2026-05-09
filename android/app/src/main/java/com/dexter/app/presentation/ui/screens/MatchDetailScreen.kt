@@ -50,6 +50,8 @@ import com.dexter.app.presentation.ui.components.SkillChip
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
+import com.dexter.app.presentation.session.CurrentUserSession
+import com.dexter.app.presentation.viewmodel.MatchActionState
 import com.dexter.app.presentation.viewmodel.MatchDetailState
 import com.dexter.app.presentation.viewmodel.MatchDetailViewModel
 
@@ -62,18 +64,29 @@ fun MatchDetailScreen(
     viewModel: MatchDetailViewModel,
     onBackClick: () -> Unit,
     onConnectClick: (Long) -> Unit,
+    onRejectDone: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val actionState by viewModel.actionState.collectAsState()
 
-    LaunchedEffect(matchId) {
-        viewModel.loadMatch(matchId)
+    LaunchedEffect(matchId) { viewModel.loadMatch(matchId) }
+
+    LaunchedEffect(actionState) {
+        when (actionState) {
+            is MatchActionState.AcceptDone -> onConnectClick(matchId)
+            is MatchActionState.RejectDone -> onRejectDone()
+            else -> Unit
+        }
     }
 
     MatchDetailContent(
         state = state,
+        actionState = actionState,
         onBackClick = onBackClick,
         onConnectClick = onConnectClick,
+        onAccept = { viewModel.acceptMatch(matchId, CurrentUserSession.userId ?: 0L) },
+        onReject = { viewModel.rejectMatch(matchId) },
         modifier = modifier
     )
 }
@@ -82,8 +95,11 @@ fun MatchDetailScreen(
 @Composable
 private fun MatchDetailContent(
     state: MatchDetailState,
+    actionState: MatchActionState,
     onBackClick: () -> Unit,
     onConnectClick: (Long) -> Unit,
+    onAccept: () -> Unit,
+    onReject: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -96,36 +112,24 @@ private fun MatchDetailContent(
         modifier = modifier
     ) { padding ->
         when (state) {
-            is MatchDetailState.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) { CircularProgressIndicator() }
-            }
-            is MatchDetailState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = state.message,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
-            is MatchDetailState.Success -> {
-                MatchDetailBody(
-                    match = state.match,
-                    onConnectClick = onConnectClick,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(padding)
-                )
-            }
+            is MatchDetailState.Loading -> Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) { CircularProgressIndicator() }
+
+            is MatchDetailState.Error -> Box(
+                modifier = Modifier.fillMaxSize().padding(padding),
+                contentAlignment = Alignment.Center
+            ) { Text(text = state.message, color = MaterialTheme.colorScheme.error) }
+
+            is MatchDetailState.Success -> MatchDetailBody(
+                match = state.match,
+                actionState = actionState,
+                onConnectClick = onConnectClick,
+                onAccept = onAccept,
+                onReject = onReject,
+                modifier = Modifier.fillMaxSize().padding(padding)
+            )
         }
     }
 }
@@ -134,7 +138,10 @@ private fun MatchDetailContent(
 @Composable
 private fun MatchDetailBody(
     match: MatchDetail,
+    actionState: MatchActionState,
     onConnectClick: (Long) -> Unit,
+    onAccept: () -> Unit,
+    onReject: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val selectedDays = remember { mutableStateOf(match.availability.toSet()) }
@@ -296,23 +303,62 @@ private fun MatchDetailBody(
 
         Spacer(Modifier.height(24.dp))
 
-        // ── Connect button ──────────────────────────────────────────
-        Button(
-            onClick = { onConnectClick(match.matchId) },
-            enabled = match.status != MatchStatus.REJECTED && match.status != MatchStatus.CANCELLED,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary
-            )
-        ) {
-            Text(
-                text = stringResource(R.string.match_connect, match.name),
-                style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.SemiBold
-            )
+        // ── Action buttons ──────────────────────────────────────────
+        val isActioning = actionState is MatchActionState.Loading || actionState is MatchActionState.AcceptDone || actionState is MatchActionState.RejectDone
+        when (match.status) {
+            MatchStatus.PENDING -> {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Button(
+                        onClick = onReject,
+                        enabled = !isActioning,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.match_reject),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    Button(
+                        onClick = onAccept,
+                        enabled = !isActioning,
+                        modifier = Modifier.weight(1f).height(48.dp),
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        if (isActioning) CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        ) else Text(
+                            text = stringResource(R.string.match_accept),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
+            MatchStatus.ACCEPTED -> {
+                Button(
+                    onClick = { onConnectClick(match.matchId) },
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(
+                        text = stringResource(R.string.match_view_plan),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+            else -> Unit
         }
 
         Spacer(Modifier.height(16.dp))
@@ -358,8 +404,11 @@ private fun MatchDetailLoadingPreview() {
     AppTheme(dynamicColor = false) {
         MatchDetailContent(
             state = MatchDetailState.Loading,
+            actionState = MatchActionState.Idle,
             onBackClick = {},
-            onConnectClick = {}
+            onConnectClick = {},
+            onAccept = {},
+            onReject = {}
         )
     }
 }
@@ -368,15 +417,9 @@ private fun MatchDetailLoadingPreview() {
 @Composable
 private fun MatchDetailSuccessPreview() {
     val sample = MatchDetail(
-        matchId = 1L,
-        otherUserId = 2L,
-        initials = "ML",
-        name = "Maria Lopez",
-        avatarUrl = null,
-        bio = "Diseñadora gráfica apasionada por la música.",
-        rating = 4.8,
-        sessionsCompleted = 23,
-        compatibilityPercent = 95,
+        matchId = 1L, otherUserId = 2L, initials = "ML", name = "Maria Lopez",
+        avatarUrl = null, bio = "Diseñadora gráfica apasionada por la música.",
+        rating = 4.8, sessionsCompleted = 23, compatibilityPercent = 95,
         offeredSkills = listOf("Guitarra", "Piano"),
         soughtSkills = listOf("Inglés", "Redacción"),
         availability = listOf(1, 2, 4),
@@ -386,8 +429,11 @@ private fun MatchDetailSuccessPreview() {
     AppTheme(dynamicColor = false) {
         MatchDetailContent(
             state = MatchDetailState.Success(sample),
+            actionState = MatchActionState.Idle,
             onBackClick = {},
-            onConnectClick = {}
+            onConnectClick = {},
+            onAccept = {},
+            onReject = {}
         )
     }
 }

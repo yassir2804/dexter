@@ -43,6 +43,8 @@ import com.dexter.app.presentation.ui.components.StatCard
 import com.dexter.app.presentation.ui.components.TopAppBarDexter
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
+import com.dexter.app.presentation.session.CurrentUserSession
+import com.dexter.app.presentation.viewmodel.ConnectState
 import com.dexter.app.presentation.viewmodel.UserProfileState
 import com.dexter.app.presentation.viewmodel.UserProfileViewModel
 
@@ -51,19 +53,21 @@ fun UserProfileScreen(
     userId: Long,
     viewModel: UserProfileViewModel,
     onBackClick: () -> Unit,
-    onScheduleClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val connectState by viewModel.connectState.collectAsState()
 
-    LaunchedEffect(userId) {
-        viewModel.loadProfile(userId)
-    }
+    LaunchedEffect(userId) { viewModel.loadProfile(userId) }
 
     UserProfileContent(
         state = state,
+        connectState = connectState,
         onBackClick = onBackClick,
-        onScheduleClick = onScheduleClick,
+        onConnectClick = {
+            val initiatorId = CurrentUserSession.userId ?: return@UserProfileContent
+            viewModel.initiateMatch(initiatorId, userId)
+        },
         modifier = modifier
     )
 }
@@ -72,8 +76,9 @@ fun UserProfileScreen(
 @Composable
 private fun UserProfileContent(
     state: UserProfileState,
+    connectState: ConnectState,
     onBackClick: () -> Unit,
-    onScheduleClick: () -> Unit,
+    onConnectClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -118,7 +123,8 @@ private fun UserProfileContent(
             is UserProfileState.Success -> {
                 UserProfileBody(
                     profile = state.profile,
-                    onScheduleClick = onScheduleClick,
+                    connectState = connectState,
+                    onConnectClick = onConnectClick,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -132,7 +138,8 @@ private fun UserProfileContent(
 @Composable
 private fun UserProfileBody(
     profile: ProfileSummary,
-    onScheduleClick: () -> Unit,
+    connectState: ConnectState,
+    onConnectClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -199,6 +206,8 @@ private fun UserProfileBody(
         Spacer(Modifier.height(16.dp))
 
         // ── Action buttons ──────────────────────────────────────────
+        val isConnecting = connectState is ConnectState.Loading
+        val connectDone = connectState is ConnectState.Done
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             Button(
                 onClick = { /* Chat excluded in this phase */ },
@@ -211,7 +220,8 @@ private fun UserProfileBody(
                 Text(stringResource(R.string.user_profile_message))
             }
             FilledTonalButton(
-                onClick = onScheduleClick,
+                onClick = onConnectClick,
+                enabled = !isConnecting && !connectDone,
                 modifier = Modifier
                     .weight(1f)
                     .height(44.dp),
@@ -328,8 +338,9 @@ private fun UserProfileSuccessPreview() {
     AppTheme(dynamicColor = false) {
         UserProfileContent(
             state = UserProfileState.Success(sampleProfile),
+            connectState = ConnectState.Idle,
             onBackClick = {},
-            onScheduleClick = {}
+            onConnectClick = {}
         )
     }
 }

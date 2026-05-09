@@ -176,7 +176,9 @@ class RegisterViewModel @Inject constructor(
                 totalSessions = 0,
                 totalMatches = 0,
                 createDate = Date(),
-                updatedAt = Date()
+                updatedAt = Date(),
+                skillsToTeach = _skillsToTeach.value,
+                skillsToLearn = _skillsToLearn.value,
             )
 
             repository.saveUser(user)

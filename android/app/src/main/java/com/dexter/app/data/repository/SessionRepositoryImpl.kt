@@ -1,8 +1,8 @@
 package com.dexter.app.data.repository
 
 import android.util.Log
-import com.dexter.app.data.datasource.SessionProvider
 import com.dexter.app.data.mapper.SessionMapper
+import com.dexter.app.data.remote.SessionRemoteDataSource
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.model.SessionStatus
@@ -20,15 +20,19 @@ import javax.inject.Inject
  * fallback to [SessionProvider] — no contract changes required.
  */
 class SessionRepositoryImpl @Inject constructor(
-    @Suppress("unused") private val sessionMapper: SessionMapper
+    private val remoteDataSource: SessionRemoteDataSource,
+    private val sessionMapper: SessionMapper
 ) : SessionRepository {
 
     companion object { private const val TAG = "SessionRepository" }
 
     override suspend fun getSessionById(id: Long): Result<Session> = try {
-        val session = SessionProvider.findSessionById(id)
-            ?: return Result.failure(DomainError.UnknownError("Session $id not found"))
-        Result.success(session)
+        remoteDataSource.getSessionById(id).fold(
+            onSuccess = { dto -> Result.success(sessionMapper.mapToDomain(dto)) },
+            onFailure = { exception ->
+                Result.failure(DomainError.NetworkError("Network error fetching session $id", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get session by id: $id", e)
         Result.failure(DomainError.NetworkError("Network error fetching session $id", e))
@@ -38,7 +42,18 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSessionsByMatch(matchId: Long): Result<List<Session>> = try {
-        Result.success(SessionProvider.findSessionsByMatch(matchId))
+        remoteDataSource.getSessions().fold(
+            onSuccess = { dtos ->
+                Result.success(
+                    dtos
+                        .map { sessionMapper.mapToDomain(it) }
+                        .filter { it.matchId == matchId }
+                )
+            },
+            onFailure = { exception ->
+                Result.failure(DomainError.NetworkError("Network error fetching sessions", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get sessions for match: $matchId", e)
         Result.failure(DomainError.NetworkError("Network error fetching sessions", e))
@@ -48,7 +63,7 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getActiveSession(sessionId: Long): Result<Session> = try {
-        Result.success(SessionProvider.findActiveSession(sessionId))
+        getSessionById(sessionId)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get active session: $sessionId", e)
         Result.failure(DomainError.NetworkError("Network error fetching active session", e))
@@ -58,6 +73,7 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createSession(session: Session): Result<Session> = try {
+        // No create endpoint in current Mockoon sessions block yet.
         Result.success(session)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to create session", e)
@@ -68,7 +84,7 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSession(session: Session): Result<Session> = try {
-        // Mock echoes back the updated session. Yazir replaces with PUT call.
+        // No update endpoint in current Mockoon sessions block yet.
         Result.success(session)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to update session", e)
@@ -79,7 +95,8 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cancelSession(sessionId: Long): Result<Unit> = try {
-        Log.i(TAG, "Session $sessionId cancelled (mock, no persistence)")
+        // No cancel endpoint in current Mockoon sessions block yet.
+        Log.i(TAG, "Session $sessionId cancelled (local success, no remote persistence)")
         Result.success(Unit)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to cancel session: $sessionId", e)
@@ -90,13 +107,12 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun completeSession(sessionId: Long, notes: String): Result<Session> = try {
-        val base = SessionProvider.findSessionById(sessionId)
-            ?: return Result.failure(DomainError.UnknownError("Session $sessionId not found"))
-        val completed = base.copy(
-            status = SessionStatus.COMPLETED,
-            completedAt = Date()
-        )
-        Result.success(completed)
+        getSessionById(sessionId).map { base ->
+            base.copy(
+                status = SessionStatus.COMPLETED,
+                completedAt = Date()
+            )
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to complete session: $sessionId", e)
         Result.failure(DomainError.NetworkError("Network error completing session", e))

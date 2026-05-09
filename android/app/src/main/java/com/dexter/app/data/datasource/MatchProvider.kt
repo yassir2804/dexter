@@ -94,37 +94,27 @@ class MatchProvider {
 
         fun findAll(): List<Match> = sampleMatches
 
-        // Mock data matching the React prototype (HomeScreen.tsx)
         private val sampleSummaries = listOf(
             MatchSummary(
-                initials = "ML",
-                name = "Maria Lopez",
-                avatarUrl = null,
-                offers = "Guitarra",
-                seeks = "Inglés",
-                rating = "4.8",
-                sessions = 23,
-                compatibilityPercent = "95%"
+                matchId = 1L, otherUserId = 2L,
+                name = "Maria Lopez", initials = "ML", avatarUrl = null,
+                skillsOffered = listOf("Guitarra"), skillsSought = listOf("Inglés"),
+                rating = 4.8, totalSessions = 23, compatibilityScore = 95.0,
+                status = "ACCEPTED", sessionsCount = 5
             ),
             MatchSummary(
-                initials = "JP",
-                name = "Juan Perez",
-                avatarUrl = null,
-                offers = "Programación",
-                seeks = "Diseño gráfico",
-                rating = "4.2",
-                sessions = 15,
-                compatibilityPercent = "87%"
+                matchId = 2L, otherUserId = 3L,
+                name = "Juan Perez", initials = "JP", avatarUrl = null,
+                skillsOffered = listOf("Programación"), skillsSought = listOf("Diseño gráfico"),
+                rating = 4.2, totalSessions = 15, compatibilityScore = 87.0,
+                status = "ACCEPTED", sessionsCount = 5
             ),
             MatchSummary(
-                initials = "AR",
-                name = "Ana Ramirez",
-                avatarUrl = null,
-                offers = "Fotografía",
-                seeks = "Marketing",
-                rating = "4.9",
-                sessions = 31,
-                compatibilityPercent = "82%"
+                matchId = 3L, otherUserId = 4L,
+                name = "Ana Ramirez", initials = "AR", avatarUrl = null,
+                skillsOffered = listOf("Fotografía"), skillsSought = listOf("Marketing"),
+                rating = 4.9, totalSessions = 31, compatibilityScore = 82.0,
+                status = "PENDING", sessionsCount = 0
             )
         )
 

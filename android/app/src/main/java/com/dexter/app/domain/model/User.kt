@@ -38,5 +38,7 @@ data class User(
     val totalSessions: Int,
     val totalMatches: Int,
     val createDate: Date,
-    val updatedAt: Date
+    val updatedAt: Date,
+    val skillsToTeach: List<String> = emptyList(),
+    val skillsToLearn: List<String> = emptyList(),
 )

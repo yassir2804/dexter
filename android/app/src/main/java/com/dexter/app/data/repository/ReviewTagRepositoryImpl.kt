@@ -1,8 +1,8 @@
 package com.dexter.app.data.repository
 
 import android.util.Log
-import com.dexter.app.data.datasource.ReviewTagProvider
 import com.dexter.app.data.mapper.ReviewTagMapper
+import com.dexter.app.data.remote.ReviewTagRemoteDataSource
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.ReviewTag
 import com.dexter.app.domain.repository.ReviewTagRepository
@@ -10,13 +10,16 @@ import java.io.IOException
 import javax.inject.Inject
 
 class ReviewTagRepositoryImpl @Inject constructor(
-    @Suppress("unused") private val reviewTagMapper: ReviewTagMapper
+    private val remoteDataSource: ReviewTagRemoteDataSource,
+    private val reviewTagMapper: ReviewTagMapper
 ) : ReviewTagRepository {
 
     companion object { private const val TAG = "ReviewTagRepository" }
 
     override suspend fun getAvailableTags(): Result<List<ReviewTag>> = try {
-        Result.success(ReviewTagProvider.findAvailableTags())
+        remoteDataSource.getReviewTags().map { dtos ->
+            dtos.map { reviewTagMapper.mapToDomain(it) }
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get available tags", e)
         Result.failure(DomainError.NetworkError("Network error fetching tags", e))
@@ -26,7 +29,11 @@ class ReviewTagRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getTagsForReview(reviewId: Long): Result<List<ReviewTag>> = try {
-        Result.success(emptyList())
+        remoteDataSource.getReviewTags().map { dtos ->
+            dtos
+                .filter { it.reviewId == reviewId }
+                .map { reviewTagMapper.mapToDomain(it) }
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get tags for review: $reviewId", e)
         Result.failure(DomainError.NetworkError("Network error fetching review tags", e))
@@ -36,7 +43,8 @@ class ReviewTagRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addTagToReview(reviewId: Long, tag: ReviewTag): Result<ReviewTag> = try {
-        Result.success(tag)
+        val dto = reviewTagMapper.mapToDto(tag).copy(reviewId = reviewId)
+        remoteDataSource.addReviewTag(dto).map { reviewTagMapper.mapToDomain(it) }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to add tag to review: $reviewId", e)
         Result.failure(DomainError.NetworkError("Network error adding tag", e))
@@ -46,8 +54,7 @@ class ReviewTagRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeTag(tagId: Long): Result<Unit> = try {
-        Log.i(TAG, "Tag $tagId removed (mock)")
-        Result.success(Unit)
+        remoteDataSource.removeReviewTag(tagId)
     } catch (e: IOException) {
         Log.e(TAG, "Failed to remove tag: $tagId", e)
         Result.failure(DomainError.NetworkError("Network error removing tag", e))

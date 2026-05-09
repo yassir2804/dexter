@@ -24,28 +24,20 @@ class MatchRepositoryImpl @Inject constructor(
 
     override suspend fun getMatchById(id: Long): Result<Match> = try {
         val dto = dataSource.getMatchById(id)
-        if (dto != null) {
-            Result.success(matchMapper.mapToDomain(dto))
-        } else {
-            Result.failure(DomainError.UnknownError("Match not found"))
-        }
+        if (dto != null) Result.success(matchMapper.mapToDomain(dto))
+        else Result.failure(DomainError.UnknownError("Match not found"))
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to get match by id: $id", e)
         Result.failure(DomainError.NetworkError("Network error fetching match $id", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in getMatchById", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching match $id", e))
     }
 
     override suspend fun getMatchesForUser(userId: Long): Result<List<Match>> = try {
         val dtos = dataSource.findMatchesForUser(userId).first()
-        val matches = dtos.map { matchMapper.mapToDomain(it) }
-        Result.success(matches)
+        Result.success(dtos.map { matchMapper.mapToDomain(it) })
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to get matches for user: $userId", e)
         Result.failure(DomainError.NetworkError("Network error fetching matches", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in getMatchesForUser", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching matches", e))
     }
 
@@ -61,34 +53,43 @@ class MatchRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMatchDetail(matchId: Long): Result<MatchDetail> = try {
-        // Mock only — no API wired yet. Yazir replaces with a call to
-        // `remoteDataSource.getMatchDetail(matchId)` with fallback to this provider.
         Result.success(MatchProvider.findMatchDetailById(matchId))
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to get match detail: $matchId", e)
         Result.failure(DomainError.NetworkError("Network error fetching match detail", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in getMatchDetail", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching match detail", e))
     }
 
-    override suspend fun createMatch(match: Match): Result<Match> = try {
-        Result.success(match)
+    override suspend fun initiateMatch(initiatorId: Long, receiverId: Long): Result<MatchSummary> = try {
+        val dto = dataSource.createMatch(initiatorId, receiverId)
+        Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to create match", e)
+        Log.e(TAG, "Failed to initiate match", e)
         Result.failure(DomainError.NetworkError("Network error creating match", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in createMatch", e)
+        Log.e(TAG, "Unknown error in initiateMatch", e)
         Result.failure(DomainError.UnknownError("Unknown error creating match", e))
     }
 
-    override suspend fun updateMatch(match: Match): Result<Match> = try {
-        Result.success(match)
+    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long): Result<MatchSummary> = try {
+        val dto = dataSource.acceptMatch(matchId, viewerUserId)
+        Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to update match", e)
-        Result.failure(DomainError.NetworkError("Network error updating match", e))
+        Log.e(TAG, "Failed to accept match $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error accepting match", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in updateMatch", e)
-        Result.failure(DomainError.UnknownError("Unknown error updating match", e))
+        Log.e(TAG, "Unknown error in acceptMatch", e)
+        Result.failure(DomainError.UnknownError("Unknown error accepting match", e))
+    }
+
+    override suspend fun rejectMatch(matchId: Long): Result<Unit> = try {
+        dataSource.rejectMatch(matchId)
+        Result.success(Unit)
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to reject match $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error rejecting match", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in rejectMatch", e)
+        Result.failure(DomainError.UnknownError("Unknown error rejecting match", e))
     }
 }

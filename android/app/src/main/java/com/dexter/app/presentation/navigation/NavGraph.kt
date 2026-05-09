@@ -176,17 +176,7 @@ fun NavGraph(
                 HomeScreen(
                     viewModel = homeViewModel,
                     onMatchClick = { match ->
-                        // MatchSummary has no matchId yet — derive one deterministic
-                        // id from the sample mocks so the detail screen can resolve
-                        // the right MatchDetail. Yazir should add `matchId` to
-                        // MatchSummary once the API is wired.
-                        val matchId = when (match.name) {
-                            "Maria Lopez" -> 1L
-                            "Juan Perez" -> 2L
-                            "Ana Ramirez" -> 3L
-                            else -> 1L
-                        }
-                        navController.navigate(NavRoutes.MatchDetail.createRoute(matchId))
+                        navController.navigate(NavRoutes.MatchDetail.createRoute(match.matchId))
                     },
                     onActiveSessionClick = {
                         // Open the currently scheduled session (mock id 13 = match 1 / session 3)
@@ -332,11 +322,7 @@ fun NavGraph(
             UserProfileScreen(
                 userId = userId,
                 viewModel = viewModel,
-                onBackClick = { navController.navigateUp() },
-                onScheduleClick = {
-                    // Open invite flow in "send" mode (id 0 = compose new invite)
-                    navController.navigate(NavRoutes.SessionInvite.createRoute(0L))
-                }
+                onBackClick = { navController.navigateUp() }
             )
         }
 
@@ -358,7 +344,8 @@ fun NavGraph(
                 onBackClick = { navController.navigateUp() },
                 onConnectClick = { id ->
                     navController.navigate(NavRoutes.Plan.createRoute(id))
-                }
+                },
+                onRejectDone = { navController.navigateUp() }
             )
         }
 

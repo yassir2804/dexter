@@ -104,7 +104,9 @@ class RateViewModel @Inject constructor(
                 .onSuccess { _state.value = RateState.Submitted }
                 .onFailure { exception ->
                     Log.e(TAG, "Error submitting review", exception)
-                    _state.value = editing.copy(submitting = false)
+                    _state.value = RateState.Error(
+                        exception.message ?: "No se pudo enviar la reseña"
+                    )
                 }
         }
     }

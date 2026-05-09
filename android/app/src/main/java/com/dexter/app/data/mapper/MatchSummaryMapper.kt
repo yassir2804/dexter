@@ -4,28 +4,35 @@ import com.dexter.app.data.datasource.model.MatchSummaryDto
 import com.dexter.app.domain.model.MatchSummary
 import javax.inject.Inject
 
-/** Mapper for MatchSummaryDto <-> MatchSummary. */
 class MatchSummaryMapper @Inject constructor() {
 
     fun mapToDomain(dto: MatchSummaryDto): MatchSummary = MatchSummary(
-        initials = dto.initials ?: "",
-        name = dto.name ?: "",
-        avatarUrl = dto.avatarUrl,
-        offers = dto.offers ?: "",
-        seeks = dto.seeks ?: "",
-        rating = dto.rating ?: "0.0",
-        sessions = dto.sessions ?: 0,
-        compatibilityPercent = dto.compatibilityPercent ?: "0%"
+        matchId = dto.matchId,
+        otherUserId = dto.otherUserId,
+        name = dto.otherUserName ?: "",
+        initials = dto.otherUserInitials ?: "",
+        avatarUrl = dto.otherUserAvatarUrl,
+        skillsOffered = dto.skillsOffered,
+        skillsSought = dto.skillsSought,
+        rating = dto.otherUserRating,
+        totalSessions = dto.otherUserTotalSessions,
+        compatibilityScore = dto.compatibilityScore,
+        status = dto.status ?: "PENDING",
+        sessionsCount = dto.sessionsCount,
     )
 
     fun mapToDto(domain: MatchSummary): MatchSummaryDto = MatchSummaryDto(
-        initials = domain.initials,
-        name = domain.name,
-        avatarUrl = domain.avatarUrl,
-        offers = domain.offers,
-        seeks = domain.seeks,
-        rating = domain.rating,
-        sessions = domain.sessions,
-        compatibilityPercent = domain.compatibilityPercent
+        matchId = domain.matchId,
+        otherUserId = domain.otherUserId,
+        otherUserName = domain.name,
+        otherUserInitials = domain.initials,
+        otherUserAvatarUrl = domain.avatarUrl,
+        skillsOffered = domain.skillsOffered,
+        skillsSought = domain.skillsSought,
+        otherUserRating = domain.rating,
+        otherUserTotalSessions = domain.totalSessions,
+        compatibilityScore = domain.compatibilityScore,
+        status = domain.status,
+        sessionsCount = domain.sessionsCount,
     )
 }
