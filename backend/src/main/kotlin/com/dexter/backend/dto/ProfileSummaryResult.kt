@@ -7,7 +7,7 @@ package com.dexter.backend.dto
  * Coincide campo a campo con el DTO del front
  * (data/datasource/model/ProfileSummaryDto.kt).
  */
-data class ProfileSummaryDto(
+data class ProfileSummaryResult(
     var initials: String? = null,
     var firstName: String? = null,
     var lastName: String? = null,
@@ -21,5 +21,5 @@ data class ProfileSummaryDto(
     var skillsOffered: List<String>? = null,
     /** nombres de Skill donde skillRole = SOUGHT */
     var skillsSought: List<String>? = null,
-    var reviews: List<ProfileReviewItemDto>? = null,
+    var reviews: List<ProfileReviewItemDetails>? = null,
 )

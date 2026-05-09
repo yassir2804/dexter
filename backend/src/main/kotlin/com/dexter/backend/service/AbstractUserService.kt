@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
-import com.dexter.backend.dto.RegisterRequestDto
-import com.dexter.backend.dto.UserDto
+import com.dexter.backend.dto.RegisterInput
+import com.dexter.backend.dto.UserResult
 import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
@@ -24,7 +24,7 @@ class AbstractUserService(
     @Autowired val passwordEncoder: BCryptPasswordEncoder,
 ) : UserService {
 
-    override fun register(input: RegisterRequestDto): UserDto {
+    override fun register(input: RegisterInput): UserResult {
         require(!input.email.isNullOrBlank()) { "email is required" }
         require(!input.password.isNullOrBlank()) { "password is required" }
         require(userRepository.findByEmail(input.email!!).isEmpty) { "email already registered" }

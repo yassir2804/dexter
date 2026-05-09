@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
 import com.dexter.backend.dto.SessionDetails
-import com.dexter.backend.dto.SessionRequest
+import com.dexter.backend.dto.SessionInput
 import com.dexter.backend.service.SessionService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -31,11 +31,11 @@ class SessionController(
     fun findById(@PathVariable id: Long): SessionDetails = sessionService.findById(id)
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody request: SessionRequest): SessionDetails =
+    fun create(@RequestBody request: SessionInput): SessionDetails =
         sessionService.create(request)
 
     @PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun update(@PathVariable id: Long, @RequestBody request: SessionRequest): SessionDetails =
+    fun update(@PathVariable id: Long, @RequestBody request: SessionInput): SessionDetails =
         sessionService.update(id, request)
 
     @PatchMapping("/{id}/complete", produces = [MediaType.APPLICATION_JSON_VALUE])

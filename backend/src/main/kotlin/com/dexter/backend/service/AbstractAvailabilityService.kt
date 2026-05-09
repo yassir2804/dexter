@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
 import com.dexter.backend.dto.AvailabilityDetails
-import com.dexter.backend.dto.AvailabilityRequest
+import com.dexter.backend.dto.AvailabilityInput
 import com.dexter.backend.entity.Availability
 import com.dexter.backend.repository.AvailabilityRepository
 import com.dexter.backend.repository.UserRepository
@@ -23,7 +23,7 @@ class AbstractAvailabilityService(
             NoSuchElementException("Availability with id $id not found")
         })
 
-    override fun create(request: AvailabilityRequest): AvailabilityDetails {
+    override fun create(request: AvailabilityInput): AvailabilityDetails {
         val userId = request.userId ?: throw IllegalArgumentException("userId is required")
         val dayOfWeek = request.dayOfWeek ?: throw IllegalArgumentException("dayOfWeek is required")
         if (dayOfWeek !in 1..7) {
@@ -50,7 +50,7 @@ class AbstractAvailabilityService(
         return toDetails(saved)
     }
 
-    override fun update(id: Long, request: AvailabilityRequest): AvailabilityDetails {
+    override fun update(id: Long, request: AvailabilityInput): AvailabilityDetails {
         val a = availabilityRepository.findById(id).orElseThrow {
             NoSuchElementException("Availability with id $id not found")
         }

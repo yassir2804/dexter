@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
 import com.dexter.backend.dto.SessionInvitationDetails
-import com.dexter.backend.dto.SessionInvitationRequest
+import com.dexter.backend.dto.SessionInvitationInput
 import com.dexter.backend.entity.InvitationStatus
 import com.dexter.backend.entity.SessionInvitation
 import com.dexter.backend.repository.MatchRepository
@@ -26,7 +26,7 @@ class AbstractSessionInvitationService(
             NoSuchElementException("SessionInvitation with id $id not found")
         })
 
-    override fun create(request: SessionInvitationRequest): SessionInvitationDetails {
+    override fun create(request: SessionInvitationInput): SessionInvitationDetails {
         val senderId = request.senderId ?: throw IllegalArgumentException("senderId is required")
         val receiverId = request.receiverId ?: throw IllegalArgumentException("receiverId is required")
         val matchId = request.matchId ?: throw IllegalArgumentException("matchId is required")

@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
 import com.dexter.backend.dto.AvailabilityDetails
-import com.dexter.backend.dto.AvailabilityRequest
+import com.dexter.backend.dto.AvailabilityInput
 import com.dexter.backend.service.AvailabilityService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -40,11 +40,11 @@ class AvailabilityController(
         availabilityService.findById(id)
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody request: AvailabilityRequest): AvailabilityDetails =
+    fun create(@RequestBody request: AvailabilityInput): AvailabilityDetails =
         availabilityService.create(request)
 
     @PutMapping("/{id}", consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun update(@PathVariable id: Long, @RequestBody request: AvailabilityRequest): AvailabilityDetails =
+    fun update(@PathVariable id: Long, @RequestBody request: AvailabilityInput): AvailabilityDetails =
         availabilityService.update(id, request)
 
     @DeleteMapping("/{id}")

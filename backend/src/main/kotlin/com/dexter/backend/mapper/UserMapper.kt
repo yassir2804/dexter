@@ -1,6 +1,6 @@
 package com.dexter.backend.mapper
 
-import com.dexter.backend.dto.UserDto
+import com.dexter.backend.dto.UserResult
 import com.dexter.backend.entity.User
 import org.mapstruct.Mapper
 import org.mapstruct.Mapping
@@ -13,7 +13,7 @@ interface UserMapper {
 
     @Mapping(source = "createDate", target = "createDate", qualifiedByName = ["dateToEpoch"])
     @Mapping(source = "updatedAt", target = "updatedAt", qualifiedByName = ["dateToEpoch"])
-    fun userToUserDto(user: User): UserDto
+    fun userToUserResult(user: User): UserResult
 
     @Named("dateToEpoch")
     fun dateToEpoch(date: Date?): Long? = date?.time

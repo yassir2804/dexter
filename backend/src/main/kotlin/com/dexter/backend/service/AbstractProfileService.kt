@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
-import com.dexter.backend.dto.ProfileReviewItemDto
-import com.dexter.backend.dto.ProfileSummaryDto
+import com.dexter.backend.dto.ProfileReviewItemDetails
+import com.dexter.backend.dto.ProfileSummaryResult
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.repository.ReviewRepository
 import com.dexter.backend.repository.SkillRepository
@@ -17,7 +17,7 @@ class AbstractProfileService(
     @Autowired val reviewRepository: ReviewRepository,
 ) : ProfileService {
 
-    override fun findByUserId(userId: Long): ProfileSummaryDto {
+    override fun findByUserId(userId: Long): ProfileSummaryResult {
         val user = userRepository.findById(userId).orElseThrow {
             NoSuchElementException("User with id $userId not found")
         }
@@ -29,7 +29,7 @@ class AbstractProfileService(
         val reviews = reviewRepository.findByRevieweeIdOrderByCreatedAtDesc(userId)
             .take(10)
             .map { r ->
-                ProfileReviewItemDto(
+                ProfileReviewItemDetails(
                     reviewerName = "${r.reviewer?.firstName ?: ""} ${r.reviewer?.lastName ?: ""}".trim(),
                     reviewerAvatarUrl = r.reviewer?.avatarUrl,
                     rating = r.rating,
@@ -37,7 +37,7 @@ class AbstractProfileService(
                 )
             }
 
-        return ProfileSummaryDto(
+        return ProfileSummaryResult(
             initials = initialsFrom(user.firstName, user.lastName),
             firstName = user.firstName,
             lastName = user.lastName,
@@ -53,7 +53,7 @@ class AbstractProfileService(
         )
     }
 
-    override fun update(userId: Long, dto: ProfileSummaryDto): ProfileSummaryDto {
+    override fun update(userId: Long, dto: ProfileSummaryResult): ProfileSummaryResult {
         val user = userRepository.findById(userId).orElseThrow {
             NoSuchElementException("User with id $userId not found")
         }

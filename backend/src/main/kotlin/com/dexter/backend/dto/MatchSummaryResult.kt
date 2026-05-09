@@ -1,6 +1,6 @@
 package com.dexter.backend.dto
 
-data class MatchSummaryDto(
+data class MatchSummaryResult(
     val matchId: Long,
     val otherUserId: Long,
     val otherUserName: String,

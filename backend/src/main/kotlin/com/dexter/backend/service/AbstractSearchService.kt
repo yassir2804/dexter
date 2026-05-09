@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
-import com.dexter.backend.dto.PersonResultDto
-import com.dexter.backend.dto.SkillSummaryDto
+import com.dexter.backend.dto.PersonResult
+import com.dexter.backend.dto.SkillSummaryDetails
 import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.repository.SkillRepository
@@ -19,23 +19,23 @@ class AbstractSearchService(
             .distinct()
             .sorted()
 
-    override fun findPopularSkills(): List<SkillSummaryDto> =
+    override fun findPopularSkills(): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findAll())
             .sortedByDescending { it.peopleCount }
             .take(20)
 
-    override fun searchSkills(query: String): List<SkillSummaryDto> =
+    override fun searchSkills(query: String): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findByNameContainingIgnoreCase(query))
 
-    override fun filterByCategory(category: String): List<SkillSummaryDto> =
+    override fun filterByCategory(category: String): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findByCategoryIgnoreCase(category))
 
-    override fun findPeopleForSkill(skillName: String): List<PersonResultDto> {
+    override fun findPeopleForSkill(skillName: String): List<PersonResult> {
         val skills = skillRepository.findByNameContainingIgnoreCase(skillName)
             .filter { it.skillRole == SkillRole.OFFERED }
         return skills.mapNotNull { s ->
             val u = s.user ?: return@mapNotNull null
-            PersonResultDto(
+            PersonResult(
                 userId = u.id,
                 name = "${u.firstName ?: ""} ${u.lastName ?: ""}".trim(),
                 avatarUrl = u.avatarUrl,
@@ -51,11 +51,11 @@ class AbstractSearchService(
     }
 
     /** Agrupa skills por nombre y produce una lista de summaries con peopleCount distinto. */
-    private fun groupToSummaries(skills: List<Skill>): List<SkillSummaryDto> =
+    private fun groupToSummaries(skills: List<Skill>): List<SkillSummaryDetails> =
         skills.groupBy { it.name }
             .map { (name, list) ->
                 val first = list.first()
-                SkillSummaryDto(
+                SkillSummaryDetails(
                     name = name,
                     category = first.category,
                     peopleCount = list.map { it.user?.id }.distinct().size,

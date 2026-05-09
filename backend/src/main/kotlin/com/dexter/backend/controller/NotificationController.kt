@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
 import com.dexter.backend.dto.NotificationDetails
-import com.dexter.backend.dto.NotificationRequest
+import com.dexter.backend.dto.NotificationInput
 import com.dexter.backend.service.NotificationService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -35,7 +35,7 @@ class NotificationController(
     fun findById(@PathVariable id: Long): NotificationDetails = notificationService.findById(id)
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody request: NotificationRequest): NotificationDetails =
+    fun create(@RequestBody request: NotificationInput): NotificationDetails =
         notificationService.create(request)
 
     @PatchMapping("/{id}/read")

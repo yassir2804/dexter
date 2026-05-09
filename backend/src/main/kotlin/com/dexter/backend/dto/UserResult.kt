@@ -5,7 +5,7 @@ package com.dexter.backend.dto
  * Coincide campo a campo con UserDto del frontend
  * (data/datasource/model/UserDto.kt).
  */
-data class UserDto(
+data class UserResult(
     var id: Long? = null,
     var email: String? = null,
     var password: String? = null,

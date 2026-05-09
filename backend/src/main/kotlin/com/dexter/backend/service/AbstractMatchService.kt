@@ -1,8 +1,8 @@
 package com.dexter.backend.service
 
-import com.dexter.backend.dto.MatchDto
-import com.dexter.backend.dto.MatchRequest
-import com.dexter.backend.dto.MatchSummaryDto
+import com.dexter.backend.dto.MatchResult
+import com.dexter.backend.dto.MatchInput
+import com.dexter.backend.dto.MatchSummaryResult
 import com.dexter.backend.entity.Match
 import com.dexter.backend.entity.MatchStatus
 import com.dexter.backend.entity.Notification
@@ -29,18 +29,18 @@ class AbstractMatchService(
     @Autowired val notificationRepository: NotificationRepository,
 ) : MatchService {
 
-    override fun findByUser(userId: Long): List<MatchSummaryDto> =
+    override fun findByUser(userId: Long): List<MatchSummaryResult> =
         matchRepository.findByInitiatorIdOrReceiverId(userId, userId)
             .map { toSummary(it, userId) }
 
-    override fun findById(matchId: Long): MatchDto {
+    override fun findById(matchId: Long): MatchResult {
         val match = matchRepository.findById(matchId).orElseThrow {
             NoSuchElementException("Match $matchId not found")
         }
         return toDto(match)
     }
 
-    override fun create(request: MatchRequest): MatchSummaryDto {
+    override fun create(request: MatchInput): MatchSummaryResult {
         val initiator = userRepository.findById(request.initiatorId)
             .orElseThrow { NoSuchElementException("User ${request.initiatorId} not found") }
         val receiver = userRepository.findById(request.receiverId)
@@ -69,7 +69,7 @@ class AbstractMatchService(
         return toSummary(match, request.initiatorId)
     }
 
-    override fun accept(id: Long, viewerUserId: Long): MatchSummaryDto {
+    override fun accept(id: Long, viewerUserId: Long): MatchSummaryResult {
         val match = matchRepository.findById(id)
             .orElseThrow { NoSuchElementException("Match $id not found") }
 
@@ -102,7 +102,7 @@ class AbstractMatchService(
         matchRepository.save(match)
     }
 
-    private fun toDto(m: Match) = MatchDto(
+    private fun toDto(m: Match) = MatchResult(
         id = m.id,
         initiatorId = m.initiator?.id,
         receiverId = m.receiver?.id,
@@ -164,7 +164,7 @@ class AbstractMatchService(
         }
     }
 
-    private fun toSummary(match: Match, viewerUserId: Long): MatchSummaryDto {
+    private fun toSummary(match: Match, viewerUserId: Long): MatchSummaryResult {
         val other = if (match.initiator?.id == viewerUserId) match.receiver else match.initiator
         val otherId = other?.id ?: 0L
 
@@ -176,7 +176,7 @@ class AbstractMatchService(
         val last = other?.lastName ?: ""
         val initials = "${first.firstOrNull() ?: ""}${last.firstOrNull() ?: ""}".uppercase()
 
-        return MatchSummaryDto(
+        return MatchSummaryResult(
             matchId = match.id ?: 0L,
             otherUserId = otherId,
             otherUserName = "$first $last".trim(),

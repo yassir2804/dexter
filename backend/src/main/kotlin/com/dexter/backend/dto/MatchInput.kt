@@ -1,6 +1,6 @@
 package com.dexter.backend.dto
 
-data class MatchRequest(
+data class MatchInput(
     val initiatorId: Long,
     val receiverId: Long,
 )

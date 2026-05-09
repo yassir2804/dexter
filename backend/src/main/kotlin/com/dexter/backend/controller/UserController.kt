@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
-import com.dexter.backend.dto.RegisterRequestDto
-import com.dexter.backend.dto.UserDto
+import com.dexter.backend.dto.RegisterInput
+import com.dexter.backend.dto.UserResult
 import com.dexter.backend.service.UserService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.PostMapping
@@ -16,6 +16,6 @@ class UserController(private val userService: UserService) {
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseBody
-    fun register(@RequestBody input: RegisterRequestDto): UserDto =
+    fun register(@RequestBody input: RegisterInput): UserResult =
         userService.register(input)
 }

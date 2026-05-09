@@ -5,7 +5,7 @@ package com.dexter.backend.dto
  * Coincide campo a campo con SkillSummaryDto del front
  * (data/datasource/model/SkillSummaryDto.kt).
  */
-data class SkillSummaryDto(
+data class SkillSummaryDetails(
     var name: String? = null,
     var category: String? = null,
     /** Cantidad de usuarios distintos que tienen esa skill */

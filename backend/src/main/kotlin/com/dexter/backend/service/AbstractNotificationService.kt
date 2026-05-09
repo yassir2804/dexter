@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
 import com.dexter.backend.dto.NotificationDetails
-import com.dexter.backend.dto.NotificationRequest
+import com.dexter.backend.dto.NotificationInput
 import com.dexter.backend.entity.Notification
 import com.dexter.backend.entity.NotificationType
 import com.dexter.backend.repository.NotificationRepository
@@ -27,7 +27,7 @@ class AbstractNotificationService(
             NoSuchElementException("Notification with id $id not found")
         })
 
-    override fun create(request: NotificationRequest): NotificationDetails {
+    override fun create(request: NotificationInput): NotificationDetails {
         val userId = request.userId ?: throw IllegalArgumentException("userId is required")
         val title = request.title ?: throw IllegalArgumentException("title is required")
         val typeStr = request.notificationType

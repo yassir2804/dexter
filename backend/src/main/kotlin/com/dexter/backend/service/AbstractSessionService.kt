@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
 import com.dexter.backend.dto.SessionDetails
-import com.dexter.backend.dto.SessionRequest
+import com.dexter.backend.dto.SessionInput
 import com.dexter.backend.entity.Session
 import com.dexter.backend.entity.SessionStatus
 import com.dexter.backend.repository.MatchRepository
@@ -26,7 +26,7 @@ class AbstractSessionService(
             NoSuchElementException("Session with id $id not found")
         })
 
-    override fun create(request: SessionRequest): SessionDetails {
+    override fun create(request: SessionInput): SessionDetails {
         val matchId = request.matchId ?: throw IllegalArgumentException("matchId is required")
         val skillId = request.skillId ?: throw IllegalArgumentException("skillId is required")
         val sessionNumber = request.sessionNumber
@@ -57,7 +57,7 @@ class AbstractSessionService(
         return toDetails(saved)
     }
 
-    override fun update(id: Long, request: SessionRequest): SessionDetails {
+    override fun update(id: Long, request: SessionInput): SessionDetails {
         val session = sessionRepository.findById(id).orElseThrow {
             NoSuchElementException("Session with id $id not found")
         }

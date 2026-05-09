@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
 import com.dexter.backend.dto.ReviewDetails
-import com.dexter.backend.dto.ReviewRequest
+import com.dexter.backend.dto.ReviewInput
 import com.dexter.backend.service.ReviewService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -39,5 +39,5 @@ class ReviewController(
     fun findById(@PathVariable id: Long): ReviewDetails = reviewService.findById(id)
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody request: ReviewRequest): ReviewDetails = reviewService.create(request)
+    fun create(@RequestBody request: ReviewInput): ReviewDetails = reviewService.create(request)
 }

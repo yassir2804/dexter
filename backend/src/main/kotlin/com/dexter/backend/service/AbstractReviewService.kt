@@ -1,7 +1,7 @@
 package com.dexter.backend.service
 
 import com.dexter.backend.dto.ReviewDetails
-import com.dexter.backend.dto.ReviewRequest
+import com.dexter.backend.dto.ReviewInput
 import com.dexter.backend.entity.Review
 import com.dexter.backend.repository.ReviewRepository
 import com.dexter.backend.repository.SessionRepository
@@ -28,7 +28,7 @@ class AbstractReviewService(
             NoSuchElementException("Review with id $id not found")
         })
 
-    override fun create(request: ReviewRequest): ReviewDetails {
+    override fun create(request: ReviewInput): ReviewDetails {
         val reviewerId = request.reviewerId
             ?: throw IllegalArgumentException("reviewerId is required")
         val revieweeId = request.revieweeId

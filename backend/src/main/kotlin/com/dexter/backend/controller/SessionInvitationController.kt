@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
 import com.dexter.backend.dto.SessionInvitationDetails
-import com.dexter.backend.dto.SessionInvitationRequest
+import com.dexter.backend.dto.SessionInvitationInput
 import com.dexter.backend.service.SessionInvitationService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -38,7 +38,7 @@ class SessionInvitationController(
         invitationService.findById(id)
 
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun create(@RequestBody request: SessionInvitationRequest): SessionInvitationDetails =
+    fun create(@RequestBody request: SessionInvitationInput): SessionInvitationDetails =
         invitationService.create(request)
 
     @PatchMapping("/{id}/accept")

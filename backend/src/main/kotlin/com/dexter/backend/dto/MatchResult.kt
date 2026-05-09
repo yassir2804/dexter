@@ -5,7 +5,7 @@ package com.dexter.backend.dto
  * Coincide campo a campo con MatchDto del front
  * (data/datasource/model/MatchDto.kt).
  */
-data class MatchDto(
+data class MatchResult(
     var id: Long? = null,
     var initiatorId: Long? = null,
     var receiverId: Long? = null,

@@ -2,7 +2,7 @@ package com.dexter.backend.dto
 
 import java.util.Date
 
-data class SessionRequest(
+data class SessionInput(
     var matchId: Long? = null,
     var skillId: Long? = null,
     var sessionNumber: Int? = null,

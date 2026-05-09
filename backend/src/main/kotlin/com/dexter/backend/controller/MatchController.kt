@@ -1,8 +1,8 @@
 package com.dexter.backend.controller
 
-import com.dexter.backend.dto.MatchDto
-import com.dexter.backend.dto.MatchRequest
-import com.dexter.backend.dto.MatchSummaryDto
+import com.dexter.backend.dto.MatchResult
+import com.dexter.backend.dto.MatchInput
+import com.dexter.backend.dto.MatchSummaryResult
 import com.dexter.backend.service.MatchService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -21,25 +21,25 @@ import org.springframework.web.bind.annotation.RestController
 class MatchController(private val matchService: MatchService) {
 
     @GetMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun findByUser(@RequestParam userId: Long): List<MatchSummaryDto> =
+    fun findByUser(@RequestParam userId: Long): List<MatchSummaryResult> =
         matchService.findByUser(userId)
 
     @GetMapping("/{matchId}", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun findById(@PathVariable matchId: Long): MatchDto =
+    fun findById(@PathVariable matchId: Long): MatchResult =
         matchService.findById(matchId)
 
     @PostMapping(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
-    fun create(@RequestBody request: MatchRequest): MatchSummaryDto =
+    fun create(@RequestBody request: MatchInput): MatchSummaryResult =
         matchService.create(request)
 
     @PatchMapping("/{id}/accept", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun accept(
         @PathVariable id: Long,
         @RequestParam viewerUserId: Long,
-    ): MatchSummaryDto = matchService.accept(id, viewerUserId)
+    ): MatchSummaryResult = matchService.accept(id, viewerUserId)
 
     @PatchMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)

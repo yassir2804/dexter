@@ -1,7 +1,7 @@
 package com.dexter.backend.controller
 
-import com.dexter.backend.dto.PersonResultDto
-import com.dexter.backend.dto.SkillSummaryDto
+import com.dexter.backend.dto.PersonResult
+import com.dexter.backend.dto.SkillSummaryDetails
 import com.dexter.backend.service.SearchService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -26,13 +26,13 @@ class SearchController(private val searchService: SearchService) {
     fun skills(
         @RequestParam(required = false) query: String?,
         @RequestParam(required = false) category: String?,
-    ): List<SkillSummaryDto> = when {
+    ): List<SkillSummaryDetails> = when {
         !query.isNullOrBlank() -> searchService.searchSkills(query)
         !category.isNullOrBlank() -> searchService.filterByCategory(category)
         else -> searchService.findPopularSkills()
     }
 
     @GetMapping("/people")
-    fun people(@RequestParam skill: String): List<PersonResultDto> =
+    fun people(@RequestParam skill: String): List<PersonResult> =
         searchService.findPeopleForSkill(skill)
 }

@@ -5,7 +5,7 @@ package com.dexter.backend.dto
  * Coincide campo a campo con PersonResultDto del front
  * (data/datasource/model/PersonResultDto.kt).
  */
-data class PersonResultDto(
+data class PersonResult(
     var userId: Long? = null,
     var name: String? = null,
     var avatarUrl: String? = null,

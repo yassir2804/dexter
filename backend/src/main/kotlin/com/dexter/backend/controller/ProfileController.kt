@@ -1,6 +1,6 @@
 package com.dexter.backend.controller
 
-import com.dexter.backend.dto.ProfileSummaryDto
+import com.dexter.backend.dto.ProfileSummaryResult
 import com.dexter.backend.service.ProfileService
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController
 class ProfileController(private val profileService: ProfileService) {
 
     @GetMapping
-    fun findByUserId(@RequestParam userId: Long): ProfileSummaryDto =
+    fun findByUserId(@RequestParam userId: Long): ProfileSummaryResult =
         profileService.findByUserId(userId)
 
     @PutMapping(
@@ -24,7 +24,7 @@ class ProfileController(private val profileService: ProfileService) {
     )
     fun update(
         @RequestParam userId: Long,
-        @RequestBody dto: ProfileSummaryDto,
-    ): ProfileSummaryDto =
+        @RequestBody dto: ProfileSummaryResult,
+    ): ProfileSummaryResult =
         profileService.update(userId, dto)
 }
