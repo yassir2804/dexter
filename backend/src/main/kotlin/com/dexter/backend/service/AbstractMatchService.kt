@@ -1,5 +1,6 @@
 package com.dexter.backend.service
 
+import com.dexter.backend.dto.MatchDto
 import com.dexter.backend.dto.MatchRequest
 import com.dexter.backend.dto.MatchSummaryDto
 import com.dexter.backend.entity.Match
@@ -31,6 +32,13 @@ class AbstractMatchService(
     override fun findByUser(userId: Long): List<MatchSummaryDto> =
         matchRepository.findByInitiatorIdOrReceiverId(userId, userId)
             .map { toSummary(it, userId) }
+
+    override fun findById(matchId: Long): MatchDto {
+        val match = matchRepository.findById(matchId).orElseThrow {
+            NoSuchElementException("Match $matchId not found")
+        }
+        return toDto(match)
+    }
 
     override fun create(request: MatchRequest): MatchSummaryDto {
         val initiator = userRepository.findById(request.initiatorId)
@@ -93,6 +101,15 @@ class AbstractMatchService(
         match.status = MatchStatus.REJECTED
         matchRepository.save(match)
     }
+
+    private fun toDto(m: Match) = MatchDto(
+        id = m.id,
+        initiatorId = m.initiator?.id,
+        receiverId = m.receiver?.id,
+        compatibilityScore = m.compatibilityScore,
+        status = m.status.name,
+        createdAt = m.createdAt?.time,
+    )
 
     private fun calculateCompatibility(a: User, b: User): Double {
         val aId = a.id ?: return 0.0

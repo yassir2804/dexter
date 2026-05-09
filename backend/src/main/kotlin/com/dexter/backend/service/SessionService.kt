@@ -6,7 +6,8 @@ import com.dexter.backend.dto.SessionRequest
 interface SessionService {
     fun findByMatch(matchId: Long): List<SessionDetails>
     fun findById(id: Long): SessionDetails
+    fun create(request: SessionRequest): SessionDetails
     fun update(id: Long, request: SessionRequest): SessionDetails
     fun complete(id: Long): SessionDetails
-    fun cancel(id: Long)
+    fun delete(id: Long)
 }

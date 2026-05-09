@@ -1,9 +1,12 @@
 package com.dexter.backend.service
 
-/**
- * TODO (Fase 8+): disponibilidad horaria para mejorar matching por horario.
- * Entidad Availability ya existe desde Fase 2.
- */
+import com.dexter.backend.dto.AvailabilityDetails
+import com.dexter.backend.dto.AvailabilityRequest
+
 interface AvailabilityService {
-    // Firmas a definir cuando se implemente.
+    fun findByUser(userId: Long): List<AvailabilityDetails>
+    fun findById(id: Long): AvailabilityDetails
+    fun create(request: AvailabilityRequest): AvailabilityDetails
+    fun update(id: Long, request: AvailabilityRequest): AvailabilityDetails
+    fun delete(id: Long)
 }
