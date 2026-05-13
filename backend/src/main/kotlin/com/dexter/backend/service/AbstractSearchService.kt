@@ -2,8 +2,11 @@ package com.dexter.backend.service
 
 import com.dexter.backend.dto.PersonResult
 import com.dexter.backend.dto.SkillSummaryDetails
+import com.dexter.backend.entity.Match
+import com.dexter.backend.entity.MatchStatus
 import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillRole
+import com.dexter.backend.repository.MatchRepository
 import com.dexter.backend.repository.SkillRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -11,6 +14,7 @@ import org.springframework.stereotype.Service
 @Service
 class AbstractSearchService(
     @Autowired val skillRepository: SkillRepository,
+    @Autowired val matchRepository: MatchRepository,
 ) : SearchService {
 
     override fun findCategories(): List<String> =
@@ -22,7 +26,7 @@ class AbstractSearchService(
     override fun findPopularSkills(): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findAll())
             .sortedByDescending { it.peopleCount }
-            .take(20)
+            .take(5)
 
     override fun searchSkills(query: String): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findByNameContainingIgnoreCase(query))
@@ -30,13 +34,21 @@ class AbstractSearchService(
     override fun filterByCategory(category: String): List<SkillSummaryDetails> =
         groupToSummaries(skillRepository.findByCategoryIgnoreCase(category))
 
-    override fun findPeopleForSkill(skillName: String): List<PersonResult> {
+    override fun findPeopleForSkill(skillName: String, viewerUserId: Long): List<PersonResult> {
+        val alreadyMatchedIds = matchRepository
+            .findByInitiatorIdOrReceiverId(viewerUserId, viewerUserId)
+            .filter { it.status == MatchStatus.PENDING || it.status == MatchStatus.ACCEPTED }
+            .flatMap { listOfNotNull(it.initiator?.id, it.receiver?.id) }
+            .toSet()
+
         val skills = skillRepository.findByNameContainingIgnoreCase(skillName)
             .filter { it.skillRole == SkillRole.OFFERED }
         return skills.mapNotNull { s ->
             val u = s.user ?: return@mapNotNull null
+            val uid = u.id ?: return@mapNotNull null
+            if (uid == viewerUserId || uid in alreadyMatchedIds) return@mapNotNull null
             PersonResult(
-                userId = u.id,
+                userId = uid,
                 name = "${u.firstName ?: ""} ${u.lastName ?: ""}".trim(),
                 avatarUrl = u.avatarUrl,
                 initials = "${u.firstName?.firstOrNull() ?: ""}${u.lastName?.firstOrNull() ?: ""}".uppercase(),
@@ -47,7 +59,7 @@ class AbstractSearchService(
                 aiScore = null,
                 aiReason = null,
             )
-        }
+        }.distinctBy { it.userId }
     }
 
     /** Agrupa skills por nombre y produce una lista de summaries con peopleCount distinto. */

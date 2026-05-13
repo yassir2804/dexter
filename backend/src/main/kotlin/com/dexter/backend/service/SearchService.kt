@@ -17,6 +17,6 @@ interface SearchService {
     /** Filtra por categoría exacta (case insensitive). */
     fun filterByCategory(category: String): List<SkillSummaryDetails>
 
-    /** Personas que OFERTAN una skill cuyo nombre contenga el string dado. */
-    fun findPeopleForSkill(skillName: String): List<PersonResult>
+    /** Personas que OFERTAN una skill cuyo nombre contenga el string dado. Excluye al viewer y a usuarios ya matcheados. */
+    fun findPeopleForSkill(skillName: String, viewerUserId: Long): List<PersonResult>
 }

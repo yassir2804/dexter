@@ -33,6 +33,8 @@ class SearchController(private val searchService: SearchService) {
     }
 
     @GetMapping("/people")
-    fun people(@RequestParam skill: String): List<PersonResult> =
-        searchService.findPeopleForSkill(skill)
+    fun people(
+        @RequestParam skill: String,
+        @RequestParam viewerUserId: Long,
+    ): List<PersonResult> = searchService.findPeopleForSkill(skill, viewerUserId)
 }
