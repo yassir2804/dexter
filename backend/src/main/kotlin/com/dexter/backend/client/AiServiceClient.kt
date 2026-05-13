@@ -1,0 +1,43 @@
+package com.dexter.backend.client
+
+import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
+import org.springframework.web.client.RestTemplate
+
+data class AiPlanRequest(
+    val userAName: String,
+    val userAOffers: List<String>,
+    val userBName: String,
+    val userBOffers: List<String>,
+    val availableDays: List<String>
+)
+
+data class AiSessionPlan(
+    val sessionNumber: Int,
+    val title: String,
+    val description: String,
+    val skill: String
+)
+
+@Component
+class AiServiceClient(
+    @Value("\${ai.service.url:http://localhost:8001}") private val baseUrl: String
+) {
+    private val log = LoggerFactory.getLogger(AiServiceClient::class.java)
+    private val restTemplate = RestTemplate()
+
+    fun generatePlan(request: AiPlanRequest): List<AiSessionPlan>? = try {
+        val result = restTemplate.postForObject(
+            "$baseUrl/generate-plan",
+            request,
+            Array<AiSessionPlan>::class.java
+        )
+        result?.toList().also {
+            log.info("AI generó ${it?.size} sesiones para ${request.userAName} ↔ ${request.userBName}")
+        }
+    } catch (e: Exception) {
+        log.warn("AI service no disponible, usando títulos genéricos: ${e.message}")
+        null
+    }
+}

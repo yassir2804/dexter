@@ -20,6 +20,10 @@ data class Match(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     var status: MatchStatus = MatchStatus.PENDING,
+    @Column(name = "initiator_skill")
+    var initiatorSkill: String? = null,
+    @Column(name = "receiver_skill")
+    var receiverSkill: String? = null,
     @Column(name = "created_at")
     var createdAt: Date? = null,
 ) {

@@ -1,5 +1,6 @@
 package com.dexter.backend.controller
 
+import com.dexter.backend.dto.MatchDetailResult
 import com.dexter.backend.dto.MatchResult
 import com.dexter.backend.dto.MatchInput
 import com.dexter.backend.dto.MatchSummaryResult
@@ -28,6 +29,16 @@ class MatchController(private val matchService: MatchService) {
     fun findById(@PathVariable matchId: Long): MatchResult =
         matchService.findById(matchId)
 
+    @GetMapping("/{matchId}/detail", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findDetail(
+        @PathVariable matchId: Long,
+        @RequestParam viewerUserId: Long,
+    ): MatchDetailResult = matchService.findDetail(matchId, viewerUserId)
+
+    @GetMapping("/suggestions", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun findSuggestions(@RequestParam userId: Long): List<MatchSummaryResult> =
+        matchService.findSuggestions(userId)
+
     @PostMapping(
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
@@ -44,4 +55,8 @@ class MatchController(private val matchService: MatchService) {
     @PatchMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun reject(@PathVariable id: Long) = matchService.reject(id)
+
+    @PostMapping("/{id}/ensure-sessions")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun ensureSessions(@PathVariable id: Long) = matchService.ensureSessions(id)
 }
