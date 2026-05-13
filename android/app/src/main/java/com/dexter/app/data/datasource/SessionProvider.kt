@@ -8,8 +8,8 @@ import java.util.Date
 /**
  * In-memory provider for sample Session data used by the repository during development.
  *
- * Generates a 5-session roadmap per match (2 completed, 1 scheduled as next,
- * 2 pending) mirroring the PlanScreen prototype. Replaced by the Mockoon API
+ * Generates a 6-session roadmap per match (2 completed, 1 scheduled as next,
+ * 3 pending) mirroring the PlanScreen prototype. Replaced by the Mockoon API
  * once Yazir wires it up.
  */
 class SessionProvider {
@@ -26,7 +26,8 @@ class SessionProvider {
             Triple(2, "Rítmica y compases", "Patrones de rasgueo en 4/4"),
             Triple(3, "Escalas mayores", "Escala de Do y Sol en 2 octavas"),
             Triple(4, "Canciones populares", "Aplicación práctica con canción"),
-            Triple(5, "Improvisación", "Licks básicos sobre progresiones")
+            Triple(5, "Técnicas avanzadas", "Técnicas aplicadas en contexto real"),
+            Triple(6, "Improvisación", "Licks básicos sobre progresiones")
         )
 
         fun findSessionsByMatch(matchId: Long): List<Session> {
@@ -43,7 +44,8 @@ class SessionProvider {
                     1 -> daysFromNow(-7)
                     2 -> daysFromNow(2)
                     3 -> daysFromNow(9)
-                    else -> daysFromNow(16)
+                    4 -> daysFromNow(16)
+                    else -> daysFromNow(23)
                 }
                 val completed = when (index) {
                     0 -> daysFromNow(-14)

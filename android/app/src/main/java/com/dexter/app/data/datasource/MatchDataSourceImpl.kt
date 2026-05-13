@@ -1,5 +1,6 @@
 package com.dexter.app.data.datasource
 
+import com.dexter.app.data.datasource.model.MatchDetailDto
 import com.dexter.app.data.datasource.model.MatchDto
 import com.dexter.app.data.datasource.model.MatchSummaryDto
 import com.dexter.app.data.mapper.MatchMapper
@@ -39,8 +40,8 @@ class MatchDataSourceImpl @Inject constructor(
         return result.getOrThrow()
     }
 
-    override suspend fun createMatch(initiatorId: Long, receiverId: Long): MatchSummaryDto {
-        return remoteDataSource.createMatch(initiatorId, receiverId).getOrThrow()
+    override suspend fun createMatch(initiatorId: Long, receiverId: Long, initiatorSkill: String?, receiverSkill: String?): MatchSummaryDto {
+        return remoteDataSource.createMatch(initiatorId, receiverId, initiatorSkill, receiverSkill).getOrThrow()
     }
 
     override suspend fun acceptMatch(matchId: Long, viewerUserId: Long): MatchSummaryDto {
@@ -49,5 +50,15 @@ class MatchDataSourceImpl @Inject constructor(
 
     override suspend fun rejectMatch(matchId: Long) {
         remoteDataSource.rejectMatch(matchId).getOrThrow()
+    }
+
+    override suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): MatchDetailDto =
+        remoteDataSource.getMatchDetail(matchId, viewerUserId).getOrThrow()
+
+    override suspend fun getSuggestions(userId: Long): List<MatchSummaryDto> =
+        remoteDataSource.getSuggestions(userId).getOrElse { emptyList() }
+
+    override suspend fun ensureSessions(matchId: Long) {
+        remoteDataSource.ensureSessions(matchId).getOrThrow()
     }
 }

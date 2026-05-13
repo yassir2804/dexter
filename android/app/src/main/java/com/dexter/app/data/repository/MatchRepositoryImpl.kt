@@ -2,12 +2,12 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.MatchDataSource
-import com.dexter.app.data.datasource.MatchProvider
 import com.dexter.app.data.mapper.MatchMapper
 import com.dexter.app.data.mapper.MatchSummaryMapper
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Match
 import com.dexter.app.domain.model.MatchDetail
+import com.dexter.app.domain.model.MatchStatus
 import com.dexter.app.domain.model.MatchSummary
 import com.dexter.app.domain.repository.MatchRepository
 import kotlinx.coroutines.flow.first
@@ -52,16 +52,49 @@ class MatchRepositoryImpl @Inject constructor(
         Result.failure(DomainError.UnknownError("Unknown error fetching match summaries", e))
     }
 
-    override suspend fun getMatchDetail(matchId: Long): Result<MatchDetail> = try {
-        Result.success(MatchProvider.findMatchDetailById(matchId))
+    override suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): Result<MatchDetail> = try {
+        val dto = dataSource.getMatchDetail(matchId, viewerUserId)
+        val status = when (dto.status) {
+            "ACCEPTED"  -> MatchStatus.ACCEPTED
+            "REJECTED"  -> MatchStatus.REJECTED
+            "CANCELLED" -> MatchStatus.CANCELLED
+            else        -> MatchStatus.PENDING
+        }
+        Result.success(MatchDetail(
+            matchId           = dto.matchId,
+            otherUserId       = dto.otherUserId,
+            initials          = dto.otherUserInitials ?: "",
+            name              = dto.otherUserName ?: "",
+            avatarUrl         = dto.otherUserAvatarUrl,
+            bio               = dto.bio ?: "",
+            rating            = dto.rating,
+            sessionsCompleted = dto.sessionsCompleted,
+            compatibilityPercent = dto.compatibilityScore.toInt(),
+            offeredSkills     = dto.offeredSkills,
+            soughtSkills      = dto.soughtSkills,
+            availability      = dto.availability,
+            aiAnalysis        = dto.aiAnalysis ?: "",
+            status            = status,
+        ))
     } catch (e: IOException) {
         Result.failure(DomainError.NetworkError("Network error fetching match detail", e))
     } catch (e: Exception) {
         Result.failure(DomainError.UnknownError("Unknown error fetching match detail", e))
     }
 
-    override suspend fun initiateMatch(initiatorId: Long, receiverId: Long): Result<MatchSummary> = try {
-        val dto = dataSource.createMatch(initiatorId, receiverId)
+    override suspend fun getSuggestions(userId: Long): Result<List<MatchSummary>> = try {
+        val dtos = dataSource.getSuggestions(userId)
+        Result.success(dtos.map { matchSummaryMapper.mapToDomain(it) })
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get suggestions for user: $userId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching suggestions", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in getSuggestions", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching suggestions", e))
+    }
+
+    override suspend fun initiateMatch(initiatorId: Long, receiverId: Long, initiatorSkill: String?, receiverSkill: String?): Result<MatchSummary> = try {
+        val dto = dataSource.createMatch(initiatorId, receiverId, initiatorSkill, receiverSkill)
         Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
         Log.e(TAG, "Failed to initiate match", e)
@@ -91,5 +124,16 @@ class MatchRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in rejectMatch", e)
         Result.failure(DomainError.UnknownError("Unknown error rejecting match", e))
+    }
+
+    override suspend fun ensureSessions(matchId: Long): Result<Unit> = try {
+        dataSource.ensureSessions(matchId)
+        Result.success(Unit)
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to ensure sessions for match $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error ensuring sessions", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in ensureSessions", e)
+        Result.failure(DomainError.UnknownError("Unknown error ensuring sessions", e))
     }
 }

@@ -1,5 +1,9 @@
 package com.dexter.app.presentation.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,12 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -45,6 +49,7 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
 import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.viewmodel.ConnectState
+import com.dexter.app.presentation.viewmodel.SkillPickerData
 import com.dexter.app.presentation.viewmodel.UserProfileState
 import com.dexter.app.presentation.viewmodel.UserProfileViewModel
 
@@ -57,28 +62,36 @@ fun UserProfileScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val connectState by viewModel.connectState.collectAsState()
+    val pickerData by viewModel.pickerData.collectAsState()
 
     LaunchedEffect(userId) { viewModel.loadProfile(userId) }
 
     UserProfileContent(
         state = state,
         connectState = connectState,
+        pickerData = pickerData,
         onBackClick = onBackClick,
         onConnectClick = {
             val initiatorId = CurrentUserSession.userId ?: return@UserProfileContent
-            viewModel.initiateMatch(initiatorId, userId)
+            viewModel.onConnectTapped(initiatorId, userId)
         },
+        onTeachSelected = { viewModel.updatePickerTeach(it) },
+        onLearnSelected = { viewModel.updatePickerLearn(it) },
+        onPickerConfirm = { viewModel.confirmConnect() },
         modifier = modifier
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserProfileContent(
     state: UserProfileState,
     connectState: ConnectState,
+    pickerData: SkillPickerData?,
     onBackClick: () -> Unit,
     onConnectClick: () -> Unit,
+    onTeachSelected: (String) -> Unit,
+    onLearnSelected: (String) -> Unit,
+    onPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -124,7 +137,11 @@ private fun UserProfileContent(
                 UserProfileBody(
                     profile = state.profile,
                     connectState = connectState,
+                    pickerData = pickerData,
                     onConnectClick = onConnectClick,
+                    onTeachSelected = onTeachSelected,
+                    onLearnSelected = onLearnSelected,
+                    onPickerConfirm = onPickerConfirm,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -139,7 +156,11 @@ private fun UserProfileContent(
 private fun UserProfileBody(
     profile: ProfileSummary,
     connectState: ConnectState,
+    pickerData: SkillPickerData?,
     onConnectClick: () -> Unit,
+    onTeachSelected: (String) -> Unit,
+    onLearnSelected: (String) -> Unit,
+    onPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -227,7 +248,92 @@ private fun UserProfileBody(
                     .height(44.dp),
                 shape = RoundedCornerShape(50)
             ) {
-                Text(stringResource(R.string.user_profile_schedule))
+                when {
+                    isConnecting -> CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    connectDone -> Text(stringResource(R.string.user_profile_request_sent))
+                    else -> Text(stringResource(R.string.user_profile_schedule))
+                }
+            }
+        }
+
+        Spacer(Modifier.height(12.dp))
+
+        // ── Skill picker (inline, appears when multiple options exist) ──
+        AnimatedVisibility(
+            visible = pickerData != null,
+            enter = expandVertically(),
+            exit = shrinkVertically()
+        ) {
+            pickerData?.let { picker ->
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            text = "¿Qué quieres aprender?",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier
+                                .horizontalScroll(rememberScrollState())
+                                .padding(bottom = if (picker.canTeach.size > 1) 14.dp else 12.dp)
+                        ) {
+                            picker.canLearn.forEach { skill ->
+                                SkillChip(
+                                    label = skill,
+                                    selected = skill == picker.selectedLearn,
+                                    onClick = { onLearnSelected(skill) }
+                                )
+                            }
+                        }
+
+                        if (picker.canTeach.size > 1) {
+                            Text(
+                                text = "¿Qué vas a enseñar?",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            )
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .horizontalScroll(rememberScrollState())
+                                    .padding(bottom = 12.dp)
+                            ) {
+                                picker.canTeach.forEach { skill ->
+                                    SkillChip(
+                                        label = skill,
+                                        selected = skill == picker.selectedTeach,
+                                        onClick = { onTeachSelected(skill) }
+                                    )
+                                }
+                            }
+                        }
+
+                        Button(
+                            onClick = onPickerConfirm,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            Text(
+                                text = "Conectar: ${picker.selectedTeach} ↔ ${picker.selectedLearn}",
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -339,8 +445,12 @@ private fun UserProfileSuccessPreview() {
         UserProfileContent(
             state = UserProfileState.Success(sampleProfile),
             connectState = ConnectState.Idle,
+            pickerData = null,
             onBackClick = {},
-            onConnectClick = {}
+            onConnectClick = {},
+            onTeachSelected = {},
+            onLearnSelected = {},
+            onPickerConfirm = {}
         )
     }
 }

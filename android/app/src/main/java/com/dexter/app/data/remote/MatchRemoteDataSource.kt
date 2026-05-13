@@ -1,5 +1,6 @@
 package com.dexter.app.data.remote
 
+import com.dexter.app.data.datasource.model.MatchDetailDto
 import com.dexter.app.data.datasource.model.MatchDto
 import com.dexter.app.data.datasource.model.MatchRequestDto
 import com.dexter.app.data.datasource.model.MatchSummaryDto
@@ -28,8 +29,8 @@ class MatchRemoteDataSource @Inject constructor(
         matchApiService.getMatchesByStatus(userId, status)
     }
 
-    suspend fun createMatch(initiatorId: Long, receiverId: Long): Result<MatchSummaryDto> = safeApiCall {
-        matchApiService.createMatch(MatchRequestDto(initiatorId, receiverId))
+    suspend fun createMatch(initiatorId: Long, receiverId: Long, initiatorSkill: String? = null, receiverSkill: String? = null): Result<MatchSummaryDto> = safeApiCall {
+        matchApiService.createMatch(MatchRequestDto(initiatorId, receiverId, initiatorSkill, receiverSkill))
     }
 
     suspend fun acceptMatch(matchId: Long, viewerUserId: Long): Result<MatchSummaryDto> = safeApiCall {
@@ -38,6 +39,24 @@ class MatchRemoteDataSource @Inject constructor(
 
     suspend fun rejectMatch(matchId: Long): Result<Unit> = safeApiCall {
         matchApiService.rejectMatch(matchId)
+    }
+
+    suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): Result<MatchDetailDto> = safeApiCall {
+        matchApiService.getMatchDetail(matchId, viewerUserId)
+    }
+
+    suspend fun getSuggestions(userId: Long): Result<List<MatchSummaryDto>> = safeApiCall {
+        matchApiService.getSuggestions(userId)
+    }
+
+    suspend fun ensureSessions(matchId: Long): Result<Unit> = try {
+        val response = withTimeout(API_TIMEOUT_MS) { matchApiService.ensureSessions(matchId) }
+        if (response.isSuccessful) Result.success(Unit)
+        else Result.failure(Exception("API error ${response.code()}: ${response.errorBody()?.string()}"))
+    } catch (e: TimeoutCancellationException) {
+        Result.failure(Exception("Network timeout", e))
+    } catch (e: Exception) {
+        Result.failure(e)
     }
 
     private suspend fun <T> safeApiCall(
