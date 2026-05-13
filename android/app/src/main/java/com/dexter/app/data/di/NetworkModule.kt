@@ -31,8 +31,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // For Android emulator use 10.0.2.2 to access host machine localhost.
-    private const val BASE_URL = "http://10.0.2.2:3000/v1/"
+    // 10.0.2.2 = localhost del emulador. Para dispositivo físico usar la IP local de la PC.
+    private const val BASE_URL = "http://192.168.18.118:3000/v1/"
 
     @Provides
     @Singleton

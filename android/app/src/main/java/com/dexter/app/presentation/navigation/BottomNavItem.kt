@@ -3,17 +3,12 @@ package com.dexter.app.presentation.navigation
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.dexter.app.R
 
-/**
- * Sealed class representing each item in the bottom navigation bar.
- *
- * Mirrors TaskApp's BottomNavItem pattern: route, @StringRes title, icon,
- * and a companion [items] helper used by [BottomNavigationBar] to iterate.
- */
 sealed class BottomNavItem(
     val route: String,
     @StringRes val title: Int,
@@ -31,6 +26,12 @@ sealed class BottomNavItem(
         Icons.Default.Search
     )
 
+    data object Matches : BottomNavItem(
+        NavRoutes.Matches.ROUTE,
+        R.string.nav_matches,
+        Icons.Default.People
+    )
+
     data object Profile : BottomNavItem(
         NavRoutes.Profile.ROUTE,
         R.string.nav_profile,
@@ -38,6 +39,6 @@ sealed class BottomNavItem(
     )
 
     companion object {
-        fun items() = listOf(Home, Search, Profile)
+        fun items() = listOf(Home, Search, Matches, Profile)
     }
 }

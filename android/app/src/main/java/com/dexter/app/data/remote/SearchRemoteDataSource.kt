@@ -35,8 +35,8 @@ class SearchRemoteDataSource @Inject constructor(
         searchApiService.filterSkillsByCategory(category)
     }
 
-    suspend fun getPeopleForSkill(skillName: String): Result<List<PersonResultDto>> = safeApiCall {
-        searchApiService.getPeopleForSkill(skillName)
+    suspend fun getPeopleForSkill(skillName: String, viewerUserId: Long): Result<List<PersonResultDto>> = safeApiCall {
+        searchApiService.getPeopleForSkill(skillName, viewerUserId)
     }
 
     private suspend fun <T> safeApiCall(

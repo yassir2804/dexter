@@ -163,24 +163,6 @@ private fun PlanBody(
         item { MatchSummaryHeader(match = match) }
 
         item {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                InfoBoxCard(
-                    label = stringResource(R.string.plan_objective),
-                    value = stringResource(R.string.plan_objective_value),
-                    modifier = Modifier.weight(1f)
-                )
-                InfoBoxCard(
-                    label = stringResource(R.string.plan_duration),
-                    value = stringResource(R.string.plan_duration_value),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        item {
             Column {
                 Text(
                     text = stringResource(R.string.plan_progress),

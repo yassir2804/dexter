@@ -1,22 +1,15 @@
 package com.dexter.app.presentation.ui.screens
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +18,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
@@ -54,7 +46,6 @@ fun HomeScreen(
     HomeContent(
         homeState = homeState,
         onMatchClick = onMatchClick,
-        onActiveSessionClick = onActiveSessionClick,
         modifier = modifier
     )
 }
@@ -63,7 +54,6 @@ fun HomeScreen(
 private fun HomeContent(
     homeState: HomeState,
     onMatchClick: (MatchSummary) -> Unit = {},
-    onActiveSessionClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     when (homeState) {
@@ -92,7 +82,7 @@ private fun HomeContent(
 
         is HomeState.Success -> HomeSuccessContent(
             pendingMatches = homeState.pendingMatches,
-            acceptedMatches = homeState.acceptedMatches,
+            suggestions = homeState.suggestions,
             onMatchClick = onMatchClick,
             modifier = modifier
         )
@@ -102,7 +92,7 @@ private fun HomeContent(
 @Composable
 private fun HomeSuccessContent(
     pendingMatches: List<MatchSummary>,
-    acceptedMatches: List<MatchSummary>,
+    suggestions: List<MatchSummary>,
     onMatchClick: (MatchSummary) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -110,7 +100,6 @@ private fun HomeSuccessContent(
 
         item { SearchBar() }
 
-        // ── Solicitudes recibidas ───────────────────────────────────
         if (pendingMatches.isNotEmpty()) {
             item {
                 SectionHeader(
@@ -121,49 +110,36 @@ private fun HomeSuccessContent(
             items(pendingMatches) { match ->
                 MatchCard(match = match, onClick = { onMatchClick(match) })
             }
-        }
-
-        // ── Mis matches (aceptados) ──────────────────────────────────
-        if (acceptedMatches.isNotEmpty()) {
+        } else {
             item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 24.dp, bottom = 8.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = stringResource(R.string.home_suggested_matches),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        text = stringResource(R.string.home_no_pending),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AutoAwesome,
-                                contentDescription = null,
-                                modifier = Modifier.size(14.dp),
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(R.string.home_ai_badge),
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                        }
-                    }
                 }
             }
-            items(acceptedMatches) { match ->
-                MatchCard(match = match, onClick = { onMatchClick(match) })
+        }
+
+        if (suggestions.isNotEmpty()) {
+            item {
+                SectionHeader(
+                    title = stringResource(R.string.home_suggestions_title),
+                    modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
+                )
+            }
+            items(suggestions) { suggestion ->
+                MatchCard(match = suggestion, onClick = { onMatchClick(suggestion) })
             }
         }
+
+        item { Spacer(Modifier.height(16.dp)) }
     }
 }
 
@@ -194,11 +170,10 @@ private fun HomeScreenSuccessPreview() {
         HomeContent(
             homeState = HomeState.Success(
                 pendingMatches = listOf(sampleMatch(1L, "Maria Lopez", "ML", "PENDING")),
-                acceptedMatches = listOf(
-                    sampleMatch(2L, "Juan Perez", "JP", "ACCEPTED"),
-                    sampleMatch(3L, "Ana Ramirez", "AR", "ACCEPTED")
-                )
-            )
+                acceptedMatches = listOf(sampleMatch(2L, "Juan Perez", "JP", "ACCEPTED")),
+                suggestions = listOf(sampleMatch(3L, "Ana Ramirez", "AR", "SUGGESTION"))
+            ),
+            onMatchClick = {}
         )
     }
 }
@@ -219,6 +194,6 @@ private fun HomeScreenLoadingPreview() {
 @Composable
 private fun HomeScreenErrorPreview() {
     AppTheme(dynamicColor = false) {
-        HomeContent(homeState = HomeState.Error("Network error fetching match summaries"))
+        HomeContent(homeState = HomeState.Error("Network error"))
     }
 }

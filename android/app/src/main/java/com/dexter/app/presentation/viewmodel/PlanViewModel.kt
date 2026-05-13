@@ -4,10 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.MatchDetail
+import com.dexter.app.domain.model.MatchStatus
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.model.SessionStatus
 import com.dexter.app.domain.repository.MatchRepository
 import com.dexter.app.domain.repository.SessionRepository
+import com.dexter.app.presentation.session.CurrentUserSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,12 +49,23 @@ class PlanViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = PlanState.Loading
 
-            val matchResult = matchRepository.getMatchDetail(matchId)
+            val matchResult = matchRepository.getMatchDetail(matchId, CurrentUserSession.userId ?: 0L)
             val sessionsResult = sessionRepository.getSessionsByMatch(matchId)
 
             matchResult.onSuccess { detail ->
-                sessionsResult.onSuccess { sessions ->
-                    val sorted = sessions.sortedBy { it.sessionNumber }
+                var sessionsToShow = sessionsResult.getOrElse { emptyList() }
+
+                if (sessionsToShow.isEmpty() && detail.status == MatchStatus.ACCEPTED) {
+                    matchRepository.ensureSessions(matchId)
+                    sessionsToShow = sessionRepository.getSessionsByMatch(matchId).getOrElse { emptyList() }
+                }
+
+                if (sessionsResult.isFailure && sessionsToShow.isEmpty()) {
+                    _state.value = PlanState.Error(
+                        sessionsResult.exceptionOrNull()?.message ?: "Error desconocido"
+                    )
+                } else {
+                    val sorted = sessionsToShow.sortedBy { it.sessionNumber }
                     val completedCount = sorted.count { it.status == SessionStatus.COMPLETED }
                     val progress = if (sorted.isEmpty()) 0f
                     else completedCount.toFloat() / sorted.size
@@ -62,11 +75,6 @@ class PlanViewModel @Inject constructor(
                         sessions = sorted,
                         progress = progress,
                         nextSessionId = next?.id
-                    )
-                }.onFailure { exception ->
-                    Log.e(TAG, "Error loading sessions", exception)
-                    _state.value = PlanState.Error(
-                        exception.message ?: "Error desconocido"
                     )
                 }
             }.onFailure { exception ->

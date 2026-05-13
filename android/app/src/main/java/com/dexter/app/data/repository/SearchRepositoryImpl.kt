@@ -65,8 +65,8 @@ class SearchRepositoryImpl @Inject constructor(
         Result.failure(DomainError.UnknownError("Unknown error filtering skills", e))
     }
 
-    override suspend fun getPeopleForSkill(skillName: String): Result<List<PersonResult>> = try {
-        val people = dataSource.getPeopleForSkill(skillName)
+    override suspend fun getPeopleForSkill(skillName: String, viewerUserId: Long): Result<List<PersonResult>> = try {
+        val people = dataSource.getPeopleForSkill(skillName, viewerUserId)
         Result.success(people)
     } catch (e: IOException) {
         Log.e(TAG, "Network error fetching people for skill: $skillName", e)

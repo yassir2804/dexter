@@ -17,4 +17,6 @@ data class MatchSummary(
     val compatibilityScore: Double,
     val status: String,
     val sessionsCount: Int,
+    val isReceiver: Boolean = false,
+    val availability: List<Int> = emptyList(),
 )

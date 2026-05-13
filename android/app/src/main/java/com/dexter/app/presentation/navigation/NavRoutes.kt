@@ -40,6 +40,10 @@ sealed class NavRoutes {
         const val ROUTE = "search"
     }
 
+    data object Matches : NavRoutes() {
+        const val ROUTE = "matches"
+    }
+
     data object Profile : NavRoutes() {
         const val ROUTE = "profile"
     }

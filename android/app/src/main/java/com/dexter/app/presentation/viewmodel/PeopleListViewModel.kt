@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.PersonResult
 import com.dexter.app.domain.repository.SearchRepository
+import com.dexter.app.presentation.session.CurrentUserSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,10 +48,11 @@ class PeopleListViewModel @Inject constructor(
     val peopleListState = _peopleListState.asStateFlow()
 
     fun loadPeople(skillName: String) {
+        val viewerUserId = CurrentUserSession.userId ?: 0L
         viewModelScope.launch {
             _peopleListState.value = PeopleListState.Loading
 
-            repository.getPeopleForSkill(skillName)
+            repository.getPeopleForSkill(skillName, viewerUserId)
                 .onSuccess { people ->
                     if (people.isNotEmpty()) {
                         _peopleListState.value = PeopleListState.Success(skillName, people)

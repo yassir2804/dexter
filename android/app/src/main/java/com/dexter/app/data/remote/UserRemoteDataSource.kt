@@ -30,10 +30,16 @@ class UserRemoteDataSource @Inject constructor(
                 response.body()?.let { Result.success(it) }
                     ?: Result.failure(Exception("Login response body is null"))
             } else {
-                Result.failure(Exception("Login failed: ${response.code()}"))
+                val message = when (response.code()) {
+                    401, 403 -> "Credenciales inválidas"
+                    429 -> "Demasiados intentos. Intenta más tarde"
+                    in 500..599 -> "Error del servidor. Intenta más tarde"
+                    else -> "Ocurrió un error. Intenta nuevamente"
+                }
+                Result.failure(Exception(message))
             }
         } catch (e: TimeoutCancellationException) {
-            Result.failure(Exception("Network timeout during login", e))
+            Result.failure(Exception("Sin conexión. Verifica tu red"))
         } catch (e: Exception) {
             Result.failure(e)
         }

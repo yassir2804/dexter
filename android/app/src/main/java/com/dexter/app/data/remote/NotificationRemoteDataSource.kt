@@ -18,8 +18,8 @@ class NotificationRemoteDataSource @Inject constructor(
         private const val API_TIMEOUT_MS = 10_000L
     }
 
-    suspend fun getNotifications(): Result<List<NotificationDto>> = safeApiCall {
-        notificationApiService.getNotifications()
+    suspend fun getNotifications(userId: Long): Result<List<NotificationDto>> = safeApiCall {
+        notificationApiService.getNotifications(userId)
     }
 
     suspend fun markAsRead(notificationId: Long): Result<Unit> =

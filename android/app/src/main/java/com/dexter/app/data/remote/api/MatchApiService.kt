@@ -1,5 +1,6 @@
 package com.dexter.app.data.remote.api
 
+import com.dexter.app.data.datasource.model.MatchDetailDto
 import com.dexter.app.data.datasource.model.MatchDto
 import com.dexter.app.data.datasource.model.MatchRequestDto
 import com.dexter.app.data.datasource.model.MatchSummaryDto
@@ -48,6 +49,25 @@ interface MatchApiService {
     /** PATCH /matches/{id}/reject — reject a pending match. */
     @PATCH("matches/{id}/reject")
     suspend fun rejectMatch(
+        @Path("id") matchId: Long
+    ): Response<Unit>
+
+    /** GET /matches/{matchId}/detail?viewerUserId={viewerUserId} — full detail for the detail screen. */
+    @GET("matches/{matchId}/detail")
+    suspend fun getMatchDetail(
+        @Path("matchId") matchId: Long,
+        @Query("viewerUserId") viewerUserId: Long
+    ): Response<MatchDetailDto>
+
+    /** GET /matches/suggestions?userId={userId} — top-5 suggestions with >50% compatibility. */
+    @GET("matches/suggestions")
+    suspend fun getSuggestions(
+        @Query("userId") userId: Long
+    ): Response<List<MatchSummaryDto>>
+
+    /** POST /matches/{id}/ensure-sessions — generate sessions if none exist for an accepted match. */
+    @POST("matches/{id}/ensure-sessions")
+    suspend fun ensureSessions(
         @Path("id") matchId: Long
     ): Response<Unit>
 }

@@ -41,6 +41,11 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
+    splits {
+        abi {
+            isEnable = false
+        }
+    }
 }
 
 // LAB 3: Configuración de Java Toolchain para evitar errores con jlink

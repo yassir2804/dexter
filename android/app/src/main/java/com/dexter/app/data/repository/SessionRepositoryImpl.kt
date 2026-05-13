@@ -42,13 +42,9 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getSessionsByMatch(matchId: Long): Result<List<Session>> = try {
-        remoteDataSource.getSessions().fold(
+        remoteDataSource.getSessions(matchId).fold(
             onSuccess = { dtos ->
-                Result.success(
-                    dtos
-                        .map { sessionMapper.mapToDomain(it) }
-                        .filter { it.matchId == matchId }
-                )
+                Result.success(dtos.map { sessionMapper.mapToDomain(it) })
             },
             onFailure = { exception ->
                 Result.failure(DomainError.NetworkError("Network error fetching sessions", exception))

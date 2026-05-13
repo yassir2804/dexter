@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.MatchDetail
 import com.dexter.app.domain.repository.MatchRepository
+import com.dexter.app.presentation.session.CurrentUserSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,7 +42,8 @@ class MatchDetailViewModel @Inject constructor(
     fun loadMatch(matchId: Long) {
         viewModelScope.launch {
             _state.value = MatchDetailState.Loading
-            repository.getMatchDetail(matchId)
+            val viewerUserId = CurrentUserSession.userId ?: 0L
+            repository.getMatchDetail(matchId, viewerUserId)
                 .onSuccess { _state.value = MatchDetailState.Success(it) }
                 .onFailure { e ->
                     Log.e(TAG, "Error loading match detail: ${e.message}")
@@ -72,5 +74,9 @@ class MatchDetailViewModel @Inject constructor(
                     _actionState.value = MatchActionState.Error(e.message ?: "Error al rechazar")
                 }
         }
+    }
+
+    fun resetActionState() {
+        _actionState.value = MatchActionState.Idle
     }
 }

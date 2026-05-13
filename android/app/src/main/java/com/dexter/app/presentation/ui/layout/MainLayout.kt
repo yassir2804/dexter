@@ -115,6 +115,14 @@ fun MainLayout(
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
+                NavRoutes.Matches.ROUTE -> {
+                    Text(
+                        text = stringResource(R.string.matches_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
                 NavRoutes.Profile.ROUTE -> {
                     Row(
                         modifier = Modifier.fillMaxWidth(),

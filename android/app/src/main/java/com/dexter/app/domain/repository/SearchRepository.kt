@@ -12,5 +12,5 @@ interface SearchRepository {
     suspend fun getCategories(): Result<List<String>>
     suspend fun searchSkills(query: String): Result<List<SkillSummary>>
     suspend fun filterSkillsByCategory(category: String): Result<List<SkillSummary>>
-    suspend fun getPeopleForSkill(skillName: String): Result<List<PersonResult>>
+    suspend fun getPeopleForSkill(skillName: String, viewerUserId: Long): Result<List<PersonResult>>
 }

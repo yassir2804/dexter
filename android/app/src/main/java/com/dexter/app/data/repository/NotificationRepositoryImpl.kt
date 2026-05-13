@@ -17,10 +17,8 @@ class NotificationRepositoryImpl @Inject constructor(
     companion object { private const val TAG = "NotificationRepository" }
 
     override suspend fun getNotificationsForUser(userId: Long): Result<List<Notification>> = try {
-        remoteDataSource.getNotifications().map { dtos ->
-            dtos
-                .map { notificationMapper.mapToDomain(it) }
-                .filter { it.userId == userId }
+        remoteDataSource.getNotifications(userId).map { dtos ->
+            dtos.map { notificationMapper.mapToDomain(it) }
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get notifications for user: $userId", e)
@@ -41,11 +39,11 @@ class NotificationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun markAllAsRead(userId: Long): Result<Unit> = try {
-        remoteDataSource.getNotifications()
+        remoteDataSource.getNotifications(userId)
             .fold(
                 onSuccess = { dtos ->
                     val targetIds = dtos
-                        .filter { it.userId == userId && it.isRead != true }
+                        .filter { it.isRead != true }
                         .mapNotNull { it.id }
 
                     for (notificationId in targetIds) {

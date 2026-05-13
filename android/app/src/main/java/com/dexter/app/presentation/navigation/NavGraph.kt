@@ -54,6 +54,7 @@ import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import com.dexter.app.presentation.viewmodel.SearchViewModel
 import com.dexter.app.presentation.ui.screens.SearchScreen
+import com.dexter.app.presentation.ui.screens.MatchesScreen
 import com.dexter.app.presentation.ui.screens.PeopleListScreen
 import com.dexter.app.presentation.ui.screens.EditProfileScreen
 
@@ -176,10 +177,13 @@ fun NavGraph(
                 HomeScreen(
                     viewModel = homeViewModel,
                     onMatchClick = { match ->
-                        navController.navigate(NavRoutes.MatchDetail.createRoute(match.matchId))
+                        if (match.status == "SUGGESTION") {
+                            navController.navigate(NavRoutes.UserProfile.createRoute(match.otherUserId))
+                        } else {
+                            navController.navigate(NavRoutes.MatchDetail.createRoute(match.matchId))
+                        }
                     },
                     onActiveSessionClick = {
-                        // Open the currently scheduled session (mock id 13 = match 1 / session 3)
                         navController.navigate(NavRoutes.ActiveSession.createRoute(13L))
                     }
                 )
@@ -225,6 +229,27 @@ fun NavGraph(
                 },
                 onBackClick = { navController.navigateUp() }
             )
+        }
+
+        composable(NavRoutes.Matches.ROUTE) {
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.Matches.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
+                }
+            ) {
+                MatchesScreen(
+                    viewModel = homeViewModel,
+                    onMatchClick = { match ->
+                        navController.navigate(NavRoutes.MatchDetail.createRoute(match.matchId))
+                    }
+                )
+            }
         }
 
         composable(NavRoutes.Profile.ROUTE) {

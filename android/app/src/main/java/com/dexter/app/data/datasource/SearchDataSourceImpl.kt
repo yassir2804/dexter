@@ -47,8 +47,8 @@ class SearchDataSourceImpl @Inject constructor(
             .let { skillSummaryMapper.mapToDomainList(it) }
     }
 
-    override suspend fun getPeopleForSkill(skillName: String): List<PersonResult> {
-        val result = remoteDataSource.getPeopleForSkill(skillName)
+    override suspend fun getPeopleForSkill(skillName: String, viewerUserId: Long): List<PersonResult> {
+        val result = remoteDataSource.getPeopleForSkill(skillName, viewerUserId)
         return result.getOrElse { throw it }
             .let { personResultMapper.mapToDomainList(it) }
     }

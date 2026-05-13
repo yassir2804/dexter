@@ -6,12 +6,15 @@ import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.PATCH
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 /** Retrofit API service for notifications endpoints. */
 interface NotificationApiService {
 
     @GET("notifications")
-    suspend fun getNotifications(): Response<List<NotificationDto>>
+    suspend fun getNotifications(
+        @Query("userId") userId: Long
+    ): Response<List<NotificationDto>>
 
     @PATCH("notifications/{id}/read")
     suspend fun markAsRead(

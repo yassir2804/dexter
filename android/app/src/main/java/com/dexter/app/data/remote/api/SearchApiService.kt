@@ -34,6 +34,7 @@ interface SearchApiService {
 
     @GET("search/people")
     suspend fun getPeopleForSkill(
-        @Query("skill") skillName: String
+        @Query("skill") skillName: String,
+        @Query("viewerUserId") viewerUserId: Long,
     ): Response<List<PersonResultDto>>
 }

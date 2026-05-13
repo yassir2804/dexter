@@ -15,8 +15,8 @@ class SessionRemoteDataSource @Inject constructor(
         private const val API_TIMEOUT_MS = 10_000L
     }
 
-    suspend fun getSessions(): Result<List<SessionDto>> = safeApiCall {
-        sessionApiService.getSessions()
+    suspend fun getSessions(matchId: Long): Result<List<SessionDto>> = safeApiCall {
+        sessionApiService.getSessions(matchId)
     }
 
     suspend fun getSessionById(sessionId: Long): Result<SessionDto> = safeApiCall {

@@ -12,13 +12,15 @@ class MatchSummaryMapper @Inject constructor() {
         name = dto.otherUserName ?: "",
         initials = dto.otherUserInitials ?: "",
         avatarUrl = dto.otherUserAvatarUrl,
-        skillsOffered = dto.skillsOffered,
-        skillsSought = dto.skillsSought,
+        skillsOffered = dto.skillsOffered ?: emptyList(),
+        skillsSought = dto.skillsSought ?: emptyList(),
         rating = dto.otherUserRating,
         totalSessions = dto.otherUserTotalSessions,
         compatibilityScore = dto.compatibilityScore,
         status = dto.status ?: "PENDING",
         sessionsCount = dto.sessionsCount,
+        isReceiver = dto.isReceiver,
+        availability = dto.availability ?: emptyList(),
     )
 
     fun mapToDto(domain: MatchSummary): MatchSummaryDto = MatchSummaryDto(

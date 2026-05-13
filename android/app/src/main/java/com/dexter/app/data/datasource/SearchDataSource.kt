@@ -11,5 +11,5 @@ interface SearchDataSource {
     suspend fun getCategories(): List<String>
     suspend fun searchSkills(query: String): List<SkillSummary>
     suspend fun filterSkillsByCategory(category: String): List<SkillSummary>
-    suspend fun getPeopleForSkill(skillName: String): List<PersonResult>
+    suspend fun getPeopleForSkill(skillName: String, viewerUserId: Long): List<PersonResult>
 }

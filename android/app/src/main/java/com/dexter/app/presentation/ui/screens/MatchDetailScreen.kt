@@ -32,9 +32,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -74,8 +71,14 @@ fun MatchDetailScreen(
 
     LaunchedEffect(actionState) {
         when (actionState) {
-            is MatchActionState.AcceptDone -> onConnectClick(matchId)
-            is MatchActionState.RejectDone -> onRejectDone()
+            is MatchActionState.AcceptDone -> {
+                viewModel.resetActionState()
+                onConnectClick(matchId)
+            }
+            is MatchActionState.RejectDone -> {
+                viewModel.resetActionState()
+                onRejectDone()
+            }
             else -> Unit
         }
     }
@@ -144,8 +147,6 @@ private fun MatchDetailBody(
     onReject: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val selectedDays = remember { mutableStateOf(match.availability.toSet()) }
-
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
@@ -269,7 +270,7 @@ private fun MatchDetailBody(
 
         Spacer(Modifier.height(20.dp))
 
-        // ── Availability ────────────────────────────────────────────
+        // ── Availability (read-only — shows the other user's schedule) ─
         Text(
             text = stringResource(R.string.match_availability),
             style = MaterialTheme.typography.titleMedium,
@@ -289,14 +290,8 @@ private fun MatchDetailBody(
             dayLabels.forEachIndexed { index, resId ->
                 SkillChip(
                     label = stringResource(resId),
-                    selected = selectedDays.value.contains(index),
-                    onClick = {
-                        selectedDays.value = if (selectedDays.value.contains(index)) {
-                            selectedDays.value - index
-                        } else {
-                            selectedDays.value + index
-                        }
-                    }
+                    selected = match.availability.contains(index),
+                    onClick = {}
                 )
             }
         }

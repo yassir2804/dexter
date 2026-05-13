@@ -65,6 +65,7 @@ fun MainScreen(
     val showBottomBar = currentRoute in listOf(
         NavRoutes.Home.ROUTE,
         NavRoutes.Search.ROUTE,
+        NavRoutes.Matches.ROUTE,
         NavRoutes.Profile.ROUTE
     )
 

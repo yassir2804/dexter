@@ -20,9 +20,11 @@ class SkillSummaryMapper @Inject constructor() {
     fun mapToDomainList(dtos: List<SkillSummaryDto>): List<SkillSummary> =
         dtos.map { mapToDomain(it) }
 
-    private fun parseIconType(value: String?): SkillIconType = try {
-        SkillIconType.valueOf(value ?: "MUSIC")
-    } catch (e: IllegalArgumentException) {
-        SkillIconType.MUSIC
+    private fun parseIconType(value: String?): SkillIconType = when (value) {
+        "music_note" -> SkillIconType.MUSIC
+        "language"   -> SkillIconType.LANGUAGE
+        "code"       -> SkillIconType.CODE
+        "palette"    -> SkillIconType.DESIGN
+        else         -> SkillIconType.MUSIC
     }
 }
