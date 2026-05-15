@@ -10,7 +10,7 @@ services:
       - POSTGRES_PASSWORD=dexter
       - POSTGRES_DB=dexter
     ports:
-      - '5433:5432'
+      - '5440:5432'
 
   app:
     image: openjdk:17-jdk-slim
