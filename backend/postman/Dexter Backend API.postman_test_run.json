@@ -1,0 +1,2937 @@
+{
+	"id": "9ecc45ef-0eb5-42de-b36d-9af7e63e0596",
+	"name": "Dexter Backend API",
+	"timestamp": "2026-05-16T00:00:06.396Z",
+	"collection_id": "51523053-6f6dcbb9-8e95-4e00-9de2-0bcd5d9a0859",
+	"folder_id": 0,
+	"environment_id": "0",
+	"totalPass": 240,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-05-16T00:00:00.036Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "467aeb97-e771-4b84-802d-70f54c5e74e0",
+			"name": "Health",
+			"url": "http://localhost:3000/v1/health",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Content-Type application/json": true,
+				"Respuesta contiene status:ok": true,
+				"Tiempo de respuesta < 500ms": true,
+				"Environment es dev": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Content-Type application/json": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta contiene status:ok": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Tiempo de respuesta < 500ms": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Environment es dev": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Content-Type application/json": true,
+					"Respuesta contiene status:ok": true,
+					"Tiempo de respuesta < 500ms": true,
+					"Environment es dev": true
+				}
+			]
+		},
+		{
+			"id": "ec531053-43c8-46ae-8732-0f15a0fc3309",
+			"name": "Register (nuevo usuario)",
+			"url": "http://localhost:3000/v1/auth/register",
+			"time": 89,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es UserResult válido": true,
+				"UserResult tiene todos los campos": true,
+				"Email coincide con el enviado": true,
+				"Contraseña hasheada con BCrypt": true,
+				"Rating inicia en 0": true,
+				"totalSessions inicia en 0": true,
+				"totalMatches inicia en 0": true,
+				"Country coincide con el enviado": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es UserResult válido": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserResult tiene todos los campos": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Email coincide con el enviado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Contraseña hasheada con BCrypt": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalSessions inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalMatches inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country coincide con el enviado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				89
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es UserResult válido": true,
+					"UserResult tiene todos los campos": true,
+					"Email coincide con el enviado": true,
+					"Contraseña hasheada con BCrypt": true,
+					"Rating inicia en 0": true,
+					"totalSessions inicia en 0": true,
+					"totalMatches inicia en 0": true,
+					"Country coincide con el enviado": true
+				}
+			]
+		},
+		{
+			"id": "c9bcef28-5381-4220-8305-1ecfb00af57b",
+			"name": "Login (admin) — guarda token + userId",
+			"url": "http://localhost:3000/v1/users/login",
+			"time": 85,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Header Authorization con Bearer token": true,
+				"Body contiene UserResult del admin": true,
+				"JWT tiene 3 partes (header.payload.signature)": true,
+				"UserResult tiene firstName y lastName": true,
+				"Rating es numérico": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Header Authorization con Bearer token": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Body contiene UserResult del admin": {
+					"pass": 1,
+					"fail": 0
+				},
+				"JWT tiene 3 partes (header.payload.signature)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserResult tiene firstName y lastName": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating es numérico": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				85
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Header Authorization con Bearer token": true,
+					"Body contiene UserResult del admin": true,
+					"JWT tiene 3 partes (header.payload.signature)": true,
+					"UserResult tiene firstName y lastName": true,
+					"Rating es numérico": true
+				}
+			]
+		},
+		{
+			"id": "12f6aa70-fae2-4b8d-b67b-ef61bfd6da2c",
+			"name": "Login (user normal)",
+			"url": "http://localhost:3000/v1/users/login",
+			"time": 81,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Header Authorization Bearer": true,
+				"Email = user@dexter.app": true,
+				"Id es numérico": true,
+				"Enabled es true": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Header Authorization Bearer": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Email = user@dexter.app": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Enabled es true": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				81
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Header Authorization Bearer": true,
+					"Email = user@dexter.app": true,
+					"Id es numérico": true,
+					"Enabled es true": true
+				}
+			]
+		},
+		{
+			"id": "c23d328f-0366-447c-a677-e390fe95f3f3",
+			"name": "Login con password incorrecto (debe fallar)",
+			"url": "http://localhost:3000/v1/users/login",
+			"time": 175,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 401 o 403": true,
+				"No devuelve header Authorization": true,
+				"Body no contiene JWT": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No devuelve header Authorization": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Body no contiene JWT": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				175
+			],
+			"allTests": [
+				{
+					"Status 401 o 403": true,
+					"No devuelve header Authorization": true,
+					"Body no contiene JWT": true
+				}
+			]
+		},
+		{
+			"id": "9e10bda4-cb52-4573-abc8-5b1130b58879",
+			"name": "Login con email inexistente (debe fallar)",
+			"url": "http://localhost:3000/v1/users/login",
+			"time": 10,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 401 o 403": true,
+				"No devuelve header Authorization": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No devuelve header Authorization": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 401 o 403": true,
+					"No devuelve header Authorization": true
+				}
+			]
+		},
+		{
+			"id": "c46264c9-9139-4ead-9a1d-93f6e62c4890",
+			"name": "GET protegido sin token (401/403)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=1",
+			"time": 2,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 401 o 403 sin token": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403 sin token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				2
+			],
+			"allTests": [
+				{
+					"Status 401 o 403 sin token": true
+				}
+			]
+		},
+		{
+			"id": "e9640c6d-a5eb-43dd-931c-3505450092c6",
+			"name": "GET con token inválido (401/403)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=1",
+			"time": 5,
+			"responseCode": {
+				"code": 403,
+				"name": "Forbidden"
+			},
+			"tests": {
+				"Status 401 o 403 con token inválido": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403 con token inválido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				5
+			],
+			"allTests": [
+				{
+					"Status 401 o 403 con token inválido": true
+				}
+			]
+		},
+		{
+			"id": "04b14f13-ac21-46e9-8375-8c2c70d22e00",
+			"name": "GET profile-summary (admin)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=1",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"ProfileSummaryResult tiene todos los campos": true,
+				"Initials es string de 2 chars": true,
+				"Rating es numérico entre 0 y 5": true,
+				"Skills son arrays de strings": true,
+				"Reviews es array con ProfileReviewItemDetails": true,
+				"totalSessions y totalMatches son enteros": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ProfileSummaryResult tiene todos los campos": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Initials es string de 2 chars": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating es numérico entre 0 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills son arrays de strings": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Reviews es array con ProfileReviewItemDetails": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalSessions y totalMatches son enteros": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"ProfileSummaryResult tiene todos los campos": true,
+					"Initials es string de 2 chars": true,
+					"Rating es numérico entre 0 y 5": true,
+					"Skills son arrays de strings": true,
+					"Reviews es array con ProfileReviewItemDetails": true,
+					"totalSessions y totalMatches son enteros": true
+				}
+			]
+		},
+		{
+			"id": "c58c3ce0-6145-4f69-ad63-efbc751bcd53",
+			"name": "GET profile-summary userId=9999 (404)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=9999",
+			"time": 8,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"Respuesta contiene estructura de error": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta contiene estructura de error": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"Respuesta contiene estructura de error": true
+				}
+			]
+		},
+		{
+			"id": "7ef6e656-023b-4e2f-8e49-c7008db5c4a7",
+			"name": "PUT profile-summary (editar bio/country)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=1",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio actualizada": true,
+				"Country actualizado": true,
+				"Respuesta mantiene estructura ProfileSummaryResult": true,
+				"Skills no se pierden tras PUT": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta mantiene estructura ProfileSummaryResult": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills no se pierden tras PUT": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio actualizada": true,
+					"Country actualizado": true,
+					"Respuesta mantiene estructura ProfileSummaryResult": true,
+					"Skills no se pierden tras PUT": true
+				}
+			]
+		},
+		{
+			"id": "cf1bf57d-0894-4e00-9516-fbd74e7d24e3",
+			"name": "PUT profile-summary userId=9999 (404)",
+			"url": "http://localhost:3000/v1/profile-summary?userId=9999",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "86a519c9-5319-4d2f-8793-2a697c6d810d",
+			"name": "GET matches (lista) — guarda matchId",
+			"url": "http://localhost:3000/v1/matches?userId=1",
+			"time": 35,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Array no está vacío": true,
+				"MatchSummaryResult tiene campos obligatorios": true,
+				"matchId es numérico": true,
+				"otherUserName es string": true,
+				"skillsOffered es array": true,
+				"skillsSought es array": true,
+				"compatibilityScore es numérico": true,
+				"Status es un enum válido": true,
+				"isReceiver es boolean": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array no está vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchSummaryResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"otherUserName es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillsOffered es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillsSought es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"compatibilityScore es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status es un enum válido": {
+					"pass": 1,
+					"fail": 0
+				},
+				"isReceiver es boolean": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				35
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Array no está vacío": true,
+					"MatchSummaryResult tiene campos obligatorios": true,
+					"matchId es numérico": true,
+					"otherUserName es string": true,
+					"skillsOffered es array": true,
+					"skillsSought es array": true,
+					"compatibilityScore es numérico": true,
+					"Status es un enum válido": true,
+					"isReceiver es boolean": true
+				}
+			]
+		},
+		{
+			"id": "04acbdf8-8499-46cb-940b-eca9e7b1b490",
+			"name": "GET matches/{matchId} — detalle MatchResult",
+			"url": "http://localhost:3000/v1/matches/1",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"MatchResult tiene id": true,
+				"MatchResult tiene initiatorId": true,
+				"MatchResult tiene receiverId": true,
+				"MatchResult tiene compatibilityScore": true,
+				"MatchResult tiene status": true,
+				"MatchResult tiene createdAt epoch": true,
+				"Id coincide con el solicitado": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene initiatorId": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene receiverId": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene compatibilityScore": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene status": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene createdAt epoch": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide con el solicitado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"MatchResult tiene id": true,
+					"MatchResult tiene initiatorId": true,
+					"MatchResult tiene receiverId": true,
+					"MatchResult tiene compatibilityScore": true,
+					"MatchResult tiene status": true,
+					"MatchResult tiene createdAt epoch": true,
+					"Id coincide con el solicitado": true
+				}
+			]
+		},
+		{
+			"id": "b1a4dea8-a141-45e3-8422-65e33b74964f",
+			"name": "GET matches/{matchId}/detail — MatchDetailResult",
+			"url": "http://localhost:3000/v1/matches/1/detail?viewerUserId=1",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"MatchDetailResult tiene campos obligatorios": true,
+				"offeredSkills es array": true,
+				"soughtSkills es array": true,
+				"availability es array de enteros": true,
+				"aiAnalysis es string no vacío": true,
+				"rating entre 0 y 5": true,
+				"bio es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchDetailResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"offeredSkills es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"soughtSkills es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"availability es array de enteros": {
+					"pass": 1,
+					"fail": 0
+				},
+				"aiAnalysis es string no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating entre 0 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"bio es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"MatchDetailResult tiene campos obligatorios": true,
+					"offeredSkills es array": true,
+					"soughtSkills es array": true,
+					"availability es array de enteros": true,
+					"aiAnalysis es string no vacío": true,
+					"rating entre 0 y 5": true,
+					"bio es string": true
+				}
+			]
+		},
+		{
+			"id": "5c9f27cb-6d50-4616-b9c4-2dc18d83003b",
+			"name": "GET matches/suggestions",
+			"url": "http://localhost:3000/v1/matches/suggestions?userId=1",
+			"time": 117,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Suggestions tienen status SUGGESTION": true,
+				"Cada suggestion tiene MatchSummaryResult shape": true,
+				"compatibilityScore es numérico positivo": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Suggestions tienen status SUGGESTION": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada suggestion tiene MatchSummaryResult shape": {
+					"pass": 1,
+					"fail": 0
+				},
+				"compatibilityScore es numérico positivo": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				117
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Suggestions tienen status SUGGESTION": true,
+					"Cada suggestion tiene MatchSummaryResult shape": true,
+					"compatibilityScore es numérico positivo": true
+				}
+			]
+		},
+		{
+			"id": "515ece6b-d613-4b41-975d-f44eae6db50b",
+			"name": "GET matches/9999 → 404",
+			"url": "http://localhost:3000/v1/matches/9999",
+			"time": 8,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"Body contiene error info": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Body contiene error info": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"Body contiene error info": true
+				}
+			]
+		},
+		{
+			"id": "e6a0baf5-2745-4910-bf47-83fc3d481b23",
+			"name": "GET matches/0 → 404",
+			"url": "http://localhost:3000/v1/matches/0",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "7e362dc7-670e-4702-ace4-47e7f5a6464e",
+			"name": "GET search/categories",
+			"url": "http://localhost:3000/v1/search/categories",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array no vacío": true,
+				"Cada categoría es string": true,
+				"Contiene categorías del seed": true,
+				"No hay categorías duplicadas": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada categoría es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Contiene categorías del seed": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No hay categorías duplicadas": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array no vacío": true,
+					"Cada categoría es string": true,
+					"Contiene categorías del seed": true,
+					"No hay categorías duplicadas": true
+				}
+			]
+		},
+		{
+			"id": "9f748398-5867-431c-a0ea-7d77f37f364c",
+			"name": "GET search/skills (populares)",
+			"url": "http://localhost:3000/v1/search/skills",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array de SkillSummaryDetails": true,
+				"Cada skill tiene peopleCount > 0": true,
+				"iconType está presente": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array de SkillSummaryDetails": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada skill tiene peopleCount > 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"iconType está presente": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array de SkillSummaryDetails": true,
+					"Cada skill tiene peopleCount > 0": true,
+					"iconType está presente": true
+				}
+			]
+		},
+		{
+			"id": "76d88601-f580-495f-a55f-74d6cee207b6",
+			"name": "GET search/skills?query=gu",
+			"url": "http://localhost:3000/v1/search/skills?query=gu",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Resultados contienen \"gu\" en el nombre": true,
+				"Resultados mantienen estructura SkillSummaryDetails": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Resultados contienen \"gu\" en el nombre": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Resultados mantienen estructura SkillSummaryDetails": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Resultados contienen \"gu\" en el nombre": true,
+					"Resultados mantienen estructura SkillSummaryDetails": true
+				}
+			]
+		},
+		{
+			"id": "973485b7-a0e8-4528-a794-fd6267c0adab",
+			"name": "GET search/skills?category=Música",
+			"url": "http://localhost:3000/v1/search/skills?category=Música",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Array no vacío": true,
+				"Todos son categoría Música": true,
+				"Cada skill tiene peopleCount": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todos son categoría Música": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada skill tiene peopleCount": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Array no vacío": true,
+					"Todos son categoría Música": true,
+					"Cada skill tiene peopleCount": true
+				}
+			]
+		},
+		{
+			"id": "61b7087a-b6df-448a-bb75-6d303428e4e3",
+			"name": "GET search/people?skill=Guitarra",
+			"url": "http://localhost:3000/v1/search/people?skill=Guitarra&viewerUserId=1",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array de PersonResult": true,
+				"PersonResult tiene campos obligatorios": true,
+				"skillDescription menciona guitarra": true,
+				"No incluye al viewerUserId": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array de PersonResult": {
+					"pass": 1,
+					"fail": 0
+				},
+				"PersonResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillDescription menciona guitarra": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No incluye al viewerUserId": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array de PersonResult": true,
+					"PersonResult tiene campos obligatorios": true,
+					"skillDescription menciona guitarra": true,
+					"No incluye al viewerUserId": true
+				}
+			]
+		},
+		{
+			"id": "2d646fb1-c78b-4253-ab0f-8aa16bb48cae",
+			"name": "GET sessions?matchId=3 (match ACCEPTED)",
+			"url": "http://localhost:3000/v1/sessions?matchId=3",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una sesión existe": true,
+				"SessionDetails tiene campos obligatorios": true,
+				"matchId coincide con el solicitado": true,
+				"status es enum válido": true,
+				"sessionNumber es entero positivo": true,
+				"skillName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una sesión existe": {
+					"pass": 1,
+					"fail": 0
+				},
+				"SessionDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId coincide con el solicitado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es enum válido": {
+					"pass": 1,
+					"fail": 0
+				},
+				"sessionNumber es entero positivo": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una sesión existe": true,
+					"SessionDetails tiene campos obligatorios": true,
+					"matchId coincide con el solicitado": true,
+					"status es enum válido": true,
+					"sessionNumber es entero positivo": true,
+					"skillName es string": true
+				}
+			]
+		},
+		{
+			"id": "f40ca33e-1c51-4099-93ff-3a5b814c74e9",
+			"name": "GET sessions/{id}",
+			"url": "http://localhost:3000/v1/sessions/1",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"Tiene title y description": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Tiene title y description": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"Tiene title y description": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "d2251ac0-a9ce-4f55-9c5e-1804f2b47b3d",
+			"name": "POST sessions (crear nueva)",
+			"url": "http://localhost:3000/v1/sessions",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Sesión creada con id": true,
+				"Title coincide": true,
+				"Status es SCHEDULED": true,
+				"matchId coincide": true,
+				"sessionNumber es 2": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Sesión creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Title coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status es SCHEDULED": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"sessionNumber es 2": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Sesión creada con id": true,
+					"Title coincide": true,
+					"Status es SCHEDULED": true,
+					"matchId coincide": true,
+					"sessionNumber es 2": true
+				}
+			]
+		},
+		{
+			"id": "268f11c0-235c-4558-856f-7b9c955c8137",
+			"name": "PUT sessions/{id} (actualizar)",
+			"url": "http://localhost:3000/v1/sessions/3",
+			"time": 16,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Title actualizado": true,
+				"Description actualizada": true,
+				"Id no cambió": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Title actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Description actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id no cambió": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				16
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Title actualizado": true,
+					"Description actualizada": true,
+					"Id no cambió": true
+				}
+			]
+		},
+		{
+			"id": "bdae54eb-8904-4b45-95c4-f132d4f2817e",
+			"name": "PATCH sessions/{id}/complete",
+			"url": "http://localhost:3000/v1/sessions/3/complete",
+			"time": 14,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Status cambió a COMPLETED": true,
+				"completedAt no es null": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status cambió a COMPLETED": {
+					"pass": 1,
+					"fail": 0
+				},
+				"completedAt no es null": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				14
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Status cambió a COMPLETED": true,
+					"completedAt no es null": true
+				}
+			]
+		},
+		{
+			"id": "a2c1a098-4e92-454c-acd3-623e9320afe9",
+			"name": "DELETE sessions/{id}",
+			"url": "http://localhost:3000/v1/sessions/3",
+			"time": 15,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				15
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "2c512917-4fce-476b-a323-00e171f8ec95",
+			"name": "GET sessions/9999 → 404",
+			"url": "http://localhost:3000/v1/sessions/9999",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "ef34feb4-ab9d-4088-b4da-34ba340b061a",
+			"name": "GET reviews?revieweeId=1",
+			"url": "http://localhost:3000/v1/reviews?revieweeId=1",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos un review existe": true,
+				"ReviewDetails tiene campos obligatorios": true,
+				"revieweeId coincide": true,
+				"rating entre 1 y 5": true,
+				"reviewerName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos un review existe": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReviewDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"revieweeId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating entre 1 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"reviewerName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos un review existe": true,
+					"ReviewDetails tiene campos obligatorios": true,
+					"revieweeId coincide": true,
+					"rating entre 1 y 5": true,
+					"reviewerName es string": true
+				}
+			]
+		},
+		{
+			"id": "cf17273d-eb9d-4bad-94be-c5ce1419c85c",
+			"name": "GET reviews/{id}",
+			"url": "http://localhost:3000/v1/reviews/1",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"rating es entero": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating es entero": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"rating es entero": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "bfb611ec-dcbf-4f32-af88-f84feb063c1e",
+			"name": "GET reviews?sessionId=1",
+			"url": "http://localhost:3000/v1/reviews?sessionId=1",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Todos los reviews son de sessionId=1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todos los reviews son de sessionId=1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Todos los reviews son de sessionId=1": true
+				}
+			]
+		},
+		{
+			"id": "9a8bf3ad-9705-4201-9b8c-c2dcff8ad18b",
+			"name": "POST reviews (crear)",
+			"url": "http://localhost:3000/v1/reviews",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Review creado con id": true,
+				"Rating es 4": true,
+				"Comment coincide": true,
+				"reviewerId es 1": true,
+				"revieweeId es 4": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Review creado con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating es 4": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Comment coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"reviewerId es 1": {
+					"pass": 1,
+					"fail": 0
+				},
+				"revieweeId es 4": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Review creado con id": true,
+					"Rating es 4": true,
+					"Comment coincide": true,
+					"reviewerId es 1": true,
+					"revieweeId es 4": true
+				}
+			]
+		},
+		{
+			"id": "b2d0021c-f8a7-4c0e-9b1a-9695e80f635c",
+			"name": "GET reviews/9999 → 404",
+			"url": "http://localhost:3000/v1/reviews/9999",
+			"time": 9,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "e9f28b65-3a65-4591-91bd-9bba34577fa3",
+			"name": "GET review-tags?reviewId=1",
+			"url": "http://localhost:3000/v1/review-tags?reviewId=1",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"ReviewTagDetails tiene campos si no vacío": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReviewTagDetails tiene campos si no vacío": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"ReviewTagDetails tiene campos si no vacío": true
+				}
+			]
+		},
+		{
+			"id": "09b71def-3f56-4739-a82c-44f8276b01c4",
+			"name": "POST notifications (crear)",
+			"url": "http://localhost:3000/v1/notifications",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Notification creada con id": true,
+				"title coincide": true,
+				"body coincide": true,
+				"notificationType coincide": true,
+				"isRead es false por defecto": true,
+				"userId es 1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Notification creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"title coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"body coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"notificationType coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"isRead es false por defecto": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId es 1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Notification creada con id": true,
+					"title coincide": true,
+					"body coincide": true,
+					"notificationType coincide": true,
+					"isRead es false por defecto": true,
+					"userId es 1": true
+				}
+			]
+		},
+		{
+			"id": "59523fd3-95e5-4036-8a84-046721f57ed6",
+			"name": "GET notifications?userId=1",
+			"url": "http://localhost:3000/v1/notifications?userId=1",
+			"time": 9,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una notificación": true,
+				"NotificationDetails tiene campos obligatorios": true,
+				"userId coincide": true,
+				"notificationType es enum válido": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una notificación": {
+					"pass": 1,
+					"fail": 0
+				},
+				"NotificationDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"notificationType es enum válido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				9
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una notificación": true,
+					"NotificationDetails tiene campos obligatorios": true,
+					"userId coincide": true,
+					"notificationType es enum válido": true
+				}
+			]
+		},
+		{
+			"id": "3a6d5b4a-4bd4-42c1-a1fc-e7746c1d68a9",
+			"name": "GET notifications?userId=1&unread=true",
+			"url": "http://localhost:3000/v1/notifications?userId=1&unread=true",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Todas son no leídas": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todas son no leídas": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Todas son no leídas": true
+				}
+			]
+		},
+		{
+			"id": "b29cc4ca-f02d-4298-9e06-e96adc4cbcf1",
+			"name": "GET notifications/{id}",
+			"url": "http://localhost:3000/v1/notifications/2",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"title es Test Notification": true,
+				"isRead es boolean": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"title es Test Notification": {
+					"pass": 1,
+					"fail": 0
+				},
+				"isRead es boolean": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"title es Test Notification": true,
+					"isRead es boolean": true
+				}
+			]
+		},
+		{
+			"id": "199ee0dd-4797-42ae-93cc-9ceeba3c49f6",
+			"name": "PATCH notifications/{id}/read",
+			"url": "http://localhost:3000/v1/notifications/2/read",
+			"time": 11,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "2d87ca6f-27fe-48ac-afaa-ac8f92da5d0f",
+			"name": "DELETE notifications/{id}",
+			"url": "http://localhost:3000/v1/notifications/2",
+			"time": 12,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "6c009cb7-c25f-4718-968d-81cb12122c54",
+			"name": "GET notifications/9999 → 404",
+			"url": "http://localhost:3000/v1/notifications/9999",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "bd4a972e-35ac-4bee-bd69-40aaa4e61d77",
+			"name": "GET availability?userId=1",
+			"url": "http://localhost:3000/v1/availability?userId=1",
+			"time": 7,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una disponibilidad": true,
+				"AvailabilityDetails tiene campos obligatorios": true,
+				"userId coincide": true,
+				"dayOfWeek entre 1 y 7": true,
+				"startTime tiene formato HH:mm": true,
+				"endTime tiene formato HH:mm": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una disponibilidad": {
+					"pass": 1,
+					"fail": 0
+				},
+				"AvailabilityDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek entre 1 y 7": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime tiene formato HH:mm": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime tiene formato HH:mm": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una disponibilidad": true,
+					"AvailabilityDetails tiene campos obligatorios": true,
+					"userId coincide": true,
+					"dayOfWeek entre 1 y 7": true,
+					"startTime tiene formato HH:mm": true,
+					"endTime tiene formato HH:mm": true
+				}
+			]
+		},
+		{
+			"id": "5d4f0f90-187c-49c5-8373-d2c82b95ac14",
+			"name": "GET availability/{id}",
+			"url": "http://localhost:3000/v1/availability/1",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"startTime es string": true,
+				"endTime es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"startTime es string": true,
+					"endTime es string": true
+				}
+			]
+		},
+		{
+			"id": "c006cfda-6568-4872-9f98-ed4db2e6c584",
+			"name": "POST availability (crear)",
+			"url": "http://localhost:3000/v1/availability",
+			"time": 11,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Availability creada con id": true,
+				"dayOfWeek es 6 (Sábado)": true,
+				"startTime es 10:00": true,
+				"endTime es 12:00": true,
+				"userId es 1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Availability creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek es 6 (Sábado)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime es 10:00": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime es 12:00": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId es 1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				11
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Availability creada con id": true,
+					"dayOfWeek es 6 (Sábado)": true,
+					"startTime es 10:00": true,
+					"endTime es 12:00": true,
+					"userId es 1": true
+				}
+			]
+		},
+		{
+			"id": "1efb81bf-9934-44d5-a6b9-1149d10e195a",
+			"name": "PUT availability/{id} (actualizar)",
+			"url": "http://localhost:3000/v1/availability/53",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"startTime actualizado": true,
+				"endTime actualizado": true,
+				"dayOfWeek cambió a 7": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek cambió a 7": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"startTime actualizado": true,
+					"endTime actualizado": true,
+					"dayOfWeek cambió a 7": true
+				}
+			]
+		},
+		{
+			"id": "9a3760f1-bbf5-4aee-bbad-f03836808879",
+			"name": "DELETE availability/{id}",
+			"url": "http://localhost:3000/v1/availability/53",
+			"time": 13,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				13
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "cc2186f1-a2d2-409b-994d-62c2ae66da0b",
+			"name": "GET availability/9999 → 404",
+			"url": "http://localhost:3000/v1/availability/9999",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "4f246d51-01cc-4b8d-be6e-9047ea27ce40",
+			"name": "POST session-invitations (crear)",
+			"url": "http://localhost:3000/v1/session-invitations",
+			"time": 17,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Invitation creada con id": true,
+				"senderId es 1": true,
+				"receiverId es 4": true,
+				"matchId es 3": true,
+				"status es PENDING": true,
+				"SessionInvitationDetails tiene todos los campos": true,
+				"senderName es string": true,
+				"receiverName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Invitation creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"senderId es 1": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverId es 4": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId es 3": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es PENDING": {
+					"pass": 1,
+					"fail": 0
+				},
+				"SessionInvitationDetails tiene todos los campos": {
+					"pass": 1,
+					"fail": 0
+				},
+				"senderName es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				17
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Invitation creada con id": true,
+					"senderId es 1": true,
+					"receiverId es 4": true,
+					"matchId es 3": true,
+					"status es PENDING": true,
+					"SessionInvitationDetails tiene todos los campos": true,
+					"senderName es string": true,
+					"receiverName es string": true
+				}
+			]
+		},
+		{
+			"id": "3c54a55c-02a5-4330-8618-67975c008f21",
+			"name": "GET session-invitations?receiverId=4",
+			"url": "http://localhost:3000/v1/session-invitations?receiverId=4",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una invitación": true,
+				"receiverId coincide": true,
+				"status es enum válido": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una invitación": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es enum válido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una invitación": true,
+					"receiverId coincide": true,
+					"status es enum válido": true
+				}
+			]
+		},
+		{
+			"id": "4583420f-e77f-4523-91d6-002c38196e8d",
+			"name": "GET session-invitations/{id}",
+			"url": "http://localhost:3000/v1/session-invitations/2",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"status es PENDING": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es PENDING": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"status es PENDING": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "431315c0-2890-4fe6-899a-f83357028873",
+			"name": "PATCH session-invitations/{id}/reject",
+			"url": "http://localhost:3000/v1/session-invitations/2/reject",
+			"time": 12,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Status cambió a REJECTED": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status cambió a REJECTED": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				12
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Status cambió a REJECTED": true
+				}
+			]
+		},
+		{
+			"id": "17896341-4594-422e-bfb1-62bb15a387b8",
+			"name": "GET session-invitations/9999 → 404",
+			"url": "http://localhost:3000/v1/session-invitations/9999",
+			"time": 7,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				7
+			],
+			"allTests": [
+				{
+					"Status 404": true
+				}
+			]
+		},
+		{
+			"id": "9e7ab649-f2a8-4907-8d39-2c351c058ec3",
+			"name": "[E2E 1/5] Register new user",
+			"url": "http://localhost:3000/v1/auth/register",
+			"time": 84,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"UserResult creado": true,
+				"enabled es true": true,
+				"rating inicia en 0": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserResult creado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"enabled es true": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				84
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"UserResult creado": true,
+					"enabled es true": true,
+					"rating inicia en 0": true
+				}
+			]
+		},
+		{
+			"id": "0afa93e2-83e0-4807-b5ca-379fe88b91a0",
+			"name": "[E2E 2/5] Login con el nuevo user",
+			"url": "http://localhost:3000/v1/users/login",
+			"time": 82,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"JWT en header": true,
+				"Email coincide": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"JWT en header": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Email coincide": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				82
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"JWT en header": true,
+					"Email coincide": true
+				}
+			]
+		},
+		{
+			"id": "d0ab2c8a-45a1-4ad2-bb65-1bb9baf69253",
+			"name": "[E2E 3/5] GET su profile",
+			"url": "http://localhost:3000/v1/profile-summary?userId=61",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Nombre es E2E Flow": true,
+				"Skills vacías": true,
+				"Reviews vacías": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nombre es E2E Flow": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills vacías": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Reviews vacías": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Nombre es E2E Flow": true,
+					"Skills vacías": true,
+					"Reviews vacías": true
+				}
+			]
+		},
+		{
+			"id": "44061a31-f4b0-4582-aa19-5ca84ba13d65",
+			"name": "[E2E 4/5] PUT actualizar bio",
+			"url": "http://localhost:3000/v1/profile-summary?userId=61",
+			"time": 18,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio actualizada": true,
+				"Country cambiado a AR": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country cambiado a AR": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				18
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio actualizada": true,
+					"Country cambiado a AR": true
+				}
+			]
+		},
+		{
+			"id": "4efa3e5f-34de-444c-ad3c-4a183217f96c",
+			"name": "[E2E 5/5] Verificar persistencia",
+			"url": "http://localhost:3000/v1/profile-summary?userId=61",
+			"time": 8,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio persiste": true,
+				"Country persiste como AR": true,
+				"Initials son EF": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio persiste": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country persiste como AR": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Initials son EF": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio persiste": true,
+					"Country persiste como AR": true,
+					"Initials son EF": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 1304,
+	"collection": {
+		"requests": [
+			{
+				"id": "467aeb97-e771-4b84-802d-70f54c5e74e0",
+				"method": "GET"
+			},
+			{
+				"id": "ec531053-43c8-46ae-8732-0f15a0fc3309",
+				"method": "POST"
+			},
+			{
+				"id": "c9bcef28-5381-4220-8305-1ecfb00af57b",
+				"method": "POST"
+			},
+			{
+				"id": "12f6aa70-fae2-4b8d-b67b-ef61bfd6da2c",
+				"method": "POST"
+			},
+			{
+				"id": "c23d328f-0366-447c-a677-e390fe95f3f3",
+				"method": "POST"
+			},
+			{
+				"id": "9e10bda4-cb52-4573-abc8-5b1130b58879",
+				"method": "POST"
+			},
+			{
+				"id": "c46264c9-9139-4ead-9a1d-93f6e62c4890",
+				"method": "GET"
+			},
+			{
+				"id": "e9640c6d-a5eb-43dd-931c-3505450092c6",
+				"method": "GET"
+			},
+			{
+				"id": "04b14f13-ac21-46e9-8375-8c2c70d22e00",
+				"method": "GET"
+			},
+			{
+				"id": "c58c3ce0-6145-4f69-ad63-efbc751bcd53",
+				"method": "GET"
+			},
+			{
+				"id": "7ef6e656-023b-4e2f-8e49-c7008db5c4a7",
+				"method": "PUT"
+			},
+			{
+				"id": "cf1bf57d-0894-4e00-9516-fbd74e7d24e3",
+				"method": "PUT"
+			},
+			{
+				"id": "86a519c9-5319-4d2f-8793-2a697c6d810d",
+				"method": "GET"
+			},
+			{
+				"id": "04acbdf8-8499-46cb-940b-eca9e7b1b490",
+				"method": "GET"
+			},
+			{
+				"id": "b1a4dea8-a141-45e3-8422-65e33b74964f",
+				"method": "GET"
+			},
+			{
+				"id": "5c9f27cb-6d50-4616-b9c4-2dc18d83003b",
+				"method": "GET"
+			},
+			{
+				"id": "515ece6b-d613-4b41-975d-f44eae6db50b",
+				"method": "GET"
+			},
+			{
+				"id": "e6a0baf5-2745-4910-bf47-83fc3d481b23",
+				"method": "GET"
+			},
+			{
+				"id": "7e362dc7-670e-4702-ace4-47e7f5a6464e",
+				"method": "GET"
+			},
+			{
+				"id": "9f748398-5867-431c-a0ea-7d77f37f364c",
+				"method": "GET"
+			},
+			{
+				"id": "76d88601-f580-495f-a55f-74d6cee207b6",
+				"method": "GET"
+			},
+			{
+				"id": "973485b7-a0e8-4528-a794-fd6267c0adab",
+				"method": "GET"
+			},
+			{
+				"id": "61b7087a-b6df-448a-bb75-6d303428e4e3",
+				"method": "GET"
+			},
+			{
+				"id": "2d646fb1-c78b-4253-ab0f-8aa16bb48cae",
+				"method": "GET"
+			},
+			{
+				"id": "f40ca33e-1c51-4099-93ff-3a5b814c74e9",
+				"method": "GET"
+			},
+			{
+				"id": "d2251ac0-a9ce-4f55-9c5e-1804f2b47b3d",
+				"method": "POST"
+			},
+			{
+				"id": "268f11c0-235c-4558-856f-7b9c955c8137",
+				"method": "PUT"
+			},
+			{
+				"id": "bdae54eb-8904-4b45-95c4-f132d4f2817e",
+				"method": "PATCH"
+			},
+			{
+				"id": "a2c1a098-4e92-454c-acd3-623e9320afe9",
+				"method": "DELETE"
+			},
+			{
+				"id": "2c512917-4fce-476b-a323-00e171f8ec95",
+				"method": "GET"
+			},
+			{
+				"id": "ef34feb4-ab9d-4088-b4da-34ba340b061a",
+				"method": "GET"
+			},
+			{
+				"id": "cf17273d-eb9d-4bad-94be-c5ce1419c85c",
+				"method": "GET"
+			},
+			{
+				"id": "bfb611ec-dcbf-4f32-af88-f84feb063c1e",
+				"method": "GET"
+			},
+			{
+				"id": "9a8bf3ad-9705-4201-9b8c-c2dcff8ad18b",
+				"method": "POST"
+			},
+			{
+				"id": "b2d0021c-f8a7-4c0e-9b1a-9695e80f635c",
+				"method": "GET"
+			},
+			{
+				"id": "e9f28b65-3a65-4591-91bd-9bba34577fa3",
+				"method": "GET"
+			},
+			{
+				"id": "09b71def-3f56-4739-a82c-44f8276b01c4",
+				"method": "POST"
+			},
+			{
+				"id": "59523fd3-95e5-4036-8a84-046721f57ed6",
+				"method": "GET"
+			},
+			{
+				"id": "3a6d5b4a-4bd4-42c1-a1fc-e7746c1d68a9",
+				"method": "GET"
+			},
+			{
+				"id": "b29cc4ca-f02d-4298-9e06-e96adc4cbcf1",
+				"method": "GET"
+			},
+			{
+				"id": "199ee0dd-4797-42ae-93cc-9ceeba3c49f6",
+				"method": "PATCH"
+			},
+			{
+				"id": "2d87ca6f-27fe-48ac-afaa-ac8f92da5d0f",
+				"method": "DELETE"
+			},
+			{
+				"id": "6c009cb7-c25f-4718-968d-81cb12122c54",
+				"method": "GET"
+			},
+			{
+				"id": "bd4a972e-35ac-4bee-bd69-40aaa4e61d77",
+				"method": "GET"
+			},
+			{
+				"id": "5d4f0f90-187c-49c5-8373-d2c82b95ac14",
+				"method": "GET"
+			},
+			{
+				"id": "c006cfda-6568-4872-9f98-ed4db2e6c584",
+				"method": "POST"
+			},
+			{
+				"id": "1efb81bf-9934-44d5-a6b9-1149d10e195a",
+				"method": "PUT"
+			},
+			{
+				"id": "9a3760f1-bbf5-4aee-bbad-f03836808879",
+				"method": "DELETE"
+			},
+			{
+				"id": "cc2186f1-a2d2-409b-994d-62c2ae66da0b",
+				"method": "GET"
+			},
+			{
+				"id": "4f246d51-01cc-4b8d-be6e-9047ea27ce40",
+				"method": "POST"
+			},
+			{
+				"id": "3c54a55c-02a5-4330-8618-67975c008f21",
+				"method": "GET"
+			},
+			{
+				"id": "4583420f-e77f-4523-91d6-002c38196e8d",
+				"method": "GET"
+			},
+			{
+				"id": "431315c0-2890-4fe6-899a-f83357028873",
+				"method": "PATCH"
+			},
+			{
+				"id": "17896341-4594-422e-bfb1-62bb15a387b8",
+				"method": "GET"
+			},
+			{
+				"id": "9e7ab649-f2a8-4907-8d39-2c351c058ec3",
+				"method": "POST"
+			},
+			{
+				"id": "0afa93e2-83e0-4807-b5ca-379fe88b91a0",
+				"method": "POST"
+			},
+			{
+				"id": "d0ab2c8a-45a1-4ad2-bb65-1bb9baf69253",
+				"method": "GET"
+			},
+			{
+				"id": "44061a31-f4b0-4582-aa19-5ca84ba13d65",
+				"method": "PUT"
+			},
+			{
+				"id": "4efa3e5f-34de-444c-ad3c-4a183217f96c",
+				"method": "GET"
+			}
+		]
+	}
+}

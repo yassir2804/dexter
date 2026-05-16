@@ -11,9 +11,7 @@ import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.entity.User
 import com.dexter.backend.repository.AvailabilityRepository
-import com.dexter.backend.repository.ConversationRepository
 import com.dexter.backend.repository.MatchRepository
-import com.dexter.backend.repository.MessageRepository
 import com.dexter.backend.repository.NotificationRepository
 import com.dexter.backend.repository.PrivilegeRepository
 import com.dexter.backend.repository.ReviewRepository
@@ -58,8 +56,6 @@ class LoadInitData(
     @Autowired val roleRepository: RoleRepository,
     @Autowired val privilegeRepository: PrivilegeRepository,
     @Autowired val availabilityRepository: AvailabilityRepository,
-    @Autowired val conversationRepository: ConversationRepository,
-    @Autowired val messageRepository: MessageRepository,
     @Autowired val notificationRepository: NotificationRepository,
     @Autowired val sessionInvitationRepository: SessionInvitationRepository,
     @Autowired val reviewTagRepository: ReviewTagRepository,
@@ -415,36 +411,6 @@ class LoadInitData(
         val admin = userRepository.findByEmail("admin@dexter.app").get()
         val availabilities = availabilityRepository.findByUserId(admin.id!!)
         Assertions.assertEquals(2, availabilities.size)
-    }
-
-    // ───────── Conversation ─────────
-
-    @Test
-    fun testConversationFindAll() {
-        val conversations = conversationRepository.findAll()
-        Assertions.assertEquals(1, conversations.size)
-    }
-
-    @Test
-    fun testConversationFindByMatchId() {
-        val match = matchRepository.findAll().first()
-        val conversation = conversationRepository.findByMatchId(match.id!!)
-        Assertions.assertNotNull(conversation)
-    }
-
-    // ───────── Message ─────────
-
-    @Test
-    fun testMessageFindAll() {
-        val messages = messageRepository.findAll()
-        Assertions.assertEquals(2, messages.size)
-    }
-
-    @Test
-    fun testMessageFindByConversation() {
-        val conversation = conversationRepository.findAll().first()
-        val messages = messageRepository.findByConversationIdOrderByCreatedAtAsc(conversation.id!!)
-        Assertions.assertEquals(2, messages.size)
     }
 
     // ───────── Notification ─────────
