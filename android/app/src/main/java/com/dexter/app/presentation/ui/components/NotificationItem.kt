@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Schedule
@@ -110,7 +109,6 @@ fun NotificationItem(
 private fun iconFor(type: NotificationType): ImageVector = when (type) {
     NotificationType.NEW_MATCH -> Icons.Default.Group
     NotificationType.SESSION_REMINDER -> Icons.Default.Schedule
-    NotificationType.NEW_MESSAGE -> Icons.AutoMirrored.Filled.Chat
     NotificationType.NEW_REVIEW -> Icons.Default.Star
     NotificationType.AI_SUGGESTION -> Icons.Default.AutoAwesome
 }
@@ -119,7 +117,6 @@ private fun iconFor(type: NotificationType): ImageVector = when (type) {
 private fun tintFor(type: NotificationType): Color = when (type) {
     NotificationType.NEW_MATCH -> MaterialTheme.colorScheme.onPrimaryContainer
     NotificationType.SESSION_REMINDER -> MaterialTheme.colorScheme.onTertiaryContainer
-    NotificationType.NEW_MESSAGE -> MaterialTheme.colorScheme.onSecondaryContainer
     NotificationType.NEW_REVIEW -> MaterialTheme.colorScheme.onSurfaceVariant
     NotificationType.AI_SUGGESTION -> MaterialTheme.colorScheme.onPrimaryContainer
 }
@@ -128,7 +125,6 @@ private fun tintFor(type: NotificationType): Color = when (type) {
 private fun containerFor(type: NotificationType): Color = when (type) {
     NotificationType.NEW_MATCH -> MaterialTheme.colorScheme.primaryContainer
     NotificationType.SESSION_REMINDER -> MaterialTheme.colorScheme.tertiaryContainer
-    NotificationType.NEW_MESSAGE -> MaterialTheme.colorScheme.secondaryContainer
     NotificationType.NEW_REVIEW -> MaterialTheme.colorScheme.surfaceVariant
     NotificationType.AI_SUGGESTION -> MaterialTheme.colorScheme.primaryContainer
 }

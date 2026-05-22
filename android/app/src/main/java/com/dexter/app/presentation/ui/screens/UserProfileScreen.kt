@@ -3,7 +3,6 @@ package com.dexter.app.presentation.ui.screens
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -58,6 +57,7 @@ fun UserProfileScreen(
     userId: Long,
     viewModel: UserProfileViewModel,
     onBackClick: () -> Unit,
+    searchedSkill: String? = null,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -73,9 +73,8 @@ fun UserProfileScreen(
         onBackClick = onBackClick,
         onConnectClick = {
             val initiatorId = CurrentUserSession.userId ?: return@UserProfileContent
-            viewModel.onConnectTapped(initiatorId, userId)
+            viewModel.onConnectTapped(initiatorId, userId, searchedSkill)
         },
-        onTeachSelected = { viewModel.updatePickerTeach(it) },
         onLearnSelected = { viewModel.updatePickerLearn(it) },
         onPickerConfirm = { viewModel.confirmConnect() },
         modifier = modifier
@@ -89,7 +88,6 @@ private fun UserProfileContent(
     pickerData: SkillPickerData?,
     onBackClick: () -> Unit,
     onConnectClick: () -> Unit,
-    onTeachSelected: (String) -> Unit,
     onLearnSelected: (String) -> Unit,
     onPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
@@ -139,7 +137,6 @@ private fun UserProfileContent(
                     connectState = connectState,
                     pickerData = pickerData,
                     onConnectClick = onConnectClick,
-                    onTeachSelected = onTeachSelected,
                     onLearnSelected = onLearnSelected,
                     onPickerConfirm = onPickerConfirm,
                     modifier = Modifier
@@ -158,7 +155,6 @@ private fun UserProfileBody(
     connectState: ConnectState,
     pickerData: SkillPickerData?,
     onConnectClick: () -> Unit,
-    onTeachSelected: (String) -> Unit,
     onLearnSelected: (String) -> Unit,
     onPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
@@ -226,42 +222,30 @@ private fun UserProfileBody(
 
         Spacer(Modifier.height(16.dp))
 
-        // ── Action buttons ──────────────────────────────────────────
+        // ── Connect button ──────────────────────────────────────────
         val isConnecting = connectState is ConnectState.Loading
         val connectDone = connectState is ConnectState.Done
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(
-                onClick = { /* Chat excluded in this phase */ },
-                enabled = false,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(44.dp),
-                shape = RoundedCornerShape(50)
-            ) {
-                Text(stringResource(R.string.user_profile_message))
-            }
-            FilledTonalButton(
-                onClick = onConnectClick,
-                enabled = !isConnecting && !connectDone,
-                modifier = Modifier
-                    .weight(1f)
-                    .height(44.dp),
-                shape = RoundedCornerShape(50)
-            ) {
-                when {
-                    isConnecting -> CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
-                    )
-                    connectDone -> Text(stringResource(R.string.user_profile_request_sent))
-                    else -> Text(stringResource(R.string.user_profile_schedule))
-                }
+        FilledTonalButton(
+            onClick = onConnectClick,
+            enabled = !isConnecting && !connectDone,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(44.dp),
+            shape = RoundedCornerShape(50)
+        ) {
+            when {
+                isConnecting -> CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
+                connectDone -> Text(stringResource(R.string.user_profile_request_sent))
+                else -> Text(stringResource(R.string.user_profile_schedule))
             }
         }
 
         Spacer(Modifier.height(12.dp))
 
-        // ── Skill picker (inline, appears when multiple options exist) ──
+        // ── Skill picker (inline, shown when A has multiple learn options) ──
         AnimatedVisibility(
             visible = pickerData != null,
             enter = expandVertically(),
@@ -276,17 +260,12 @@ private fun UserProfileBody(
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
                             text = "¿Qué quieres aprender?",
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(bottom = 10.dp)
                         )
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            modifier = Modifier
-                                .horizontalScroll(rememberScrollState())
-                                .padding(bottom = if (picker.canTeach.size > 1) 14.dp else 12.dp)
-                        ) {
+                        Spacer(Modifier.height(12.dp))
+                        PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             picker.canLearn.forEach { skill ->
                                 SkillChip(
                                     label = skill,
@@ -295,40 +274,16 @@ private fun UserProfileBody(
                                 )
                             }
                         }
-
-                        if (picker.canTeach.size > 1) {
-                            Text(
-                                text = "¿Qué vas a enseñar?",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(bottom = 10.dp)
-                            )
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier
-                                    .horizontalScroll(rememberScrollState())
-                                    .padding(bottom = 12.dp)
-                            ) {
-                                picker.canTeach.forEach { skill ->
-                                    SkillChip(
-                                        label = skill,
-                                        selected = skill == picker.selectedTeach,
-                                        onClick = { onTeachSelected(skill) }
-                                    )
-                                }
-                            }
-                        }
-
+                        Spacer(Modifier.height(14.dp))
                         Button(
                             onClick = onPickerConfirm,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(44.dp),
+                                .height(48.dp),
                             shape = RoundedCornerShape(50)
                         ) {
                             Text(
-                                text = "Conectar: ${picker.selectedTeach} ↔ ${picker.selectedLearn}",
+                                text = "Aprender ${picker.selectedLearn}",
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -445,10 +400,12 @@ private fun UserProfileSuccessPreview() {
         UserProfileContent(
             state = UserProfileState.Success(sampleProfile),
             connectState = ConnectState.Idle,
-            pickerData = null,
+            pickerData = SkillPickerData(
+                canLearn = listOf("Guitarra", "Ukulele"),
+                selectedLearn = "Guitarra"
+            ),
             onBackClick = {},
             onConnectClick = {},
-            onTeachSelected = {},
             onLearnSelected = {},
             onPickerConfirm = {}
         )

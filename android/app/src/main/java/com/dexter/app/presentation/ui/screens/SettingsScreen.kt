@@ -121,7 +121,6 @@ private fun SettingsContent(
 ) {
     var matchesNotif by remember { mutableStateOf(true) }
     var remindersNotif by remember { mutableStateOf(true) }
-    var messagesNotif by remember { mutableStateOf(true) }
     var ratingsNotif by remember { mutableStateOf(false) }
     var profileVisible by remember { mutableStateOf(true) }
     var shareAvailability by remember { mutableStateOf(true) }
@@ -179,8 +178,6 @@ private fun SettingsContent(
                     SettingsToggleItem(label = R.string.settings_notif_matches, checked = matchesNotif, onCheckedChange = { matchesNotif = it })
                     SettingsDivider()
                     SettingsToggleItem(label = R.string.settings_notif_reminders, checked = remindersNotif, onCheckedChange = { remindersNotif = it })
-                    SettingsDivider()
-                    SettingsToggleItem(label = R.string.settings_notif_messages, checked = messagesNotif, onCheckedChange = { messagesNotif = it })
                     SettingsDivider()
                     SettingsToggleItem(label = R.string.settings_notif_ratings, checked = ratingsNotif, onCheckedChange = { ratingsNotif = it })
                 }

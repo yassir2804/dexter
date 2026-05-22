@@ -63,9 +63,14 @@ sealed class NavRoutes {
     }
 
     data object UserProfile : NavRoutes() {
-        const val ROUTE = "userProfile/{userId}"
+        const val ROUTE = "userProfile/{userId}?searchedSkill={searchedSkill}"
         const val ARG_USER_ID = "userId"
-        fun createRoute(userId: Long) = "userProfile/$userId"
+        const val ARG_SEARCHED_SKILL = "searchedSkill"
+        fun createRoute(userId: Long, searchedSkill: String? = null): String =
+            if (searchedSkill != null)
+                "userProfile/$userId?searchedSkill=${android.net.Uri.encode(searchedSkill)}"
+            else
+                "userProfile/$userId"
     }
 
     data object EditProfile : NavRoutes() {

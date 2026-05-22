@@ -17,8 +17,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
@@ -61,7 +59,6 @@ fun PlanScreen(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
-    onChatClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -75,7 +72,6 @@ fun PlanScreen(
         onBackClick = onBackClick,
         onEditSession = onEditSession,
         onRateSession = onRateSession,
-        onChatClick = onChatClick,
         modifier = modifier
     )
 }
@@ -87,7 +83,6 @@ private fun PlanContent(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
-    onChatClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -129,7 +124,6 @@ private fun PlanContent(
                     nextSessionId = state.nextSessionId,
                     onEditSession = onEditSession,
                     onRateSession = onRateSession,
-                    onChatClick = onChatClick,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -147,7 +141,6 @@ private fun PlanBody(
     nextSessionId: Long?,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
-    onChatClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
@@ -226,27 +219,6 @@ private fun PlanBody(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
-            }
-        }
-
-        item {
-            // Chat still excluded in this phase — button visible but disabled
-            // so Yazir only needs to enable it when the Chat screen lands.
-            Button(
-                onClick = onChatClick,
-                enabled = false,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.plan_go_chat, match.name),
-                    fontWeight = FontWeight.SemiBold
-                )
             }
         }
 
@@ -389,8 +361,7 @@ private fun PlanSuccessPreview() {
             ),
             onBackClick = {},
             onEditSession = {},
-            onRateSession = {},
-            onChatClick = {}
+            onRateSession = {}
         )
     }
 }

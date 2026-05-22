@@ -4,11 +4,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -36,7 +33,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dexter.app.R
 import com.dexter.app.domain.model.PersonResult
-import com.dexter.app.presentation.ui.components.AiRecommendationBanner
 import com.dexter.app.presentation.ui.components.PersonCard
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.PeopleListState
@@ -175,30 +171,15 @@ private fun PeopleListSuccessContent(
 ) {
     LazyColumn(
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // AI recommendation banner using availability from first person
-        item {
-            val availabilityText = people.firstOrNull()?.availability ?: ""
-            AiRecommendationBanner(availabilityText = availabilityText)
-        }
-
-        item {
-            Text(
-                text = stringResource(R.string.search_people_count, people.size),
-                style = MaterialTheme.typography.titleMedium
-            )
-        }
-
         items(people, key = { it.userId }) { person ->
             PersonCard(
                 person = person,
                 onClick = { onPersonClick(person.userId) }
             )
         }
-
-        item { Spacer(modifier = Modifier.height(8.dp)) }
     }
 }
 

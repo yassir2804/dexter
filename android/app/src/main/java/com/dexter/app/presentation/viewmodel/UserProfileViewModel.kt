@@ -26,10 +26,9 @@ sealed class ConnectState {
     data class Error(val message: String) : ConnectState()
 }
 
+/** Picker shown when A has multiple skills they could learn from B. */
 data class SkillPickerData(
-    val canTeach: List<String>,
     val canLearn: List<String>,
-    val selectedTeach: String,
     val selectedLearn: String,
 )
 
@@ -66,7 +65,19 @@ class UserProfileViewModel @Inject constructor(
         }
     }
 
-    fun onConnectTapped(initiatorId: Long, receiverId: Long) {
+    /**
+     * Called when the user taps "Conectar".
+     *
+     * [searchedSkill] — the skill A searched for to find this person (= what A wants to learn).
+     * Used as [receiverSkill] when no compatible skill is found in the profiles.
+     *
+     * Logic:
+     *  - No compatible skills on either side → send immediately with receiverSkill = searchedSkill
+     *  - Exactly 1 on each side → auto-assign both
+     *  - canLearn == 1 (any canTeach) → auto-pick receiverSkill; B picks initiatorSkill when accepting
+     *  - canLearn > 1 → show picker so A selects what they want to learn; B picks later
+     */
+    fun onConnectTapped(initiatorId: Long, receiverId: Long, searchedSkill: String? = null) {
         viewModelScope.launch {
             _connectState.value = ConnectState.Loading
             pendingInitiatorId = initiatorId
@@ -76,7 +87,7 @@ class UserProfileViewModel @Inject constructor(
                 repository.getProfileSummary(initiatorId)
                     .onSuccess { currentUserProfile = it }
                     .onFailure {
-                        doInitiateMatch(null, null)
+                        doInitiateMatch(null, searchedSkill)
                         return@launch
                     }
             }
@@ -85,7 +96,7 @@ class UserProfileViewModel @Inject constructor(
             val otherProfile = (_state.value as? UserProfileState.Success)?.profile
 
             if (cu == null || otherProfile == null) {
-                doInitiateMatch(null, null)
+                doInitiateMatch(null, searchedSkill)
                 return@launch
             }
 
@@ -96,25 +107,32 @@ class UserProfileViewModel @Inject constructor(
             val canLearn = otherProfile.skillsOffered.filter { it.lowercase() in currentSoughtLower }
 
             when {
-                canTeach.isEmpty() && canLearn.isEmpty() -> doInitiateMatch(null, null)
-                canTeach.size == 1 && canLearn.size == 1 -> doInitiateMatch(canTeach[0], canLearn[0])
+                // No compatible skills at all — use the skill A searched for
+                canLearn.isEmpty() && canTeach.isEmpty() ->
+                    doInitiateMatch(null, searchedSkill)
+
+                // Exactly 1 on both sides — auto-assign
+                canLearn.size == 1 && canTeach.size == 1 ->
+                    doInitiateMatch(canTeach[0], canLearn[0])
+
+                // Only 1 learn option — auto-pick; B will choose initiatorSkill when accepting
+                canLearn.size == 1 ->
+                    doInitiateMatch(null, canLearn[0])
+
+                // No learn options (but A can teach something) — use searchedSkill as fallback
+                canLearn.isEmpty() ->
+                    doInitiateMatch(null, searchedSkill)
+
+                // Multiple learn options — show picker so A chooses what they want to learn
                 else -> {
                     _connectState.value = ConnectState.Idle
-                    val teachOptions = canTeach.ifEmpty { cu.skillsOffered }
-                    val learnOptions = canLearn.ifEmpty { otherProfile.skillsOffered }
                     _pickerData.value = SkillPickerData(
-                        canTeach = teachOptions,
-                        canLearn = learnOptions,
-                        selectedTeach = teachOptions.first(),
-                        selectedLearn = learnOptions.first(),
+                        canLearn = canLearn,
+                        selectedLearn = canLearn.first()
                     )
                 }
             }
         }
-    }
-
-    fun updatePickerTeach(skill: String) {
-        _pickerData.value = _pickerData.value?.copy(selectedTeach = skill)
     }
 
     fun updatePickerLearn(skill: String) {
@@ -125,7 +143,7 @@ class UserProfileViewModel @Inject constructor(
         val picker = _pickerData.value ?: return
         _pickerData.value = null
         viewModelScope.launch {
-            doInitiateMatch(picker.selectedTeach, picker.selectedLearn)
+            doInitiateMatch(null, picker.selectedLearn)
         }
     }
 

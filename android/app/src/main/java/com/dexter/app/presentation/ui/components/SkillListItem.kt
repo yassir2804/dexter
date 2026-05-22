@@ -28,7 +28,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
@@ -52,7 +51,6 @@ import com.dexter.app.presentation.ui.theme.SkillMarketingFg
 @Composable
 fun SkillListItem(
     skillName: String,
-    peopleCount: Int,
     iconType: SkillIconType,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -82,17 +80,11 @@ fun SkillListItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = skillName,
-                style = MaterialTheme.typography.titleSmall
-            )
-            Text(
-                text = stringResource(R.string.search_people_count, peopleCount),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
+        Text(
+            text = skillName,
+            style = MaterialTheme.typography.titleSmall,
+            modifier = Modifier.weight(1f)
+        )
 
         Icon(
             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
@@ -137,7 +129,6 @@ private fun SkillListItemPreview() {
     AppTheme(dynamicColor = false) {
         SkillListItem(
             skillName = "Guitarra",
-            peopleCount = 12,
             iconType = SkillIconType.MUSIC,
             onClick = {}
         )

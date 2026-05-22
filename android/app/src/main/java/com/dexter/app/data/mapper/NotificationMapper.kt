@@ -12,10 +12,9 @@ class NotificationMapper @Inject constructor() {
     private fun parseType(value: String?): NotificationType = when (value?.uppercase()) {
         "NEW_MATCH" -> NotificationType.NEW_MATCH
         "SESSION_REMINDER" -> NotificationType.SESSION_REMINDER
-        "NEW_MESSAGE" -> NotificationType.NEW_MESSAGE
         "NEW_REVIEW" -> NotificationType.NEW_REVIEW
         "AI_SUGGESTION" -> NotificationType.AI_SUGGESTION
-        else -> NotificationType.NEW_MESSAGE
+        else -> NotificationType.NEW_MATCH
     }
 
     fun mapToDomain(dto: NotificationDto): Notification = Notification(

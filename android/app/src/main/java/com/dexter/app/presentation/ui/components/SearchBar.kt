@@ -31,6 +31,7 @@ fun SearchBar(
     query: String? = null,
     onQueryChanged: (String) -> Unit = {},
     onFilterClick: () -> Unit = {},
+    showFilter: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     val (internalQuery, setInternalQuery) = remember { mutableStateOf("") }
@@ -49,15 +50,17 @@ fun SearchBar(
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
             )
         },
-        trailingIcon = {
-            IconButton(onClick = onFilterClick) {
-                Icon(
-                    imageVector = Icons.Default.Tune,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.primary
-                )
+        trailingIcon = if (showFilter) {
+            {
+                IconButton(onClick = onFilterClick) {
+                    Icon(
+                        imageVector = Icons.Default.Tune,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
-        },
+        } else null,
         placeholder = {
             Text(
                 text = stringResource(R.string.home_search_placeholder),

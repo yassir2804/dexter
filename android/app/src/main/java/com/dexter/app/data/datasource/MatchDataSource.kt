@@ -14,7 +14,7 @@ interface MatchDataSource {
     suspend fun getMatchesForUser(userId: Long): List<MatchDto>
     suspend fun getMatchSummaries(userId: Long): List<MatchSummaryDto>
     suspend fun createMatch(initiatorId: Long, receiverId: Long, initiatorSkill: String? = null, receiverSkill: String? = null): MatchSummaryDto
-    suspend fun acceptMatch(matchId: Long, viewerUserId: Long): MatchSummaryDto
+    suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String? = null): MatchSummaryDto
     suspend fun rejectMatch(matchId: Long)
     suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): MatchDetailDto
     suspend fun getSuggestions(userId: Long): List<MatchSummaryDto>

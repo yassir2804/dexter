@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Chat
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
@@ -174,7 +173,6 @@ private fun ActiveBody(
         PulsingStatusBadge()
         TimerCard(startedAt = session.scheduledAt ?: Date())
         SessionInfoCard(session = session)
-        QuickActionsSection()
         NotesCard(
             notes = notes,
             onNotesChange = onNotesChange
@@ -308,34 +306,6 @@ private fun SessionInfoCard(session: Session) {
                 icon = Icons.Default.LocationOn,
                 label = stringResource(R.string.active_session_location)
             )
-        }
-    }
-}
-
-@Composable
-private fun QuickActionsSection() {
-    Column(Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(R.string.active_session_quick_actions),
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(6.dp))
-        FilledTonalButton(
-            onClick = { /* Chat excluded in this phase */ },
-            enabled = false,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            shape = RoundedCornerShape(50)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.Chat,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.active_session_open_chat))
         }
     }
 }

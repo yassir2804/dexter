@@ -75,6 +75,9 @@ class MatchRepositoryImpl @Inject constructor(
             availability      = dto.availability,
             aiAnalysis        = dto.aiAnalysis ?: "",
             status            = status,
+            initiatorSkill    = dto.initiatorSkill,
+            isReceiver        = dto.isReceiver,
+            canLearnFromOther = dto.canLearnFromOther,
         ))
     } catch (e: IOException) {
         Result.failure(DomainError.NetworkError("Network error fetching match detail", e))
@@ -104,8 +107,8 @@ class MatchRepositoryImpl @Inject constructor(
         Result.failure(DomainError.UnknownError("Unknown error creating match", e))
     }
 
-    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long): Result<MatchSummary> = try {
-        val dto = dataSource.acceptMatch(matchId, viewerUserId)
+    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?): Result<MatchSummary> = try {
+        val dto = dataSource.acceptMatch(matchId, viewerUserId, initiatorSkill)
         Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
         Log.e(TAG, "Failed to accept match $matchId", e)

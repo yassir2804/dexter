@@ -1,5 +1,8 @@
 package com.dexter.app.presentation.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -80,7 +83,11 @@ fun NavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = "auth_graph"
+        startDestination = "auth_graph",
+        enterTransition = { fadeIn(animationSpec = tween(220)) },
+        exitTransition = { fadeOut(animationSpec = tween(180)) },
+        popEnterTransition = { fadeIn(animationSpec = tween(220)) },
+        popExitTransition = { fadeOut(animationSpec = tween(180)) }
     ) {
         // ── Auth flow (nested graph — professor's guide p.8-9) ──────
         navigation(
@@ -225,7 +232,7 @@ fun NavGraph(
             PeopleListScreen(
                 skillName = skillName,
                 onPersonClick = { userId ->
-                    navController.navigate(NavRoutes.UserProfile.createRoute(userId))
+                    navController.navigate(NavRoutes.UserProfile.createRoute(userId, skillName))
                 },
                 onBackClick = { navController.navigateUp() }
             )
@@ -322,14 +329,22 @@ fun NavGraph(
             arguments = listOf(
                 navArgument(NavRoutes.UserProfile.ARG_USER_ID) {
                     type = NavType.LongType
+                },
+                navArgument(NavRoutes.UserProfile.ARG_SEARCHED_SKILL) {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
                 }
             )
         ) { backStackEntry ->
             val userId = backStackEntry.arguments
                 ?.getLong(NavRoutes.UserProfile.ARG_USER_ID) ?: 0L
+            val searchedSkill = backStackEntry.arguments
+                ?.getString(NavRoutes.UserProfile.ARG_SEARCHED_SKILL)
             val viewModel: UserProfileViewModel = hiltViewModel()
             UserProfileScreen(
                 userId = userId,
+                searchedSkill = searchedSkill,
                 viewModel = viewModel,
                 onBackClick = { navController.navigateUp() }
             )
@@ -379,8 +394,7 @@ fun NavGraph(
                 },
                 onRateSession = { sessionId ->
                     navController.navigate(NavRoutes.Rate.createRoute(sessionId))
-                },
-                onChatClick = { /* Chat excluded in this phase */ }
+                }
             )
         }
 
@@ -431,18 +445,19 @@ fun NavGraph(
                 viewModel = viewModel,
                 onBackClick = { navController.navigateUp() },
                 onNotifClick = { notif ->
-                    when (val route = resolveNotificationRoute(notif)) {
-                        is NotificationRoute.MatchDetail ->
-                            navController.navigate(NavRoutes.MatchDetail.createRoute(route.matchId))
-                        is NotificationRoute.ActiveSession ->
-                            navController.navigate(NavRoutes.ActiveSession.createRoute(route.sessionId))
-                        is NotificationRoute.UserProfile ->
-                            navController.navigate(NavRoutes.UserProfile.createRoute(route.userId))
-                        NotificationRoute.Home ->
-                            navController.navigate(NavRoutes.Home.ROUTE) {
-                                popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
-                            }
-                        null -> { /* Chat excluded in this phase */ }
+                    resolveNotificationRoute(notif)?.let { route ->
+                        when (route) {
+                            is NotificationRoute.MatchDetail ->
+                                navController.navigate(NavRoutes.MatchDetail.createRoute(route.matchId))
+                            is NotificationRoute.ActiveSession ->
+                                navController.navigate(NavRoutes.ActiveSession.createRoute(route.sessionId))
+                            is NotificationRoute.UserProfile ->
+                                navController.navigate(NavRoutes.UserProfile.createRoute(route.userId))
+                            NotificationRoute.Home ->
+                                navController.navigate(NavRoutes.Home.ROUTE) {
+                                    popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                                }
+                        }
                     }
                 }
             )

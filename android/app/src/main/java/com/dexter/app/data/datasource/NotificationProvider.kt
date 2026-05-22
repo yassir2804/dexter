@@ -65,14 +65,6 @@ class NotificationProvider {
                 createdAt = daysAgo(1)
             ),
             Notification(
-                id = 5, userId = 1, referenceId = 8,
-                title = "Nuevo mensaje",
-                body = "Ana Ramirez: ¿Podemos reagendar la sesión?",
-                notificationType = NotificationType.NEW_MESSAGE,
-                isRead = true,
-                createdAt = daysAgo(2)
-            ),
-            Notification(
                 id = 6, userId = 1, referenceId = 3,
                 title = "Match aceptado",
                 body = "Ana Ramirez aceptó tu solicitud de intercambio",

@@ -11,7 +11,7 @@ interface MatchRepository {
     suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): Result<MatchDetail>
     suspend fun getSuggestions(userId: Long): Result<List<MatchSummary>>
     suspend fun initiateMatch(initiatorId: Long, receiverId: Long, initiatorSkill: String? = null, receiverSkill: String? = null): Result<MatchSummary>
-    suspend fun acceptMatch(matchId: Long, viewerUserId: Long): Result<MatchSummary>
+    suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String? = null): Result<MatchSummary>
     suspend fun rejectMatch(matchId: Long): Result<Unit>
     suspend fun ensureSessions(matchId: Long): Result<Unit>
 }

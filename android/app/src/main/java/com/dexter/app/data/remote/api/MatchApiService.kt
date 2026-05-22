@@ -39,11 +39,12 @@ interface MatchApiService {
         @Body body: MatchRequestDto
     ): Response<MatchSummaryDto>
 
-    /** PATCH /matches/{id}/accept?viewerUserId={viewerUserId} — accept a pending match. */
+    /** PATCH /matches/{id}/accept?viewerUserId={viewerUserId}&initiatorSkill={initiatorSkill} — accept a pending match. */
     @PATCH("matches/{id}/accept")
     suspend fun acceptMatch(
         @Path("id") matchId: Long,
-        @Query("viewerUserId") viewerUserId: Long
+        @Query("viewerUserId") viewerUserId: Long,
+        @Query("initiatorSkill") initiatorSkill: String? = null,
     ): Response<MatchSummaryDto>
 
     /** PATCH /matches/{id}/reject — reject a pending match. */

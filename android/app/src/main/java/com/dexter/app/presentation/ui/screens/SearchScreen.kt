@@ -1,26 +1,16 @@
 package com.dexter.app.presentation.ui.screens
 
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -64,7 +54,6 @@ fun SearchScreen(
         searchState = searchState,
         query = query,
         onQueryChange = searchViewModel::onQueryChange,
-        onCategorySelect = searchViewModel::onCategorySelect,
         onSkillClick = onSkillClick,
         modifier = modifier
     )
@@ -84,28 +73,25 @@ private fun SearchContent(
     searchState: SearchState,
     query: String,
     onQueryChange: (String) -> Unit,
-    onCategorySelect: (String) -> Unit,
     onSkillClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (searchState) {
         is SearchState.Loading -> {
-            Box(
-                modifier = modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
+            Column(modifier = modifier.fillMaxSize()) {
+                SearchBar(query = query, onQueryChanged = onQueryChange)
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) { CircularProgressIndicator() }
             }
         }
 
         is SearchState.Success -> {
             SkillListView(
-                categories = searchState.categories,
                 skills = searchState.skills,
-                selectedCategory = searchState.selectedCategory,
                 query = query,
                 onQueryChange = onQueryChange,
-                onCategorySelect = onCategorySelect,
                 onSkillClick = onSkillClick,
                 modifier = modifier
             )
@@ -113,11 +99,7 @@ private fun SearchContent(
 
         is SearchState.Empty -> {
             Column(modifier = modifier.fillMaxSize()) {
-                SearchBar(
-                    query = query,
-                    onQueryChanged = onQueryChange,
-                    onFilterClick = {}
-                )
+                SearchBar(query = query, onQueryChanged = onQueryChange)
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -148,17 +130,11 @@ private fun SearchContent(
     }
 }
 
-/**
- * Main search view showing categories and popular skills.
- */
 @Composable
 private fun SkillListView(
-    categories: List<String>,
     skills: List<SkillSummary>,
-    selectedCategory: String,
     query: String,
     onQueryChange: (String) -> Unit,
-    onCategorySelect: (String) -> Unit,
     onSkillClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -169,84 +145,33 @@ private fun SkillListView(
             onFilterClick = {}
         )
 
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        // Category filter chips — horizontal scroll
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Text(
+            text = stringResource(R.string.search_popular),
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        ElevatedCard(
+            shape = RoundedCornerShape(12.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
-            categories.forEach { category ->
-                val isSelected = category == selectedCategory
-                FilterChip(
-                    selected = isSelected,
-                    onClick = { onCategorySelect(category) },
-                    label = { Text(category) },
-                    leadingIcon = if (isSelected) {
-                        {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
-                    } else null,
-                    shape = RoundedCornerShape(8.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
-                        selectedLabelColor = MaterialTheme.colorScheme.onSecondaryContainer
+            Column {
+                skills.forEachIndexed { index, skill ->
+                    SkillListItem(
+                        skillName = skill.name,
+                        iconType = skill.iconType,
+                        onClick = { onSkillClick(skill.name) }
                     )
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (skills.isNotEmpty()) {
-            Text(
-                text = stringResource(R.string.search_popular),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Skills list in elevated card
-            ElevatedCard(
-                shape = RoundedCornerShape(12.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column {
-                    skills.forEachIndexed { index, skill ->
-                        SkillListItem(
-                            skillName = skill.name,
-                            peopleCount = skill.peopleCount,
-                            iconType = skill.iconType,
-                            onClick = { onSkillClick(skill.name) }
+                    if (index < skills.lastIndex) {
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.outlineVariant,
+                            modifier = Modifier.padding(horizontal = 16.dp)
                         )
-                        if (index < skills.lastIndex) {
-                            HorizontalDivider(
-                                color = MaterialTheme.colorScheme.outlineVariant,
-                                modifier = Modifier.padding(horizontal = 16.dp)
-                            )
-                        }
                     }
                 }
-            }
-        } else {
-            // No skills for this category/query — show inline message
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = stringResource(R.string.search_no_results),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
             }
         }
     }
@@ -260,17 +185,14 @@ private fun SearchSuccessPreview() {
     AppTheme(dynamicColor = false) {
         SearchContent(
             searchState = SearchState.Success(
-                categories = listOf("Todas", "Idiomas", "Musica", "Tech"),
                 skills = listOf(
                     SkillSummary("Guitarra", "Musica", 12, SkillIconType.MUSIC),
                     SkillSummary("Ingles", "Idiomas", 24, SkillIconType.LANGUAGE),
                     SkillSummary("Programacion", "Tech", 18, SkillIconType.CODE)
-                ),
-                selectedCategory = "Todas"
+                )
             ),
             query = "",
             onQueryChange = {},
-            onCategorySelect = {},
             onSkillClick = {}
         )
     }
@@ -280,13 +202,7 @@ private fun SearchSuccessPreview() {
 @Composable
 private fun SearchLoadingPreview() {
     AppTheme(dynamicColor = false) {
-        SearchContent(
-            searchState = SearchState.Loading,
-            query = "",
-            onQueryChange = {},
-            onCategorySelect = {},
-            onSkillClick = {}
-        )
+        SearchContent(searchState = SearchState.Loading, query = "", onQueryChange = {}, onSkillClick = {})
     }
 }
 
@@ -294,13 +210,7 @@ private fun SearchLoadingPreview() {
 @Composable
 private fun SearchEmptyPreview() {
     AppTheme(dynamicColor = false) {
-        SearchContent(
-            searchState = SearchState.Empty,
-            query = "xyz",
-            onQueryChange = {},
-            onCategorySelect = {},
-            onSkillClick = {}
-        )
+        SearchContent(searchState = SearchState.Empty, query = "xyz", onQueryChange = {}, onSkillClick = {})
     }
 }
 
@@ -308,12 +218,6 @@ private fun SearchEmptyPreview() {
 @Composable
 private fun SearchErrorPreview() {
     AppTheme(dynamicColor = false) {
-        SearchContent(
-            searchState = SearchState.Error("Network error fetching skills"),
-            query = "",
-            onQueryChange = {},
-            onCategorySelect = {},
-            onSkillClick = {}
-        )
+        SearchContent(searchState = SearchState.Error("Network error fetching skills"), query = "", onQueryChange = {}, onSkillClick = {})
     }
 }

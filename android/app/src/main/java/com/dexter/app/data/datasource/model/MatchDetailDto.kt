@@ -15,4 +15,7 @@ data class MatchDetailDto(
     val availability: List<Int> = emptyList(),
     val aiAnalysis: String? = null,
     val status: String? = null,
+    val initiatorSkill: String? = null,
+    val isReceiver: Boolean = false,
+    val canLearnFromOther: List<String> = emptyList(),
 )

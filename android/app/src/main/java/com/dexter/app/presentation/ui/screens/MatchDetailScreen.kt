@@ -1,5 +1,9 @@
 package com.dexter.app.presentation.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +20,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +30,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,6 +52,7 @@ import com.dexter.app.presentation.ui.components.TopAppBarDexter
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.ui.theme.StarColor
 import com.dexter.app.presentation.session.CurrentUserSession
+import com.dexter.app.presentation.viewmodel.AcceptPickerData
 import com.dexter.app.presentation.viewmodel.MatchActionState
 import com.dexter.app.presentation.viewmodel.MatchDetailState
 import com.dexter.app.presentation.viewmodel.MatchDetailViewModel
@@ -66,6 +71,7 @@ fun MatchDetailScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val actionState by viewModel.actionState.collectAsState()
+    val acceptPickerData by viewModel.acceptPickerData.collectAsState()
 
     LaunchedEffect(matchId) { viewModel.loadMatch(matchId) }
 
@@ -86,10 +92,17 @@ fun MatchDetailScreen(
     MatchDetailContent(
         state = state,
         actionState = actionState,
+        acceptPickerData = acceptPickerData,
         onBackClick = onBackClick,
         onConnectClick = onConnectClick,
-        onAccept = { viewModel.acceptMatch(matchId, CurrentUserSession.userId ?: 0L) },
+        onAcceptTapped = {
+            viewModel.onAcceptTapped(matchId, CurrentUserSession.userId ?: 0L)
+        },
         onReject = { viewModel.rejectMatch(matchId) },
+        onAcceptPickerSelect = { viewModel.updateAcceptPickerSelection(it) },
+        onAcceptPickerConfirm = {
+            viewModel.confirmAccept(matchId, CurrentUserSession.userId ?: 0L)
+        },
         modifier = modifier
     )
 }
@@ -99,10 +112,13 @@ fun MatchDetailScreen(
 private fun MatchDetailContent(
     state: MatchDetailState,
     actionState: MatchActionState,
+    acceptPickerData: AcceptPickerData?,
     onBackClick: () -> Unit,
     onConnectClick: (Long) -> Unit,
-    onAccept: () -> Unit,
+    onAcceptTapped: () -> Unit,
     onReject: () -> Unit,
+    onAcceptPickerSelect: (String) -> Unit,
+    onAcceptPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -128,9 +144,12 @@ private fun MatchDetailContent(
             is MatchDetailState.Success -> MatchDetailBody(
                 match = state.match,
                 actionState = actionState,
+                acceptPickerData = acceptPickerData,
                 onConnectClick = onConnectClick,
-                onAccept = onAccept,
+                onAcceptTapped = onAcceptTapped,
                 onReject = onReject,
+                onAcceptPickerSelect = onAcceptPickerSelect,
+                onAcceptPickerConfirm = onAcceptPickerConfirm,
                 modifier = Modifier.fillMaxSize().padding(padding)
             )
         }
@@ -142,9 +161,12 @@ private fun MatchDetailContent(
 private fun MatchDetailBody(
     match: MatchDetail,
     actionState: MatchActionState,
+    acceptPickerData: AcceptPickerData?,
     onConnectClick: (Long) -> Unit,
-    onAccept: () -> Unit,
+    onAcceptTapped: () -> Unit,
     onReject: () -> Unit,
+    onAcceptPickerSelect: (String) -> Unit,
+    onAcceptPickerConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -240,32 +262,24 @@ private fun MatchDetailBody(
 
         Spacer(Modifier.height(20.dp))
 
-        // ── AI analysis ─────────────────────────────────────────────
+        // ── Contextual compatibility message ────────────────────────
+        val infoMessage = when {
+            match.canLearnFromOther.isNotEmpty() ->
+                "Puedes aprender ${match.canLearnFromOther.joinToString(", ")} de ${match.name}. ${match.name} enseña ${match.offeredSkills.joinToString(", ")}"
+            match.offeredSkills.isNotEmpty() ->
+                "${match.name} enseña ${match.offeredSkills.joinToString(", ")}. Puedes elegir qué aprender al aceptar."
+            else ->
+                "${match.name} está buscando ${match.soughtSkills.joinToString(", ")}"
+        }
         Card(
             shape = RoundedCornerShape(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(Modifier.padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Spacer(Modifier.width(8.dp))
-                    Text(
-                        text = stringResource(R.string.match_ai_analysis),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                }
-                Spacer(Modifier.height(8.dp))
-                Text(
-                    text = match.aiAnalysis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            Text(
+                text = infoMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(16.dp)
+            )
         }
 
         Spacer(Modifier.height(20.dp))
@@ -302,6 +316,54 @@ private fun MatchDetailBody(
         val isActioning = actionState is MatchActionState.Loading || actionState is MatchActionState.AcceptDone || actionState is MatchActionState.RejectDone
         when (match.status) {
             MatchStatus.PENDING -> {
+                // Skill picker for receiver B (shown when B needs to pick what they want to learn)
+                AnimatedVisibility(
+                    visible = acceptPickerData != null,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    acceptPickerData?.let { picker ->
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "¿Qué quieres aprender?",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                )
+                                Spacer(Modifier.height(12.dp))
+                                PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    picker.options.forEach { skill ->
+                                        SkillChip(
+                                            label = skill,
+                                            selected = skill == picker.selected,
+                                            onClick = { onAcceptPickerSelect(skill) }
+                                        )
+                                    }
+                                }
+                                Spacer(Modifier.height(14.dp))
+                                Button(
+                                    onClick = onAcceptPickerConfirm,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(48.dp),
+                                    shape = RoundedCornerShape(50)
+                                ) {
+                                    Text(
+                                        text = "Aprender ${picker.selected}",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                    }
+                }
+
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxWidth()
@@ -323,8 +385,8 @@ private fun MatchDetailBody(
                         )
                     }
                     Button(
-                        onClick = onAccept,
-                        enabled = !isActioning,
+                        onClick = onAcceptTapped,
+                        enabled = !isActioning && acceptPickerData == null,
                         modifier = Modifier.weight(1f).height(48.dp),
                         shape = RoundedCornerShape(50)
                     ) {
@@ -400,10 +462,13 @@ private fun MatchDetailLoadingPreview() {
         MatchDetailContent(
             state = MatchDetailState.Loading,
             actionState = MatchActionState.Idle,
+            acceptPickerData = null,
             onBackClick = {},
             onConnectClick = {},
-            onAccept = {},
-            onReject = {}
+            onAcceptTapped = {},
+            onReject = {},
+            onAcceptPickerSelect = {},
+            onAcceptPickerConfirm = {}
         )
     }
 }
@@ -418,17 +483,26 @@ private fun MatchDetailSuccessPreview() {
         offeredSkills = listOf("Guitarra", "Piano"),
         soughtSkills = listOf("Inglés", "Redacción"),
         availability = listOf(1, 2, 4),
-        aiAnalysis = "Tu horario coincide con el de Maria los lunes, martes y jueves.",
-        status = MatchStatus.PENDING
+        aiAnalysis = "",
+        status = MatchStatus.PENDING,
+        initiatorSkill = null,
+        isReceiver = true,
+        canLearnFromOther = listOf("Guitarra", "Piano")
     )
     AppTheme(dynamicColor = false) {
         MatchDetailContent(
             state = MatchDetailState.Success(sample),
             actionState = MatchActionState.Idle,
+            acceptPickerData = AcceptPickerData(
+                options = listOf("Guitarra", "Piano"),
+                selected = "Guitarra"
+            ),
             onBackClick = {},
             onConnectClick = {},
-            onAccept = {},
-            onReject = {}
+            onAcceptTapped = {},
+            onReject = {},
+            onAcceptPickerSelect = {},
+            onAcceptPickerConfirm = {}
         )
     }
 }

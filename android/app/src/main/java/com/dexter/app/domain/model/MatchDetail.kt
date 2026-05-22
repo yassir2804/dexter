@@ -22,5 +22,8 @@ data class MatchDetail(
     val soughtSkills: List<String>,
     val availability: List<Int>,
     val aiAnalysis: String,
-    val status: MatchStatus
+    val status: MatchStatus,
+    val initiatorSkill: String? = null,
+    val isReceiver: Boolean = false,
+    val canLearnFromOther: List<String> = emptyList(),
 )

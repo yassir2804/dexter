@@ -10,7 +10,7 @@
     <string name="nav_home">Inicio</string>
     <string name="nav_search">Buscar</string>
     <string name="nav_matches">Matches</string>
-    <string name="nav_messages">Mensajes</string>
+
     <string name="nav_profile">Perfil</string>
 
     <!-- ══ Login Screen ════════════════════════════════════════ -->
@@ -92,7 +92,8 @@
     <!-- ══ Home Screen ════════════════════════════════════════ -->
     <string name="home_greeting">Hola, %1$s</string>
     <string name="home_headline">Encuentra tu match</string>
-    <string name="home_search_placeholder">Buscar habilidad…</string>
+    <string name="home_search_placeholder">Buscar por nombre…</string>
+    <string name="home_search_no_results">No hay resultados para "%1$s"</string>
     <string name="home_active_session">Sesión en progreso</string>
     <string name="home_active_session_desc">Clase de Guitarra con %1$s</string>
     <string name="home_suggested_matches">Mis matches</string>
@@ -189,7 +190,6 @@
     <string name="plan_next_badge">PRÓXIMO</string>
     <string name="plan_status_completed">Completado</string>
     <string name="plan_rate_session">Calificar Sesión %1$d</string>
-    <string name="plan_go_chat">Ir al Chat con %1$s</string>
 
     <!-- Session titles (mock data) -->
     <string name="session_1_title">Acordes básicos</string>
@@ -222,19 +222,6 @@
     <string name="edit_session_confirm_description">Esta acción no se puede deshacer. %1$s recibirá una notificación sobre la cancelación.</string>
     <string name="edit_session_confirm_yes">Sí, cancelar sesión</string>
     <string name="edit_session_confirm_no">No, mantener sesión</string>
-
-    <!-- ══ Messages Screen ════════════════════════════════════ -->
-    <string name="messages_title">Mensajes</string>
-    <string name="messages_empty">Tus conversaciones aparecerán aquí</string>
-
-    <!-- ══ Chat Screen ════════════════════════════════════════ -->
-    <string name="chat_online">En línea</string>
-    <string name="chat_input_placeholder">Escribe un mensaje…</string>
-    <string name="chat_date_today">Hoy · %1$s</string>
-    <string name="chat_read">Leído</string>
-    <string name="chat_typing">%1$s está escribiendo…</string>
-    <string name="chat_session_confirmed">Confirmada</string>
-    <string name="chat_session_card">Sesión %1$d · %2$s</string>
 
     <!-- ══ Rate Screen ════════════════════════════════════════ -->
     <string name="rate_title">Calificar sesión</string>
@@ -270,7 +257,7 @@
     <string name="user_profile_sessions">Sesiones</string>
     <string name="user_profile_rating">Rating</string>
     <string name="user_profile_match">Match</string>
-    <string name="user_profile_message">Mensaje</string>
+
     <string name="user_profile_schedule">Conectar</string>
     <string name="user_profile_request_sent">Solicitud enviada</string>
     <string name="user_profile_about">Sobre mí</string>
@@ -300,8 +287,7 @@
     <string name="notif_new_match_desc">%1$s tiene %2$d%% de compatibilidad contigo</string>
     <string name="notif_session_reminder">Recordatorio de sesión</string>
     <string name="notif_session_reminder_desc">Tu sesión %1$d con %2$s es mañana a las %3$s</string>
-    <string name="notif_new_message">Nuevo mensaje</string>
-    <string name="notif_new_message_desc">%1$s te envió un mensaje</string>
+
     <string name="notif_new_rating">Nueva calificación</string>
     <string name="notif_new_rating_desc">%1$s te calificó con %2$d estrellas</string>
     <string name="notif_new_ai_matches">Nuevos matches IA</string>
@@ -322,7 +308,7 @@
     <string name="settings_section_notifications">NOTIFICACIONES</string>
     <string name="settings_notif_matches">Nuevos matches</string>
     <string name="settings_notif_reminders">Recordatorio de sesiones</string>
-    <string name="settings_notif_messages">Mensajes nuevos</string>
+
     <string name="settings_notif_ratings">Calificaciones recibidas</string>
 
     <!-- Privacy section -->
@@ -349,8 +335,7 @@
     <string name="active_session_status">EN PROGRESO</string>
     <string name="active_session_elapsed">TIEMPO TRANSCURRIDO</string>
     <string name="active_session_class">Clase de %1$s</string>
-    <string name="active_session_quick_actions">Acciones rápidas</string>
-    <string name="active_session_open_chat">Abrir chat</string>
+
     <string name="active_session_notes">Notas de la sesión</string>
     <string name="active_session_notes_placeholder">Escribe notas sobre esta sesión…</string>
     <string name="active_session_end">Finalizar sesión</string>

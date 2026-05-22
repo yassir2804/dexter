@@ -15,6 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -37,6 +40,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     val homeState by viewModel.homeState.collectAsState()
+    var searchQuery by remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         val userId = CurrentUserSession.userId ?: 1L
@@ -45,6 +49,8 @@ fun HomeScreen(
 
     HomeContent(
         homeState = homeState,
+        searchQuery = searchQuery,
+        onSearchQueryChange = { searchQuery = it },
         onMatchClick = onMatchClick,
         modifier = modifier
     )
@@ -53,6 +59,8 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     homeState: HomeState,
+    searchQuery: String = "",
+    onSearchQueryChange: (String) -> Unit = {},
     onMatchClick: (MatchSummary) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -83,6 +91,8 @@ private fun HomeContent(
         is HomeState.Success -> HomeSuccessContent(
             pendingMatches = homeState.pendingMatches,
             suggestions = homeState.suggestions,
+            searchQuery = searchQuery,
+            onSearchQueryChange = onSearchQueryChange,
             onMatchClick = onMatchClick,
             modifier = modifier
         )
@@ -93,24 +103,59 @@ private fun HomeContent(
 private fun HomeSuccessContent(
     pendingMatches: List<MatchSummary>,
     suggestions: List<MatchSummary>,
+    searchQuery: String,
+    onSearchQueryChange: (String) -> Unit,
     onMatchClick: (MatchSummary) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val filteredPending = if (searchQuery.isBlank()) pendingMatches
+    else pendingMatches.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
+    val filteredSuggestions = if (searchQuery.isBlank()) suggestions
+    else suggestions.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
+    val noResults = searchQuery.isNotBlank() && filteredPending.isEmpty() && filteredSuggestions.isEmpty()
+
     LazyColumn(modifier = modifier.fillMaxSize()) {
 
-        item { SearchBar() }
+        item {
+            SearchBar(
+                query = searchQuery,
+                onQueryChanged = onSearchQueryChange,
+                showFilter = false
+            )
+        }
 
-        if (pendingMatches.isNotEmpty()) {
+        if (noResults) {
+            item {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 48.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_search_no_results, searchQuery),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+            item { Spacer(Modifier.height(16.dp)) }
+            return@LazyColumn
+        }
+
+        if (filteredPending.isNotEmpty()) {
             item {
                 SectionHeader(
                     title = stringResource(R.string.home_pending_requests),
                     modifier = Modifier.padding(top = 8.dp, bottom = 12.dp)
                 )
             }
-            items(pendingMatches) { match ->
+            items(filteredPending) { match ->
                 MatchCard(match = match, onClick = { onMatchClick(match) })
             }
-        } else {
+        } else if (searchQuery.isBlank()) {
             item {
                 Box(
                     modifier = Modifier
@@ -127,14 +172,14 @@ private fun HomeSuccessContent(
             }
         }
 
-        if (suggestions.isNotEmpty()) {
+        if (filteredSuggestions.isNotEmpty()) {
             item {
                 SectionHeader(
                     title = stringResource(R.string.home_suggestions_title),
                     modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
                 )
             }
-            items(suggestions) { suggestion ->
+            items(filteredSuggestions) { suggestion ->
                 MatchCard(match = suggestion, onClick = { onMatchClick(suggestion) })
             }
         }

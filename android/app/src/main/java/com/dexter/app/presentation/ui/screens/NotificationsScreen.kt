@@ -173,7 +173,6 @@ fun resolveNotificationRoute(notif: Notification): NotificationRoute? {
         NotificationType.SESSION_REMINDER -> NotificationRoute.ActiveSession(ref)
         NotificationType.NEW_REVIEW -> NotificationRoute.UserProfile(ref)
         NotificationType.AI_SUGGESTION -> NotificationRoute.Home
-        NotificationType.NEW_MESSAGE -> null // Chat excluded in this phase
     }
 }
 
