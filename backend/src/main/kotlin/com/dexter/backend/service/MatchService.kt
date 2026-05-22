@@ -11,7 +11,7 @@ interface MatchService {
     fun findDetail(matchId: Long, viewerUserId: Long): MatchDetailResult
     fun findSuggestions(userId: Long): List<MatchSummaryResult>
     fun create(request: MatchInput): MatchSummaryResult
-    fun accept(id: Long, viewerUserId: Long): MatchSummaryResult
+    fun accept(id: Long, viewerUserId: Long, initiatorSkill: String? = null): MatchSummaryResult
     fun reject(id: Long)
     fun ensureSessions(matchId: Long)
 }

@@ -22,6 +22,7 @@ import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.Date
 
 @Service
@@ -47,10 +48,21 @@ class AbstractMatchService(
     }
 
     override fun create(request: MatchInput): MatchSummaryResult {
+        if (request.initiatorId == request.receiverId)
+            throw IllegalArgumentException("A user cannot create a match with themselves")
+
         val initiator = userRepository.findById(request.initiatorId)
             .orElseThrow { NoSuchElementException("User ${request.initiatorId} not found") }
         val receiver = userRepository.findById(request.receiverId)
             .orElseThrow { NoSuchElementException("User ${request.receiverId} not found") }
+
+        val existing = matchRepository.findByInitiatorIdOrReceiverId(request.initiatorId, request.initiatorId)
+            .filter { m ->
+                val otherId = if (m.initiator?.id == request.initiatorId) m.receiver?.id else m.initiator?.id
+                otherId == request.receiverId && m.status != MatchStatus.REJECTED
+            }
+        if (existing.isNotEmpty())
+            throw IllegalArgumentException("A match between these users already exists")
 
         val score = calculateCompatibility(initiator, receiver)
 
@@ -77,11 +89,16 @@ class AbstractMatchService(
         return toSummary(match, request.initiatorId)
     }
 
-    override fun accept(id: Long, viewerUserId: Long): MatchSummaryResult {
+    @Transactional
+    override fun accept(id: Long, viewerUserId: Long, initiatorSkill: String?): MatchSummaryResult {
         val match = matchRepository.findById(id)
             .orElseThrow { NoSuchElementException("Match $id not found") }
 
+        if (match.status != MatchStatus.PENDING)
+            throw IllegalArgumentException("Match $id is not in PENDING state (current: ${match.status})")
+
         match.status = MatchStatus.ACCEPTED
+        if (initiatorSkill != null) match.initiatorSkill = initiatorSkill
         val saved = matchRepository.save(match)
 
         generateSessions(saved)
@@ -106,6 +123,8 @@ class AbstractMatchService(
     override fun reject(id: Long) {
         val match = matchRepository.findById(id)
             .orElseThrow { NoSuchElementException("Match $id not found") }
+        if (match.status != MatchStatus.PENDING)
+            throw IllegalArgumentException("Match $id is not in PENDING state (current: ${match.status})")
         match.status = MatchStatus.REJECTED
         matchRepository.save(match)
     }
@@ -199,6 +218,9 @@ class AbstractMatchService(
             availability = availability,
             aiAnalysis = aiAnalysis,
             status = match.status.name,
+            initiatorSkill = match.initiatorSkill,
+            isReceiver = match.receiver?.id == viewerUserId,
+            canLearnFromOther = offered.filter { it.lowercase() in canLearn },
         )
     }
 
@@ -262,7 +284,7 @@ class AbstractMatchService(
             allReceiverSkills
         }
 
-        val allSkills = allInitiatorSkills + allReceiverSkills
+        val allSkills = initiatorSkills + receiverSkills
 
         val availableDays = availabilityRepository.findByUserId(initiatorId)
             .map { dayName(it.dayOfWeek) }

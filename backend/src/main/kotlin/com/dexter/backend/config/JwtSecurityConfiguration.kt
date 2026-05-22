@@ -71,6 +71,7 @@ class JwtSecurityConfiguration {
                     .requestMatchers("/$urlUnsecure/**").permitAll()
                     .requestMatchers(HttpMethod.POST, urlAuthRegister).permitAll()
                     .requestMatchers(HttpMethod.GET, "/$urlHealth").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/v1/users/login").permitAll()
                     .requestMatchers("/**").authenticated()
             }
             .sessionManagement {
@@ -87,7 +88,7 @@ class JwtSecurityConfiguration {
         val source = UrlBasedCorsConfigurationSource()
         val config = CorsConfiguration().apply {
             allowCredentials = true
-            addAllowedOrigin("http://localhost:3000")
+            addAllowedOriginPattern("*")
             addAllowedHeader("*")
             addAllowedMethod("*")
         }

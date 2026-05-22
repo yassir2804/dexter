@@ -1,5 +1,7 @@
 package com.dexter.backend.dto
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class MatchDetailResult(
     val matchId: Long,
     val otherUserId: Long,
@@ -16,4 +18,11 @@ data class MatchDetailResult(
     val availability: List<Int>,
     val aiAnalysis: String,
     val status: String,
+    /** Skill the initiator will teach the receiver. Null if not yet chosen by the receiver. */
+    val initiatorSkill: String?,
+    /** True when the viewer is the receiver (B) of this match. */
+    @get:JsonProperty("isReceiver")
+    val isReceiver: Boolean,
+    /** Intersection of other's offered skills and viewer's sought skills — used by frontend picker. */
+    val canLearnFromOther: List<String>,
 )

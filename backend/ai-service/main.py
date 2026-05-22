@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import os
 import json
@@ -8,8 +9,7 @@ import re
 
 load_dotenv()
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-2.5-flash-lite")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI(title="Dexter AI Service")
 
@@ -43,9 +43,11 @@ def extract_json(text: str) -> str:
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
+MODEL = "gemini-2.5-flash-lite"
+
 @app.get("/health")
 def health():
-    return {"status": "ok", "model": "gemini-2.5-flash-lite"}
+    return {"status": "ok", "model": MODEL}
 
 
 @app.post("/generate-plan", response_model=list[SessionPlan])
@@ -94,7 +96,7 @@ Responde ÚNICAMENTE con un JSON array válido, sin texto ni markdown adicional:
 ]"""
 
     try:
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(model=MODEL, contents=prompt)
         raw = extract_json(response.text)
         plans = json.loads(raw)
 

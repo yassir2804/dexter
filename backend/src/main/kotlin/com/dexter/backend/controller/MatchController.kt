@@ -43,6 +43,7 @@ class MatchController(private val matchService: MatchService) {
         consumes = [MediaType.APPLICATION_JSON_VALUE],
         produces = [MediaType.APPLICATION_JSON_VALUE]
     )
+    @ResponseStatus(HttpStatus.CREATED)
     fun create(@RequestBody request: MatchInput): MatchSummaryResult =
         matchService.create(request)
 
@@ -50,7 +51,8 @@ class MatchController(private val matchService: MatchService) {
     fun accept(
         @PathVariable id: Long,
         @RequestParam viewerUserId: Long,
-    ): MatchSummaryResult = matchService.accept(id, viewerUserId)
+        @RequestParam(required = false) initiatorSkill: String? = null,
+    ): MatchSummaryResult = matchService.accept(id, viewerUserId, initiatorSkill)
 
     @PatchMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)

@@ -10,12 +10,9 @@ enum class SessionStatus { SCHEDULED, COMPLETED, CANCELLED }
 
 enum class InvitationStatus { PENDING, ACCEPTED, REJECTED, EXPIRED }
 
-enum class MessageStatus { SENT, DELIVERED, READ }
-
 enum class NotificationType {
     NEW_MATCH,
     SESSION_REMINDER,
-    NEW_MESSAGE,
     NEW_REVIEW,
     AI_SUGGESTION,
 }

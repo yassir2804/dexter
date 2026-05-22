@@ -30,6 +30,12 @@ class JwtAuthenticationFilter(
 
     init {
         setFilterProcessesUrl("/v1/users/login")
+        setAuthenticationFailureHandler { _, response, exception ->
+            response.status = jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
+            response.contentType = SecurityConstants.APPLICATION_JSON
+            response.writer.print("{\"error\":\"${exception.message}\"}")
+            response.writer.flush()
+        }
     }
 
     @Throws(AuthenticationException::class)
