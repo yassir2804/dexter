@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "Dexter JWT Security Tests",
+    "description": "Tests específicos de autenticación y autorización JWT. Cubre login OK/KO, /me, /logout, request sin token, token inválido, token expirado, y verificación de ApiError en todos los errores.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "a1b2c3d4-dext-er00-jwt0-000000000001"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/v1", "type": "string" },
+    { "key": "adminToken", "value": "", "type": "string" },
+    { "key": "userToken", "value": "", "type": "string" },
+    { "key": "adminUserId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "1. Login - happy path (admin)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 200', () => pm.response.to.have.status(200));",
+        "pm.test('Header Authorization presente con Bearer', () => {",
+        "  const auth = pm.response.headers.get('Authorization');",
+        "  pm.expect(auth).to.be.a('string');",
+        "  pm.expect(auth).to.match(/^Bearer\\s+\\S+\\.\\S+\\.\\S+$/);",
+        "});",
+        "pm.test('Body es UserResult', () => {",
+        "  const u = pm.response.json();",
+        "  pm.expect(u).to.have.property('id').that.is.a('number');",
+        "  pm.expect(u).to.have.property('email', 'admin@dexter.app');",
+        "  pm.expect(u).to.have.property('enabled', true);",
+        "});",
+        "pm.test('Body NO contiene password (sin leak)', () => {",
+        "  const u = pm.response.json();",
+        "  pm.expect(u).to.not.have.property('password');",
+        "});",
+        "pm.test('JWT payload contiene authorities con ROLE_ADMIN', () => {",
+        "  const auth = pm.response.headers.get('Authorization');",
+        "  const token = auth.replace(/^Bearer\\s+/i, '').trim();",
+        "  const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));",
+        "  pm.expect(payload).to.have.property('sub', 'admin@dexter.app');",
+        "  pm.expect(payload).to.have.property('iss', 'secure-api');",
+        "  pm.expect(payload).to.have.property('aud', 'secure-app');",
+        "  pm.expect(payload).to.have.property('exp').that.is.a('number');",
+        "  pm.expect(payload).to.have.property('authorities').that.is.an('array');",
+        "  pm.expect(payload.authorities).to.include('ROLE_ADMIN');",
+        "  pm.collectionVariables.set('adminToken', token);",
+        "  pm.collectionVariables.set('adminUserId', String(pm.response.json().id));",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\":\"admin@dexter.app\",\"password\":\"admin123\"}" },
+        "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+      }
+    },
+    {
+      "name": "2. Login - happy path (user)",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 200', () => pm.response.to.have.status(200));",
+        "pm.test('JWT payload tiene ROLE_USER (no ROLE_ADMIN)', () => {",
+        "  const auth = pm.response.headers.get('Authorization');",
+        "  const token = auth.replace(/^Bearer\\s+/i, '').trim();",
+        "  const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));",
+        "  pm.expect(payload.authorities).to.include('ROLE_USER');",
+        "  pm.expect(payload.authorities).to.not.include('ROLE_ADMIN');",
+        "  pm.collectionVariables.set('userToken', token);",
+        "});",
+        "pm.test('Expiration es ~24h en el futuro (no 10 dias)', () => {",
+        "  const auth = pm.response.headers.get('Authorization');",
+        "  const token = auth.replace(/^Bearer\\s+/i, '').trim();",
+        "  const payload = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString('utf-8'));",
+        "  const nowSec = Math.floor(Date.now() / 1000);",
+        "  const ttl = payload.exp - nowSec;",
+        "  pm.expect(ttl).to.be.above(60);",
+        "  pm.expect(ttl).to.be.below(7 * 24 * 3600);",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\":\"user@dexter.app\",\"password\":\"user123\"}" },
+        "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+      }
+    },
+    {
+      "name": "3. Login - password incorrecta -> 401 + ApiError",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError estandar', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('localDateTime').that.is.a('string');",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "  pm.expect(e).to.have.property('message');",
+        "  pm.expect(e).to.have.property('apiSubErrors').that.is.an('array').with.length.above(0);",
+        "  pm.expect(e.apiSubErrors[0]).to.have.property('code', 'INVALID_CREDENTIALS');",
+        "});",
+        "pm.test('NO se devuelve token', () => {",
+        "  const auth = pm.response.headers.get('Authorization');",
+        "  pm.expect(auth || null).to.be.null;",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\":\"admin@dexter.app\",\"password\":\"WRONG_PASSWORD\"}" },
+        "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+      }
+    },
+    {
+      "name": "4. Login - email inexistente -> 401 + ApiError",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError estandar', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "  pm.expect(e.apiSubErrors[0]).to.have.property('code', 'INVALID_CREDENTIALS');",
+        "});",
+        "pm.test('Mensaje NO revela si el email existe (mismo que password incorrecta)', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e.apiSubErrors[0].message).to.equal('Invalid username or password');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\"username\":\"ghost@nope.com\",\"password\":\"whatever\"}" },
+        "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+      }
+    },
+    {
+      "name": "5. GET /users/me - sin token -> 401 + ApiError",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "  pm.expect(e.apiSubErrors[0]).to.have.property('code', 'UNAUTHORIZED');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+      }
+    },
+    {
+      "name": "6. GET /users/me - token invalido -> 401 + ApiError",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "  pm.expect(e.apiSubErrors[0]).to.have.property('code', 'UNAUTHORIZED');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer not.a.valid.jwt.token" }],
+        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+      }
+    },
+    {
+      "name": "7. GET /users/me - token valido -> 200 + UserResult sin password",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 200', () => pm.response.to.have.status(200));",
+        "pm.test('Body es UserResult del usuario del token', () => {",
+        "  const u = pm.response.json();",
+        "  pm.expect(u).to.have.property('id').that.is.a('number');",
+        "  pm.expect(u).to.have.property('email', 'admin@dexter.app');",
+        "});",
+        "pm.test('Body NO contiene password', () => {",
+        "  const u = pm.response.json();",
+        "  pm.expect(u).to.not.have.property('password');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+      }
+    },
+    {
+      "name": "8. POST /users/logout - sin token -> 401",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/users/logout", "host": ["{{baseUrl}}"], "path": ["users", "logout"] }
+      }
+    },
+    {
+      "name": "9. POST /users/logout - con token -> 200",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 200', () => pm.response.to.have.status(200));",
+        "pm.test('Token sigue siendo valido despues del logout (stateless)', () => {",
+        "  const baseUrl = pm.collectionVariables.get('baseUrl');",
+        "  const token = pm.collectionVariables.get('adminToken');",
+        "  pm.sendRequest({",
+        "    url: baseUrl + '/users/me',",
+        "    method: 'GET',",
+        "    header: { 'Authorization': 'Bearer ' + token }",
+        "  }, (err, res) => {",
+        "    pm.expect(res.code).to.equal(200);",
+        "  });",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "POST",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/users/logout", "host": ["{{baseUrl}}"], "path": ["users", "logout"] }
+      }
+    },
+    {
+      "name": "10. Endpoint protegido - sin token -> 401 + ApiError",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError con UNAUTHORIZED', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "  pm.expect(e.apiSubErrors[0]).to.have.property('code', 'UNAUTHORIZED');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/matches?userId=1", "host": ["{{baseUrl}}"], "path": ["matches"], "query": [{ "key": "userId", "value": "1" }] }
+      }
+    },
+    {
+      "name": "11. Endpoint protegido - token valido -> 200",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 200', () => pm.response.to.have.status(200));"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": { "raw": "{{baseUrl}}/matches?userId=1", "host": ["{{baseUrl}}"], "path": ["matches"], "query": [{ "key": "userId", "value": "1" }] }
+      }
+    },
+    {
+      "name": "12. Endpoint protegido - token con firma mal -> 401",
+      "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+        "pm.test('Status 401', () => pm.response.to.have.status(401));",
+        "pm.test('Body es ApiError', () => {",
+        "  const e = pm.response.json();",
+        "  pm.expect(e).to.have.property('status', 'UNAUTHORIZED');",
+        "});"
+      ]}}],
+      "request": {
+        "auth": { "type": "noauth" },
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhdHRhY2tlckBldmlsLmNvbSIsImV4cCI6OTk5OTk5OTk5OX0.WRONG_SIGNATURE_HERE_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }],
+        "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] }
+      }
+    }
+  ]
+}

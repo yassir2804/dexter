@@ -3,9 +3,13 @@ package com.dexter.backend.config
 import com.dexter.backend.mapper.UserMapper
 import com.dexter.backend.repository.UserRepository
 import com.dexter.backend.security.AppCustomDsl
+import com.dexter.backend.security.JwtAccessDeniedHandler
+import com.dexter.backend.security.JwtAuthenticationEntryPoint
+import com.dexter.backend.security.JwtProperties
 import com.dexter.backend.service.AppUserDetailsService
 import jakarta.annotation.Resource
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Profile
@@ -27,7 +31,10 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-class JwtSecurityConfiguration {
+@EnableConfigurationProperties(JwtProperties::class)
+class JwtSecurityConfiguration(
+    private val jwtProperties: JwtProperties,
+) {
 
     @Value("\${url.unsecure}")
     val urlUnsecure: String? = null
@@ -46,6 +53,12 @@ class JwtSecurityConfiguration {
 
     @Resource
     private lateinit var userMapper: UserMapper
+
+    @Resource
+    private lateinit var jwtAuthenticationEntryPoint: JwtAuthenticationEntryPoint
+
+    @Resource
+    private lateinit var jwtAccessDeniedHandler: JwtAccessDeniedHandler
 
     @Bean
     fun authenticationManager(authConfig: AuthenticationConfiguration): AuthenticationManager =
@@ -77,8 +90,12 @@ class JwtSecurityConfiguration {
             .sessionManagement {
                 it.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             }
+            .exceptionHandling {
+                it.authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                  .accessDeniedHandler(jwtAccessDeniedHandler)
+            }
             .authenticationProvider(authenticationProvider())
-            .with(AppCustomDsl(userRepository, userMapper)) { }
+            .with(AppCustomDsl(userRepository, userMapper, jwtProperties)) { }
 
         return http.build()
     }
