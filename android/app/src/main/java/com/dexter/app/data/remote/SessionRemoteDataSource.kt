@@ -23,6 +23,18 @@ class SessionRemoteDataSource @Inject constructor(
         sessionApiService.getSessionById(sessionId)
     }
 
+    suspend fun updateSession(sessionId: Long, dto: SessionDto): Result<SessionDto> = safeApiCall {
+        sessionApiService.updateSession(sessionId, dto)
+    }
+
+    suspend fun deleteSession(sessionId: Long): Result<Unit> = safeApiCall {
+        sessionApiService.deleteSession(sessionId)
+    }
+
+    suspend fun completeSession(sessionId: Long): Result<SessionDto> = safeApiCall {
+        sessionApiService.completeSession(sessionId)
+    }
+
     private suspend fun <T> safeApiCall(
         apiCall: suspend () -> Response<T>
     ): Result<T> = try {

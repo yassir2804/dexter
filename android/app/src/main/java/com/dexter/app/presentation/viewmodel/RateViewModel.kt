@@ -4,9 +4,10 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.Review
-import com.dexter.app.domain.model.ReviewTag
+import com.dexter.app.domain.repository.MatchRepository
 import com.dexter.app.domain.repository.ReviewRepository
 import com.dexter.app.domain.repository.ReviewTagRepository
+import com.dexter.app.domain.repository.SessionRepository
 import com.dexter.app.presentation.session.CurrentUserSession
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,9 +19,9 @@ import javax.inject.Inject
 sealed class RateState {
     data object Loading : RateState()
     data class Editing(
-        val tags: List<ReviewTag>,
+        val tagCatalog: List<String>,
         val rating: Int,
-        val selectedTagIds: Set<Long>,
+        val selectedTags: Set<String>,
         val comment: String,
         val submitting: Boolean
     ) : RateState()
@@ -31,7 +32,9 @@ sealed class RateState {
 @HiltViewModel
 class RateViewModel @Inject constructor(
     private val reviewRepository: ReviewRepository,
-    private val reviewTagRepository: ReviewTagRepository
+    private val reviewTagRepository: ReviewTagRepository,
+    private val sessionRepository: SessionRepository,
+    private val matchRepository: MatchRepository
 ) : ViewModel() {
 
     companion object { private const val TAG = "RateViewModel" }
@@ -40,28 +43,63 @@ class RateViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private var sessionId: Long = 0L
+    private var revieweeId: Long = 0L
 
-    fun loadTags(sessionId: Long) {
+    /**
+     * @param sessionId    sesion completada que se esta calificando
+     * @param revieweeId   usuario al que se le deja la resena (la otra parte del match)
+     */
+    fun start(sessionId: Long, revieweeId: Long) {
         this.sessionId = sessionId
+        this.revieweeId = revieweeId
         viewModelScope.launch {
             _state.value = RateState.Loading
-            reviewTagRepository.getAvailableTags()
-                .onSuccess { tags ->
+            if (revieweeId == 0L) {
+                resolveRevieweeFromSession(sessionId)
+            }
+            reviewTagRepository.getCatalog()
+                .onSuccess { catalog ->
                     _state.value = RateState.Editing(
-                        tags = tags,
+                        tagCatalog = catalog,
                         rating = 0,
-                        selectedTagIds = emptySet(),
+                        selectedTags = emptySet(),
                         comment = "",
-                        submitting = false
+                        submitting = false,
                     )
                 }
                 .onFailure { exception ->
-                    Log.e(TAG, "Error loading tags", exception)
+                    Log.e(TAG, "Error loading tag catalog", exception)
                     _state.value = RateState.Error(
                         exception.message ?: "Error desconocido"
                     )
                 }
         }
+    }
+
+    private suspend fun resolveRevieweeFromSession(sessionId: Long) {
+        val currentUserId = CurrentUserSession.userId ?: return
+        sessionRepository.getSessionById(sessionId)
+            .onSuccess { session ->
+                matchRepository.getMatchById(session.matchId)
+                    .onSuccess { match ->
+                        revieweeId = if (match.initiatorId == currentUserId) {
+                            match.receiverId
+                        } else {
+                            match.initiatorId
+                        }
+                    }
+                    .onFailure { Log.e(TAG, "Could not load match ${session.matchId}", it) }
+            }
+            .onFailure { Log.e(TAG, "Could not load session $sessionId", it) }
+    }
+
+    /** Compat: la pantalla aun llama loadTags(sessionId). El revieweeId debe setearse antes. */
+    fun loadTags(sessionId: Long) {
+        start(sessionId, revieweeId)
+    }
+
+    fun setReviewee(userId: Long) {
+        this.revieweeId = userId
     }
 
     private fun currentEditing(): RateState.Editing? =
@@ -71,14 +109,14 @@ class RateViewModel @Inject constructor(
         currentEditing()?.let { _state.value = it.copy(rating = rating) }
     }
 
-    fun onTagToggle(tagId: Long) {
+    fun onTagToggle(tag: String) {
         currentEditing()?.let { editing ->
-            val newSet = if (editing.selectedTagIds.contains(tagId)) {
-                editing.selectedTagIds - tagId
+            val newSet = if (editing.selectedTags.contains(tag)) {
+                editing.selectedTags - tag
             } else {
-                editing.selectedTagIds + tagId
+                editing.selectedTags + tag
             }
-            _state.value = editing.copy(selectedTagIds = newSet)
+            _state.value = editing.copy(selectedTags = newSet)
         }
     }
 
@@ -93,19 +131,20 @@ class RateViewModel @Inject constructor(
             _state.value = editing.copy(submitting = true)
             val review = Review(
                 id = 0L,
-                reviewerId = CurrentUserSession.userId ?: 1L,
-                revieweeId = 0L,
+                reviewerId = CurrentUserSession.userId ?: 0L,
+                revieweeId = revieweeId,
                 sessionId = sessionId,
                 rating = editing.rating,
                 comment = editing.comment.takeIf { it.isNotBlank() },
-                createdAt = Date()
+                createdAt = Date(),
+                tags = editing.selectedTags.toList(),
             )
             reviewRepository.createReview(review)
                 .onSuccess { _state.value = RateState.Submitted }
                 .onFailure { exception ->
                     Log.e(TAG, "Error submitting review", exception)
                     _state.value = RateState.Error(
-                        exception.message ?: "No se pudo enviar la reseña"
+                        exception.message ?: "No se pudo enviar la resena"
                     )
                 }
         }

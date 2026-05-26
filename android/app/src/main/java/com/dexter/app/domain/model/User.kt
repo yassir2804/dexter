@@ -33,6 +33,7 @@ data class User(
     val avatarUrl: String?,
     val country: String?,
     val enabled: Boolean,
+    val profileVisible: Boolean = true,
     val tokenExpired: Boolean,
     val rating: Double,
     val totalSessions: Int,

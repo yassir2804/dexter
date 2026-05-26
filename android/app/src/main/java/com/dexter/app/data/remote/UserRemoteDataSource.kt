@@ -26,8 +26,11 @@ class UserRemoteDataSource @Inject constructor(
             }
             if (response.isSuccessful) {
                 val token = response.headers()["Authorization"]?.removePrefix("Bearer ")
-                if (!token.isNullOrBlank()) tokenStore.saveToken(token)
-                response.body()?.let { Result.success(it) }
+                val body = response.body()
+                if (!token.isNullOrBlank()) {
+                    tokenStore.saveSession(token, body?.id, body?.email)
+                }
+                body?.let { Result.success(it) }
                     ?: Result.failure(Exception("Login response body is null"))
             } else {
                 val message = when (response.code()) {
@@ -58,8 +61,10 @@ class UserRemoteDataSource @Inject constructor(
         userApiService.register(request)
     }
 
-    suspend fun updateProfile(profile: ProfileSummaryDto): Result<ProfileSummaryDto> = safeApiCall {
-        userApiService.updateProfile(profile)
+    suspend fun updateProfile(profile: ProfileSummaryDto): Result<ProfileSummaryDto> {
+        val userId = tokenStore.getUserId()
+            ?: return Result.failure(Exception("No userId in session — login required"))
+        return safeApiCall { userApiService.updateProfile(userId, profile) }
     }
 
     /**

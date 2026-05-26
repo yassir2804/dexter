@@ -16,23 +16,19 @@ class ReviewTagRepositoryImpl @Inject constructor(
 
     companion object { private const val TAG = "ReviewTagRepository" }
 
-    override suspend fun getAvailableTags(): Result<List<ReviewTag>> = try {
-        remoteDataSource.getReviewTags().map { dtos ->
-            dtos.map { reviewTagMapper.mapToDomain(it) }
-        }
+    override suspend fun getCatalog(): Result<List<String>> = try {
+        remoteDataSource.getCatalog()
     } catch (e: IOException) {
-        Log.e(TAG, "Failed to get available tags", e)
-        Result.failure(DomainError.NetworkError("Network error fetching tags", e))
+        Log.e(TAG, "Failed to load review-tag catalog", e)
+        Result.failure(DomainError.NetworkError("Network error fetching tag catalog", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in getAvailableTags", e)
-        Result.failure(DomainError.UnknownError("Unknown error fetching tags", e))
+        Log.e(TAG, "Unknown error in getCatalog", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching tag catalog", e))
     }
 
     override suspend fun getTagsForReview(reviewId: Long): Result<List<ReviewTag>> = try {
-        remoteDataSource.getReviewTags().map { dtos ->
-            dtos
-                .filter { it.reviewId == reviewId }
-                .map { reviewTagMapper.mapToDomain(it) }
+        remoteDataSource.getTagsForReview(reviewId).map { dtos ->
+            dtos.map { reviewTagMapper.mapToDomain(it) }
         }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get tags for review: $reviewId", e)
@@ -40,26 +36,5 @@ class ReviewTagRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in getTagsForReview", e)
         Result.failure(DomainError.UnknownError("Unknown error fetching review tags", e))
-    }
-
-    override suspend fun addTagToReview(reviewId: Long, tag: ReviewTag): Result<ReviewTag> = try {
-        val dto = reviewTagMapper.mapToDto(tag).copy(reviewId = reviewId)
-        remoteDataSource.addReviewTag(dto).map { reviewTagMapper.mapToDomain(it) }
-    } catch (e: IOException) {
-        Log.e(TAG, "Failed to add tag to review: $reviewId", e)
-        Result.failure(DomainError.NetworkError("Network error adding tag", e))
-    } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in addTagToReview", e)
-        Result.failure(DomainError.UnknownError("Unknown error adding tag", e))
-    }
-
-    override suspend fun removeTag(tagId: Long): Result<Unit> = try {
-        remoteDataSource.removeReviewTag(tagId)
-    } catch (e: IOException) {
-        Log.e(TAG, "Failed to remove tag: $tagId", e)
-        Result.failure(DomainError.NetworkError("Network error removing tag", e))
-    } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in removeTag", e)
-        Result.failure(DomainError.UnknownError("Unknown error removing tag", e))
     }
 }

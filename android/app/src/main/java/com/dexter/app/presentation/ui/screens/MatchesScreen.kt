@@ -77,8 +77,9 @@ private fun MatchesContent(
         }
 
         is HomeState.Success -> {
-            val acceptedMatches = homeState.acceptedMatches
-            if (acceptedMatches.isEmpty()) {
+            val pending = homeState.pendingMatches
+            val accepted = homeState.acceptedMatches
+            if (pending.isEmpty() && accepted.isEmpty()) {
                 Box(
                     modifier = modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -91,18 +92,35 @@ private fun MatchesContent(
                 }
             } else {
                 LazyColumn(modifier = modifier.fillMaxSize()) {
-                    item {
-                        Text(
-                            text = stringResource(R.string.matches_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(bottom = 12.dp)
-                        )
+                    if (pending.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.matches_pending_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp)
+                            )
+                        }
+                        items(pending) { match ->
+                            MatchCard(match = match, onClick = { onMatchClick(match) })
+                        }
                     }
-                    items(acceptedMatches) { match ->
-                        MatchCard(match = match, onClick = { onMatchClick(match) })
+                    if (accepted.isNotEmpty()) {
+                        item {
+                            Text(
+                                text = stringResource(R.string.matches_title),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = if (pending.isNotEmpty()) 16.dp else 0.dp, bottom = 12.dp)
+                            )
+                        }
+                        items(accepted) { match ->
+                            MatchCard(match = match, onClick = { onMatchClick(match) })
+                        }
                     }
                 }
             }

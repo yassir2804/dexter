@@ -7,7 +7,12 @@ import kotlinx.coroutines.withTimeout
 import retrofit2.Response
 import javax.inject.Inject
 
-/** Remote data source for review tags with centralized HTTP error handling. */
+/**
+ * Remote data source for review tags. El backend solo expone lectura
+ * sobre la tabla `review_tag`. Los tags se crean implicitamente al hacer
+ * POST /reviews con la lista de `tags` en el body, no como entidades
+ * sueltas — por eso aqui solo hay GETs.
+ */
 class ReviewTagRemoteDataSource @Inject constructor(
     private val reviewTagApiService: ReviewTagApiService
 ) {
@@ -15,16 +20,13 @@ class ReviewTagRemoteDataSource @Inject constructor(
         private const val API_TIMEOUT_MS = 10_000L
     }
 
-    suspend fun getReviewTags(): Result<List<ReviewTagDto>> = safeApiCall {
-        reviewTagApiService.getReviewTags()
+    suspend fun getTagsForReview(reviewId: Long): Result<List<ReviewTagDto>> = safeApiCall {
+        reviewTagApiService.getTagsForReview(reviewId)
     }
 
-    suspend fun addReviewTag(tag: ReviewTagDto): Result<ReviewTagDto> = safeApiCall {
-        reviewTagApiService.addReviewTag(tag)
+    suspend fun getCatalog(): Result<List<String>> = safeApiCall {
+        reviewTagApiService.getCatalog()
     }
-
-    suspend fun removeReviewTag(tagId: Long): Result<Unit> =
-        safeApiCall { reviewTagApiService.removeReviewTag(tagId) }.map { Unit }
 
     private suspend fun <T> safeApiCall(
         apiCall: suspend () -> Response<T>
@@ -39,7 +41,7 @@ class ReviewTagRemoteDataSource @Inject constructor(
             Result.failure(Exception("API error ${response.code()}: $errorBody"))
         }
     } catch (e: TimeoutCancellationException) {
-        Result.failure(Exception("Network timeout. Verify Mockoon is running on port 3000", e))
+        Result.failure(Exception("Network timeout — backend on port 3000?", e))
     } catch (e: Exception) {
         Result.failure(e)
     }

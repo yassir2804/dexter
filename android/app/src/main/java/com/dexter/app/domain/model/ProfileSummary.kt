@@ -16,6 +16,7 @@ data class ProfileSummary(
     val rating: Double,
     val totalSessions: Int,
     val totalMatches: Int,
+    val profileVisible: Boolean = true,
     val skillsOffered: List<String>,
     val skillsSought: List<String>,
     val reviews: List<ProfileReviewItem>

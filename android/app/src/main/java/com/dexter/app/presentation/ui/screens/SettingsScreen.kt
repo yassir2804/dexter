@@ -94,12 +94,16 @@ fun SettingsScreen(
         )
     }
 
+    val profileVisible by viewModel.profileVisible.collectAsState()
+
     SettingsContent(
         userName = userName,
         userInitials = userInitials,
         userAvatarUrl = userAvatarUrl,
         isDarkMode = isDarkMode,
         onDarkModeToggle = onDarkModeToggle,
+        profileVisible = profileVisible,
+        onProfileVisibleToggle = viewModel::setProfileVisible,
         onBackClick = onBackClick,
         onEditProfileClick = onEditProfileClick,
         onLogoutClick = { showConfirm = true },
@@ -114,6 +118,8 @@ private fun SettingsContent(
     userAvatarUrl: String?,
     isDarkMode: Boolean,
     onDarkModeToggle: (Boolean) -> Unit,
+    profileVisible: Boolean,
+    onProfileVisibleToggle: (Boolean) -> Unit,
     onBackClick: () -> Unit,
     onEditProfileClick: () -> Unit,
     onLogoutClick: () -> Unit,
@@ -122,7 +128,6 @@ private fun SettingsContent(
     var matchesNotif by remember { mutableStateOf(true) }
     var remindersNotif by remember { mutableStateOf(true) }
     var ratingsNotif by remember { mutableStateOf(false) }
-    var profileVisible by remember { mutableStateOf(true) }
     var shareAvailability by remember { mutableStateOf(true) }
 
     Column(
@@ -186,7 +191,7 @@ private fun SettingsContent(
             SectionLabel(label = R.string.settings_section_privacy)
             OutlinedCard(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Column {
-                    SettingsToggleItem(label = R.string.settings_privacy_visible, checked = profileVisible, onCheckedChange = { profileVisible = it })
+                    SettingsToggleItem(label = R.string.settings_privacy_visible, checked = profileVisible, onCheckedChange = onProfileVisibleToggle)
                     SettingsDivider()
                     SettingsToggleItem(label = R.string.settings_privacy_availability, checked = shareAvailability, onCheckedChange = { shareAvailability = it })
                 }
@@ -286,6 +291,6 @@ private fun SettingsDivider(modifier: Modifier = Modifier) {
 @Composable
 private fun SettingsScreenPreview() {
     AppTheme(dynamicColor = false) {
-        SettingsContent("Alice Gonzalez", "AG", null, false, {}, {}, {}, {})
+        SettingsContent("Alice Gonzalez", "AG", null, false, {}, true, {}, {}, {}, {})
     }
 }

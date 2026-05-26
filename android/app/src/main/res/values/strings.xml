@@ -443,6 +443,7 @@
     <string name="home_suggestions_title">Matches sugeridos</string>
     <string name="home_connect">Conectar</string>
     <string name="matches_title">Mis Matches</string>
+    <string name="matches_pending_title">Solicitudes pendientes</string>
     <string name="matches_no_matches">Aún no tienes matches activos</string>
     <string name="match_label">Match #%1$d</string>
     <string name="match_compatibility_percent">Compatibilidad: %1$d%%</string>

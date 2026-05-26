@@ -5,10 +5,8 @@ import com.dexter.app.data.mapper.SessionMapper
 import com.dexter.app.data.remote.SessionRemoteDataSource
 import com.dexter.app.domain.error.DomainError
 import com.dexter.app.domain.model.Session
-import com.dexter.app.domain.model.SessionStatus
 import com.dexter.app.domain.repository.SessionRepository
 import java.io.IOException
-import java.util.Date
 import javax.inject.Inject
 
 /**
@@ -80,8 +78,13 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateSession(session: Session): Result<Session> = try {
-        // No update endpoint in current Mockoon sessions block yet.
-        Result.success(session)
+        remoteDataSource.updateSession(session.id, sessionMapper.mapToDto(session)).fold(
+            onSuccess = { dto -> Result.success(sessionMapper.mapToDomain(dto)) },
+            onFailure = { exception ->
+                Log.e(TAG, "Remote updateSession failed", exception)
+                Result.failure(DomainError.NetworkError("Network error updating session", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to update session", e)
         Result.failure(DomainError.NetworkError("Network error updating session", e))
@@ -91,9 +94,13 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun cancelSession(sessionId: Long): Result<Unit> = try {
-        // No cancel endpoint in current Mockoon sessions block yet.
-        Log.i(TAG, "Session $sessionId cancelled (local success, no remote persistence)")
-        Result.success(Unit)
+        remoteDataSource.deleteSession(sessionId).fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { exception ->
+                Log.e(TAG, "Remote cancelSession failed", exception)
+                Result.failure(DomainError.NetworkError("Network error cancelling session", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to cancel session: $sessionId", e)
         Result.failure(DomainError.NetworkError("Network error cancelling session", e))
@@ -103,12 +110,13 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun completeSession(sessionId: Long, notes: String): Result<Session> = try {
-        getSessionById(sessionId).map { base ->
-            base.copy(
-                status = SessionStatus.COMPLETED,
-                completedAt = Date()
-            )
-        }
+        remoteDataSource.completeSession(sessionId).fold(
+            onSuccess = { dto -> Result.success(sessionMapper.mapToDomain(dto)) },
+            onFailure = { exception ->
+                Log.e(TAG, "Remote completeSession failed", exception)
+                Result.failure(DomainError.NetworkError("Network error completing session", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to complete session: $sessionId", e)
         Result.failure(DomainError.NetworkError("Network error completing session", e))

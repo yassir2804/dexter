@@ -28,6 +28,14 @@ interface UserApiService {
         @Body request: LoginRequestDto
     ): Response<UserDto>
 
+    /** GET /users/me — returns the user owning the current JWT. */
+    @GET("users/me")
+    suspend fun getMe(): Response<UserDto>
+
+    /** POST /users/logout — server confirms; client wipes local token. */
+    @POST("users/logout")
+    suspend fun logout(): Response<Unit>
+
     @GET("profile-summary")
     suspend fun getProfileSummary(
         @Query("userId") userId: Long
@@ -54,6 +62,7 @@ interface UserApiService {
      */
     @PUT("profile-summary")
     suspend fun updateProfile(
+        @Query("userId") userId: Long,
         @Body profile: ProfileSummaryDto
     ): Response<ProfileSummaryDto>
 }

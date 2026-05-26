@@ -22,7 +22,7 @@ class UserMapper @Inject constructor() {
     fun mapToDomain(dto: UserDto): User = User(
         id = dto.id ?: 0L,
         email = dto.email ?: "",
-        password = dto.password,
+        password = null,
         firstName = dto.firstName ?: "",
         lastName = dto.lastName ?: "",
         username = dto.username ?: "",
@@ -30,6 +30,7 @@ class UserMapper @Inject constructor() {
         avatarUrl = dto.avatarUrl,
         country = dto.country,
         enabled = dto.enabled ?: true,
+        profileVisible = dto.profileVisible ?: true,
         tokenExpired = dto.tokenExpired ?: false,
         rating = dto.rating ?: 0.0,
         totalSessions = dto.totalSessions ?: 0,
@@ -39,14 +40,12 @@ class UserMapper @Inject constructor() {
     )
 
     /**
-     * Maps domain `User` to `UserDto`.
-     * @param domain the domain object to convert
-     * @return `UserDto` for data layer
+     * Maps domain `User` to `UserDto`. El password NO se mapea: nunca
+     * viaja en respuestas del backend y para creacion se usa RegisterRequestDto.
      */
     fun mapToDto(domain: User): UserDto = UserDto(
         id = domain.id,
         email = domain.email,
-        password = domain.password,
         firstName = domain.firstName,
         lastName = domain.lastName,
         username = domain.username,
@@ -54,6 +53,7 @@ class UserMapper @Inject constructor() {
         avatarUrl = domain.avatarUrl,
         country = domain.country,
         enabled = domain.enabled,
+        profileVisible = domain.profileVisible,
         tokenExpired = domain.tokenExpired,
         rating = domain.rating,
         totalSessions = domain.totalSessions,

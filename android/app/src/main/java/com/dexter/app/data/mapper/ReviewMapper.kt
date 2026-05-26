@@ -15,7 +15,8 @@ class ReviewMapper @Inject constructor() {
         sessionId = dto.sessionId ?: 0L,
         rating = dto.rating ?: 0,
         comment = dto.comment,
-        createdAt = Date(dto.createdAt ?: 0L)
+        createdAt = Date(dto.createdAt ?: 0L),
+        tags = dto.tags,
     )
 
     fun mapToDto(domain: Review): ReviewDto = ReviewDto(
@@ -25,6 +26,7 @@ class ReviewMapper @Inject constructor() {
         sessionId = domain.sessionId,
         rating = domain.rating,
         comment = domain.comment,
-        createdAt = domain.createdAt.time
+        createdAt = domain.createdAt.time,
+        tags = domain.tags,
     )
 }

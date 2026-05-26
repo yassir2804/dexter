@@ -32,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
-import com.dexter.app.domain.model.ReviewTag
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.SkillChip
@@ -77,7 +76,7 @@ private fun RateContent(
     state: RateState,
     onBackClick: () -> Unit,
     onRatingChange: (Int) -> Unit,
-    onTagToggle: (Long) -> Unit,
+    onTagToggle: (String) -> Unit,
     onCommentChange: (String) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
@@ -139,7 +138,7 @@ private fun RateContent(
 private fun RateBody(
     state: RateState.Editing,
     onRatingChange: (Int) -> Unit,
-    onTagToggle: (Long) -> Unit,
+    onTagToggle: (String) -> Unit,
     onCommentChange: (String) -> Unit,
     onSubmit: () -> Unit,
     modifier: Modifier = Modifier
@@ -206,11 +205,11 @@ private fun RateBody(
             )
             Spacer(Modifier.height(8.dp))
             PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                state.tags.forEach { tag ->
+                state.tagCatalog.forEach { tag ->
                     SkillChip(
-                        label = tag.tagName,
-                        selected = state.selectedTagIds.contains(tag.id),
-                        onClick = { onTagToggle(tag.id) }
+                        label = tag,
+                        selected = state.selectedTags.contains(tag),
+                        onClick = { onTagToggle(tag) }
                     )
                 }
             }
@@ -255,19 +254,13 @@ private fun RateBody(
 @Preview(showBackground = true, heightDp = 1200)
 @Composable
 private fun RateSuccessPreview() {
-    val tags = listOf(
-        ReviewTag(1L, 0L, "Puntual"),
-        ReviewTag(2L, 0L, "Paciente"),
-        ReviewTag(3L, 0L, "Claro"),
-        ReviewTag(4L, 0L, "Motivador"),
-        ReviewTag(5L, 0L, "Preparado")
-    )
+    val catalog = listOf("Puntual", "Paciente", "Claro", "Motivador", "Preparado")
     AppTheme(dynamicColor = false) {
         RateContent(
             state = RateState.Editing(
-                tags = tags,
+                tagCatalog = catalog,
                 rating = 4,
-                selectedTagIds = setOf(1L, 3L),
+                selectedTags = setOf("Puntual", "Claro"),
                 comment = "Excelente sesión, aprendí mucho.",
                 submitting = false
             ),
