@@ -36,8 +36,10 @@ class AbstractUserService(
             password = passwordEncoder.encode(input.password),
             firstName = input.firstName,
             lastName = input.lastName,
+            username = generateUsername(input.email!!, input.firstName),
             country = input.country,
             enabled = true,
+            profileVisible = true,
             tokenExpired = false,
             rating = 0.0,
             totalSessions = 0,
@@ -67,5 +69,24 @@ class AbstractUserService(
         }
 
         return userMapper.userToUserResult(savedUser)
+    }
+
+    /**
+     * Genera un username unico a partir del prefijo del email o del firstName.
+     * Si ya existe, sufija con -2, -3, etc. hasta encontrar uno libre.
+     */
+    private fun generateUsername(email: String, firstName: String?): String {
+        val base = (firstName?.takeIf { it.isNotBlank() } ?: email.substringBefore("@"))
+            .lowercase()
+            .replace(Regex("[^a-z0-9]"), "")
+            .ifBlank { "user" }
+
+        var candidate = base
+        var suffix = 2
+        while (userRepository.findByUsername(candidate).isPresent) {
+            candidate = "$base$suffix"
+            suffix++
+        }
+        return candidate
     }
 }

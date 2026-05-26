@@ -9,4 +9,6 @@ import java.util.Optional
 @Repository
 interface UserRepository : JpaRepository<User, Long> {
     fun findByEmail(@Param("email") email: String): Optional<User>
+
+    fun findByUsername(@Param("username") username: String): Optional<User>
 }

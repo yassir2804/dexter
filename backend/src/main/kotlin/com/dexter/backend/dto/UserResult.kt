@@ -19,6 +19,7 @@ data class UserResult(
     var avatarUrl: String? = null,
     var country: String? = null,
     var enabled: Boolean? = null,
+    var profileVisible: Boolean? = null,
     var tokenExpired: Boolean? = null,
     var rating: Double? = null,
     var totalSessions: Int? = null,
