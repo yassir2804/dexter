@@ -31,8 +31,8 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    // 10.0.2.2 = localhost del emulador. Para dispositivo físico usar la IP local de la PC.
-    private const val BASE_URL = "http://10.0.2.2:3000/v1/"
+    // Heroku cloud backend
+    private const val BASE_URL = "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/"
 
     @Provides
     @Singleton
