@@ -1,22 +1,22 @@
 {
-	"id": "9ecc45ef-0eb5-42de-b36d-9af7e63e0596",
+	"id": "4ae0c65f-af68-4f9b-91c0-7a34dabf1bda",
 	"name": "Dexter Backend API",
-	"timestamp": "2026-05-16T00:00:06.396Z",
-	"collection_id": "51523053-6f6dcbb9-8e95-4e00-9de2-0bcd5d9a0859",
+	"timestamp": "2026-05-27T01:59:03.727Z",
+	"collection_id": "51523053-0c8ca8c5-c419-4083-95f4-aac59a7a27ea",
 	"folder_id": 0,
-	"environment_id": "0",
-	"totalPass": 240,
+	"environment_id": "51523053-69c4c88c-5fef-4b14-a3b1-91b09d7c1480",
+	"totalPass": 263,
 	"delay": 0,
 	"persist": true,
 	"status": "finished",
-	"startedAt": "2026-05-16T00:00:00.036Z",
-	"totalFail": 0,
+	"startedAt": "2026-05-27T01:58:50.349Z",
+	"totalFail": 1,
 	"results": [
 		{
-			"id": "467aeb97-e771-4b84-802d-70f54c5e74e0",
+			"id": "fed1b000-09bc-4033-9d12-3b4404f6792a",
 			"name": "Health",
-			"url": "http://localhost:3000/v1/health",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/health",
+			"time": 563,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -25,7 +25,7 @@
 				"Status 200": true,
 				"Content-Type application/json": true,
 				"Respuesta contiene status:ok": true,
-				"Tiempo de respuesta < 500ms": true,
+				"Tiempo de respuesta < 500ms": false,
 				"Environment es dev": true
 			},
 			"testPassFailCounts": {
@@ -42,8 +42,8 @@
 					"fail": 0
 				},
 				"Tiempo de respuesta < 500ms": {
-					"pass": 1,
-					"fail": 0
+					"pass": 0,
+					"fail": 1
 				},
 				"Environment es dev": {
 					"pass": 1,
@@ -51,23 +51,23 @@
 				}
 			},
 			"times": [
-				7
+				563
 			],
 			"allTests": [
 				{
 					"Status 200": true,
 					"Content-Type application/json": true,
 					"Respuesta contiene status:ok": true,
-					"Tiempo de respuesta < 500ms": true,
+					"Tiempo de respuesta < 500ms": false,
 					"Environment es dev": true
 				}
 			]
 		},
 		{
-			"id": "ec531053-43c8-46ae-8732-0f15a0fc3309",
+			"id": "07bce0ea-6c98-4855-96d2-13641486b015",
 			"name": "Register (nuevo usuario)",
-			"url": "http://localhost:3000/v1/auth/register",
-			"time": 89,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/auth/register",
+			"time": 686,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -122,7 +122,7 @@
 				}
 			},
 			"times": [
-				89
+				686
 			],
 			"allTests": [
 				{
@@ -139,10 +139,10 @@
 			]
 		},
 		{
-			"id": "c9bcef28-5381-4220-8305-1ecfb00af57b",
+			"id": "59d9564a-c113-42d0-98f1-defac9d941cc",
 			"name": "Login (admin) — guarda token + userId",
-			"url": "http://localhost:3000/v1/users/login",
-			"time": 85,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 361,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -182,7 +182,7 @@
 				}
 			},
 			"times": [
-				85
+				361
 			],
 			"allTests": [
 				{
@@ -196,10 +196,10 @@
 			]
 		},
 		{
-			"id": "12f6aa70-fae2-4b8d-b67b-ef61bfd6da2c",
+			"id": "ed811643-e1d9-47b4-857e-a07bb2860569",
 			"name": "Login (user normal)",
-			"url": "http://localhost:3000/v1/users/login",
-			"time": 81,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 174,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -234,7 +234,7 @@
 				}
 			},
 			"times": [
-				81
+				174
 			],
 			"allTests": [
 				{
@@ -247,13 +247,13 @@
 			]
 		},
 		{
-			"id": "c23d328f-0366-447c-a677-e390fe95f3f3",
+			"id": "6f3b11e7-90fe-47c7-8393-f683aa290ec3",
 			"name": "Login con password incorrecto (debe fallar)",
-			"url": "http://localhost:3000/v1/users/login",
-			"time": 175,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 246,
 			"responseCode": {
-				"code": 403,
-				"name": "Forbidden"
+				"code": 401,
+				"name": "Unauthorized"
 			},
 			"tests": {
 				"Status 401 o 403": true,
@@ -275,7 +275,7 @@
 				}
 			},
 			"times": [
-				175
+				246
 			],
 			"allTests": [
 				{
@@ -286,13 +286,13 @@
 			]
 		},
 		{
-			"id": "9e10bda4-cb52-4573-abc8-5b1130b58879",
+			"id": "05e37beb-bea8-4780-b329-d446bfed7de2",
 			"name": "Login con email inexistente (debe fallar)",
-			"url": "http://localhost:3000/v1/users/login",
-			"time": 10,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 114,
 			"responseCode": {
-				"code": 403,
-				"name": "Forbidden"
+				"code": 401,
+				"name": "Unauthorized"
 			},
 			"tests": {
 				"Status 401 o 403": true,
@@ -309,7 +309,7 @@
 				}
 			},
 			"times": [
-				10
+				114
 			],
 			"allTests": [
 				{
@@ -319,10 +319,10 @@
 			]
 		},
 		{
-			"id": "c46264c9-9139-4ead-9a1d-93f6e62c4890",
+			"id": "e9fc0ddd-18a2-474f-81ff-ca813fddfb3c",
 			"name": "GET protegido sin token (401/403)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=1",
-			"time": 2,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 90,
 			"responseCode": {
 				"code": 403,
 				"name": "Forbidden"
@@ -337,7 +337,7 @@
 				}
 			},
 			"times": [
-				2
+				90
 			],
 			"allTests": [
 				{
@@ -346,10 +346,10 @@
 			]
 		},
 		{
-			"id": "e9640c6d-a5eb-43dd-931c-3505450092c6",
+			"id": "a9f5fabb-46d3-4446-a0c8-e65608e7f8d0",
 			"name": "GET con token inválido (401/403)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=1",
-			"time": 5,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 104,
 			"responseCode": {
 				"code": 403,
 				"name": "Forbidden"
@@ -364,7 +364,7 @@
 				}
 			},
 			"times": [
-				5
+				104
 			],
 			"allTests": [
 				{
@@ -373,10 +373,10 @@
 			]
 		},
 		{
-			"id": "04b14f13-ac21-46e9-8375-8c2c70d22e00",
+			"id": "24acd674-edc9-425d-88bb-2875da9d8e07",
 			"name": "GET profile-summary (admin)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=1",
-			"time": 14,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 149,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -421,7 +421,7 @@
 				}
 			},
 			"times": [
-				14
+				149
 			],
 			"allTests": [
 				{
@@ -436,43 +436,55 @@
 			]
 		},
 		{
-			"id": "c58c3ce0-6145-4f69-ad63-efbc751bcd53",
+			"id": "d646b5a9-e9b7-4257-a261-f8436616ddd3",
 			"name": "GET profile-summary userId=9999 (404)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=9999",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=9999",
+			"time": 147,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
 				"Status 404": true,
-				"Respuesta contiene estructura de error": true
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona userId": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
 				},
-				"Respuesta contiene estructura de error": {
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona userId": {
 					"pass": 1,
 					"fail": 0
 				}
 			},
 			"times": [
-				8
+				147
 			],
 			"allTests": [
 				{
 					"Status 404": true,
-					"Respuesta contiene estructura de error": true
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona userId": true
 				}
 			]
 		},
 		{
-			"id": "7ef6e656-023b-4e2f-8e49-c7008db5c4a7",
+			"id": "8f71d57f-99fd-444f-ac46-96c5e7dd8128",
 			"name": "PUT profile-summary (editar bio/country)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=1",
-			"time": 16,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 126,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -507,7 +519,7 @@
 				}
 			},
 			"times": [
-				16
+				126
 			],
 			"allTests": [
 				{
@@ -520,37 +532,55 @@
 			]
 		},
 		{
-			"id": "cf1bf57d-0894-4e00-9516-fbd74e7d24e3",
+			"id": "b80817fb-2b0e-45c0-883b-8d5bff7d3f40",
 			"name": "PUT profile-summary userId=9999 (404)",
-			"url": "http://localhost:3000/v1/profile-summary?userId=9999",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=9999",
+			"time": 95,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona userId": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona userId": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				7
+				95
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona userId": true
 				}
 			]
 		},
 		{
-			"id": "86a519c9-5319-4d2f-8793-2a697c6d810d",
+			"id": "be73bcf0-7f1b-48fd-95a0-0c6d0f00dab0",
 			"name": "GET matches (lista) — guarda matchId",
-			"url": "http://localhost:3000/v1/matches?userId=1",
-			"time": 35,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches?userId=1",
+			"time": 161,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -615,7 +645,7 @@
 				}
 			},
 			"times": [
-				35
+				161
 			],
 			"allTests": [
 				{
@@ -634,10 +664,10 @@
 			]
 		},
 		{
-			"id": "04acbdf8-8499-46cb-940b-eca9e7b1b490",
+			"id": "ca7da7b9-68b8-48d2-b7ae-7361f85b3bcb",
 			"name": "GET matches/{matchId} — detalle MatchResult",
-			"url": "http://localhost:3000/v1/matches/1",
-			"time": 11,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/1",
+			"time": 99,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -687,7 +717,7 @@
 				}
 			},
 			"times": [
-				11
+				99
 			],
 			"allTests": [
 				{
@@ -703,10 +733,10 @@
 			]
 		},
 		{
-			"id": "b1a4dea8-a141-45e3-8422-65e33b74964f",
+			"id": "65eb04ff-8159-453c-b684-159fcd8f3ac0",
 			"name": "GET matches/{matchId}/detail — MatchDetailResult",
-			"url": "http://localhost:3000/v1/matches/1/detail?viewerUserId=1",
-			"time": 18,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/1/detail?viewerUserId=1",
+			"time": 122,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -756,7 +786,7 @@
 				}
 			},
 			"times": [
-				18
+				122
 			],
 			"allTests": [
 				{
@@ -772,10 +802,10 @@
 			]
 		},
 		{
-			"id": "5c9f27cb-6d50-4616-b9c4-2dc18d83003b",
+			"id": "7bb4902c-ebee-417b-a5b5-eaf2557a662e",
 			"name": "GET matches/suggestions",
-			"url": "http://localhost:3000/v1/matches/suggestions?userId=1",
-			"time": 117,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/suggestions?userId=1",
+			"time": 205,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -810,7 +840,7 @@
 				}
 			},
 			"times": [
-				117
+				205
 			],
 			"allTests": [
 				{
@@ -823,70 +853,94 @@
 			]
 		},
 		{
-			"id": "515ece6b-d613-4b41-975d-f44eae6db50b",
+			"id": "2bbf926c-f61c-4ee8-a3f7-983afc710771",
 			"name": "GET matches/9999 → 404",
-			"url": "http://localhost:3000/v1/matches/9999",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/9999",
+			"time": 92,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
 				"Status 404": true,
-				"Body contiene error info": true
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
 				},
-				"Body contiene error info": {
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
 					"pass": 1,
 					"fail": 0
 				}
 			},
 			"times": [
-				8
+				92
 			],
 			"allTests": [
 				{
 					"Status 404": true,
-					"Body contiene error info": true
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "e6a0baf5-2745-4910-bf47-83fc3d481b23",
+			"id": "af9c2ffd-f918-4301-9526-29ce3fd59af9",
 			"name": "GET matches/0 → 404",
-			"url": "http://localhost:3000/v1/matches/0",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/0",
+			"time": 93,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				7
+				93
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true
 				}
 			]
 		},
 		{
-			"id": "7e362dc7-670e-4702-ace4-47e7f5a6464e",
+			"id": "4a7ae4e4-e42e-422e-9a8c-7196563d43a5",
 			"name": "GET search/categories",
-			"url": "http://localhost:3000/v1/search/categories",
-			"time": 17,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/categories",
+			"time": 123,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -921,7 +975,7 @@
 				}
 			},
 			"times": [
-				17
+				123
 			],
 			"allTests": [
 				{
@@ -934,10 +988,10 @@
 			]
 		},
 		{
-			"id": "9f748398-5867-431c-a0ea-7d77f37f364c",
+			"id": "67d54776-bc4e-4772-bf09-96e89192e943",
 			"name": "GET search/skills (populares)",
-			"url": "http://localhost:3000/v1/search/skills",
-			"time": 16,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills",
+			"time": 125,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -967,7 +1021,7 @@
 				}
 			},
 			"times": [
-				16
+				125
 			],
 			"allTests": [
 				{
@@ -979,10 +1033,10 @@
 			]
 		},
 		{
-			"id": "76d88601-f580-495f-a55f-74d6cee207b6",
+			"id": "29eb5178-f45f-4a2d-b261-91cff95da9dc",
 			"name": "GET search/skills?query=gu",
-			"url": "http://localhost:3000/v1/search/skills?query=gu",
-			"time": 14,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills?query=gu",
+			"time": 168,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1007,7 +1061,7 @@
 				}
 			},
 			"times": [
-				14
+				168
 			],
 			"allTests": [
 				{
@@ -1018,10 +1072,10 @@
 			]
 		},
 		{
-			"id": "973485b7-a0e8-4528-a794-fd6267c0adab",
+			"id": "ba425391-55d0-4366-912a-ead38458738e",
 			"name": "GET search/skills?category=Música",
-			"url": "http://localhost:3000/v1/search/skills?category=Música",
-			"time": 18,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills?category=Música",
+			"time": 112,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1051,7 +1105,7 @@
 				}
 			},
 			"times": [
-				18
+				112
 			],
 			"allTests": [
 				{
@@ -1063,10 +1117,10 @@
 			]
 		},
 		{
-			"id": "61b7087a-b6df-448a-bb75-6d303428e4e3",
+			"id": "25a90c9d-3948-4639-a1e6-1954f48055b8",
 			"name": "GET search/people?skill=Guitarra",
-			"url": "http://localhost:3000/v1/search/people?skill=Guitarra&viewerUserId=1",
-			"time": 16,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/people?skill=Guitarra&viewerUserId=1",
+			"time": 109,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1101,7 +1155,7 @@
 				}
 			},
 			"times": [
-				16
+				109
 			],
 			"allTests": [
 				{
@@ -1114,10 +1168,10 @@
 			]
 		},
 		{
-			"id": "2d646fb1-c78b-4253-ab0f-8aa16bb48cae",
+			"id": "7b291a1b-485b-4171-9c04-5de8f58c3148",
 			"name": "GET sessions?matchId=3 (match ACCEPTED)",
-			"url": "http://localhost:3000/v1/sessions?matchId=3",
-			"time": 10,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions?matchId=3",
+			"time": 101,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1167,7 +1221,7 @@
 				}
 			},
 			"times": [
-				10
+				101
 			],
 			"allTests": [
 				{
@@ -1183,10 +1237,10 @@
 			]
 		},
 		{
-			"id": "f40ca33e-1c51-4099-93ff-3a5b814c74e9",
+			"id": "fd1b0a1b-e5b2-4a3b-909a-697cf5c7d6da",
 			"name": "GET sessions/{id}",
-			"url": "http://localhost:3000/v1/sessions/1",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/1",
+			"time": 93,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1216,7 +1270,7 @@
 				}
 			},
 			"times": [
-				8
+				93
 			],
 			"allTests": [
 				{
@@ -1228,10 +1282,10 @@
 			]
 		},
 		{
-			"id": "d2251ac0-a9ce-4f55-9c5e-1804f2b47b3d",
+			"id": "01cdf7f7-c700-49e1-b691-8ed63cffe5ef",
 			"name": "POST sessions (crear nueva)",
-			"url": "http://localhost:3000/v1/sessions",
-			"time": 16,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions",
+			"time": 112,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1271,7 +1325,7 @@
 				}
 			},
 			"times": [
-				16
+				112
 			],
 			"allTests": [
 				{
@@ -1285,10 +1339,10 @@
 			]
 		},
 		{
-			"id": "268f11c0-235c-4558-856f-7b9c955c8137",
+			"id": "8c066b3e-4237-4e2b-9747-4332fb54b07e",
 			"name": "PUT sessions/{id} (actualizar)",
-			"url": "http://localhost:3000/v1/sessions/3",
-			"time": 16,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/52",
+			"time": 104,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1318,7 +1372,7 @@
 				}
 			},
 			"times": [
-				16
+				104
 			],
 			"allTests": [
 				{
@@ -1330,10 +1384,10 @@
 			]
 		},
 		{
-			"id": "bdae54eb-8904-4b45-95c4-f132d4f2817e",
+			"id": "a1876a41-5daa-4c14-8029-e7e7f39d2593",
 			"name": "PATCH sessions/{id}/complete",
-			"url": "http://localhost:3000/v1/sessions/3/complete",
-			"time": 14,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/52/complete",
+			"time": 98,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1358,7 +1412,7 @@
 				}
 			},
 			"times": [
-				14
+				98
 			],
 			"allTests": [
 				{
@@ -1369,10 +1423,10 @@
 			]
 		},
 		{
-			"id": "a2c1a098-4e92-454c-acd3-623e9320afe9",
+			"id": "6f7d954b-423e-4ad6-bfdb-e7e7c9b749a2",
 			"name": "DELETE sessions/{id}",
-			"url": "http://localhost:3000/v1/sessions/3",
-			"time": 15,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/52",
+			"time": 112,
 			"responseCode": {
 				"code": 204,
 				"name": "No Content"
@@ -1387,7 +1441,7 @@
 				}
 			},
 			"times": [
-				15
+				112
 			],
 			"allTests": [
 				{
@@ -1396,37 +1450,55 @@
 			]
 		},
 		{
-			"id": "2c512917-4fce-476b-a323-00e171f8ec95",
+			"id": "a76b12e6-e0ee-4d8d-a714-efab927423e9",
 			"name": "GET sessions/9999 → 404",
-			"url": "http://localhost:3000/v1/sessions/9999",
-			"time": 9,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/9999",
+			"time": 91,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				9
+				91
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "ef34feb4-ab9d-4088-b4da-34ba340b061a",
+			"id": "9e74dfad-8e20-411f-a831-acf60f5dd6f4",
 			"name": "GET reviews?revieweeId=1",
-			"url": "http://localhost:3000/v1/reviews?revieweeId=1",
-			"time": 12,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews?revieweeId=1",
+			"time": 98,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1471,7 +1543,7 @@
 				}
 			},
 			"times": [
-				12
+				98
 			],
 			"allTests": [
 				{
@@ -1486,10 +1558,10 @@
 			]
 		},
 		{
-			"id": "cf17273d-eb9d-4bad-94be-c5ce1419c85c",
+			"id": "aab4d952-24de-4e5a-96f1-1192ca9b1be3",
 			"name": "GET reviews/{id}",
-			"url": "http://localhost:3000/v1/reviews/1",
-			"time": 10,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews/1",
+			"time": 99,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1519,7 +1591,7 @@
 				}
 			},
 			"times": [
-				10
+				99
 			],
 			"allTests": [
 				{
@@ -1531,10 +1603,10 @@
 			]
 		},
 		{
-			"id": "bfb611ec-dcbf-4f32-af88-f84feb063c1e",
+			"id": "86057a00-0ffa-49e0-ad88-0d52f0b55d76",
 			"name": "GET reviews?sessionId=1",
-			"url": "http://localhost:3000/v1/reviews?sessionId=1",
-			"time": 9,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews?sessionId=1",
+			"time": 97,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1559,7 +1631,7 @@
 				}
 			},
 			"times": [
-				9
+				97
 			],
 			"allTests": [
 				{
@@ -1570,10 +1642,10 @@
 			]
 		},
 		{
-			"id": "9a8bf3ad-9705-4201-9b8c-c2dcff8ad18b",
+			"id": "8be7978a-2796-4d43-b04c-a9ea794b2664",
 			"name": "POST reviews (crear)",
-			"url": "http://localhost:3000/v1/reviews",
-			"time": 17,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews",
+			"time": 113,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1613,7 +1685,7 @@
 				}
 			},
 			"times": [
-				17
+				113
 			],
 			"allTests": [
 				{
@@ -1627,37 +1699,55 @@
 			]
 		},
 		{
-			"id": "b2d0021c-f8a7-4c0e-9b1a-9695e80f635c",
+			"id": "0f3815d1-4295-4c1e-8165-138c28d3b780",
 			"name": "GET reviews/9999 → 404",
-			"url": "http://localhost:3000/v1/reviews/9999",
-			"time": 9,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews/9999",
+			"time": 93,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				9
+				93
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "e9f28b65-3a65-4591-91bd-9bba34577fa3",
+			"id": "934f84ff-61fa-4449-9e2d-2dbc6f4a8d69",
 			"name": "GET review-tags?reviewId=1",
-			"url": "http://localhost:3000/v1/review-tags?reviewId=1",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/review-tags?reviewId=1",
+			"time": 99,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1682,7 +1772,7 @@
 				}
 			},
 			"times": [
-				7
+				99
 			],
 			"allTests": [
 				{
@@ -1693,10 +1783,10 @@
 			]
 		},
 		{
-			"id": "09b71def-3f56-4739-a82c-44f8276b01c4",
+			"id": "410bdbbb-2c44-4b5d-a6e1-153df7f5b330",
 			"name": "POST notifications (crear)",
-			"url": "http://localhost:3000/v1/notifications",
-			"time": 12,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications",
+			"time": 105,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1741,7 +1831,7 @@
 				}
 			},
 			"times": [
-				12
+				105
 			],
 			"allTests": [
 				{
@@ -1756,10 +1846,10 @@
 			]
 		},
 		{
-			"id": "59523fd3-95e5-4036-8a84-046721f57ed6",
+			"id": "e62c1bf2-e4e5-41d0-82d5-94fb1707ff18",
 			"name": "GET notifications?userId=1",
-			"url": "http://localhost:3000/v1/notifications?userId=1",
-			"time": 9,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications?userId=1",
+			"time": 101,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1799,7 +1889,7 @@
 				}
 			},
 			"times": [
-				9
+				101
 			],
 			"allTests": [
 				{
@@ -1813,10 +1903,10 @@
 			]
 		},
 		{
-			"id": "3a6d5b4a-4bd4-42c1-a1fc-e7746c1d68a9",
+			"id": "7a6d45b3-6e34-4b0f-860d-2944e72275c0",
 			"name": "GET notifications?userId=1&unread=true",
-			"url": "http://localhost:3000/v1/notifications?userId=1&unread=true",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications?userId=1&unread=true",
+			"time": 94,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1841,7 +1931,7 @@
 				}
 			},
 			"times": [
-				7
+				94
 			],
 			"allTests": [
 				{
@@ -1852,10 +1942,10 @@
 			]
 		},
 		{
-			"id": "b29cc4ca-f02d-4298-9e06-e96adc4cbcf1",
+			"id": "ae693467-d10c-42c9-8dfd-e38dc54d8e19",
 			"name": "GET notifications/{id}",
-			"url": "http://localhost:3000/v1/notifications/2",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/51",
+			"time": 104,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -1885,7 +1975,7 @@
 				}
 			},
 			"times": [
-				8
+				104
 			],
 			"allTests": [
 				{
@@ -1897,10 +1987,10 @@
 			]
 		},
 		{
-			"id": "199ee0dd-4797-42ae-93cc-9ceeba3c49f6",
+			"id": "a047bcd8-47d3-4d7f-b148-5e742f6ef9b9",
 			"name": "PATCH notifications/{id}/read",
-			"url": "http://localhost:3000/v1/notifications/2/read",
-			"time": 11,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/51/read",
+			"time": 104,
 			"responseCode": {
 				"code": 204,
 				"name": "No Content"
@@ -1915,7 +2005,7 @@
 				}
 			},
 			"times": [
-				11
+				104
 			],
 			"allTests": [
 				{
@@ -1924,10 +2014,10 @@
 			]
 		},
 		{
-			"id": "2d87ca6f-27fe-48ac-afaa-ac8f92da5d0f",
+			"id": "62c6f3ad-2562-43d8-b447-df189574b512",
 			"name": "DELETE notifications/{id}",
-			"url": "http://localhost:3000/v1/notifications/2",
-			"time": 12,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/51",
+			"time": 99,
 			"responseCode": {
 				"code": 204,
 				"name": "No Content"
@@ -1942,7 +2032,7 @@
 				}
 			},
 			"times": [
-				12
+				99
 			],
 			"allTests": [
 				{
@@ -1951,37 +2041,55 @@
 			]
 		},
 		{
-			"id": "6c009cb7-c25f-4718-968d-81cb12122c54",
+			"id": "2832362d-d9d4-47be-ab7b-77cb3302106a",
 			"name": "GET notifications/9999 → 404",
-			"url": "http://localhost:3000/v1/notifications/9999",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/9999",
+			"time": 90,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				7
+				90
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "bd4a972e-35ac-4bee-bd69-40aaa4e61d77",
+			"id": "46d0ed9f-37fc-41bb-8ec1-eba23a1595aa",
 			"name": "GET availability?userId=1",
-			"url": "http://localhost:3000/v1/availability?userId=1",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability?userId=1",
+			"time": 108,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2031,7 +2139,7 @@
 				}
 			},
 			"times": [
-				7
+				108
 			],
 			"allTests": [
 				{
@@ -2047,10 +2155,10 @@
 			]
 		},
 		{
-			"id": "5d4f0f90-187c-49c5-8373-d2c82b95ac14",
+			"id": "24a7536b-b8d3-4944-8c84-a118e53b59da",
 			"name": "GET availability/{id}",
-			"url": "http://localhost:3000/v1/availability/1",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/1",
+			"time": 96,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2080,7 +2188,7 @@
 				}
 			},
 			"times": [
-				8
+				96
 			],
 			"allTests": [
 				{
@@ -2092,10 +2200,10 @@
 			]
 		},
 		{
-			"id": "c006cfda-6568-4872-9f98-ed4db2e6c584",
+			"id": "ac3016d4-f398-482c-8059-32cb1d50a493",
 			"name": "POST availability (crear)",
-			"url": "http://localhost:3000/v1/availability",
-			"time": 11,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability",
+			"time": 102,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2135,7 +2243,7 @@
 				}
 			},
 			"times": [
-				11
+				102
 			],
 			"allTests": [
 				{
@@ -2149,10 +2257,10 @@
 			]
 		},
 		{
-			"id": "1efb81bf-9934-44d5-a6b9-1149d10e195a",
+			"id": "b3ed9a23-3553-40be-93e7-b21f0010a3b9",
 			"name": "PUT availability/{id} (actualizar)",
-			"url": "http://localhost:3000/v1/availability/53",
-			"time": 12,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/80",
+			"time": 100,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2182,7 +2290,7 @@
 				}
 			},
 			"times": [
-				12
+				100
 			],
 			"allTests": [
 				{
@@ -2194,10 +2302,10 @@
 			]
 		},
 		{
-			"id": "9a3760f1-bbf5-4aee-bbad-f03836808879",
+			"id": "0fe768ba-882c-40df-a48a-9bbb18a132d7",
 			"name": "DELETE availability/{id}",
-			"url": "http://localhost:3000/v1/availability/53",
-			"time": 13,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/80",
+			"time": 100,
 			"responseCode": {
 				"code": 204,
 				"name": "No Content"
@@ -2212,7 +2320,7 @@
 				}
 			},
 			"times": [
-				13
+				100
 			],
 			"allTests": [
 				{
@@ -2221,37 +2329,55 @@
 			]
 		},
 		{
-			"id": "cc2186f1-a2d2-409b-994d-62c2ae66da0b",
+			"id": "3887a95c-c3e1-4451-96de-79228e4c9a5e",
 			"name": "GET availability/9999 → 404",
-			"url": "http://localhost:3000/v1/availability/9999",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/9999",
+			"time": 94,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				7
+				94
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "4f246d51-01cc-4b8d-be6e-9047ea27ce40",
+			"id": "86f5ec08-ddc5-4625-bbdf-5eb9ad291e9a",
 			"name": "POST session-invitations (crear)",
-			"url": "http://localhost:3000/v1/session-invitations",
-			"time": 17,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations",
+			"time": 111,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2306,7 +2432,7 @@
 				}
 			},
 			"times": [
-				17
+				111
 			],
 			"allTests": [
 				{
@@ -2323,10 +2449,10 @@
 			]
 		},
 		{
-			"id": "3c54a55c-02a5-4330-8618-67975c008f21",
+			"id": "1556e592-0dc1-4b5a-ab12-356463ce125c",
 			"name": "GET session-invitations?receiverId=4",
-			"url": "http://localhost:3000/v1/session-invitations?receiverId=4",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations?receiverId=4",
+			"time": 100,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2361,7 +2487,7 @@
 				}
 			},
 			"times": [
-				8
+				100
 			],
 			"allTests": [
 				{
@@ -2374,10 +2500,10 @@
 			]
 		},
 		{
-			"id": "4583420f-e77f-4523-91d6-002c38196e8d",
+			"id": "a8f5d926-56f2-42d8-97c9-fd196939d7fd",
 			"name": "GET session-invitations/{id}",
-			"url": "http://localhost:3000/v1/session-invitations/2",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/102",
+			"time": 102,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2407,7 +2533,7 @@
 				}
 			},
 			"times": [
-				8
+				102
 			],
 			"allTests": [
 				{
@@ -2419,10 +2545,10 @@
 			]
 		},
 		{
-			"id": "431315c0-2890-4fe6-899a-f83357028873",
+			"id": "d92fb7ac-25cf-4ddc-928f-cf2f4c714bfa",
 			"name": "PATCH session-invitations/{id}/reject",
-			"url": "http://localhost:3000/v1/session-invitations/2/reject",
-			"time": 12,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/102/reject",
+			"time": 110,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2442,7 +2568,7 @@
 				}
 			},
 			"times": [
-				12
+				110
 			],
 			"allTests": [
 				{
@@ -2452,37 +2578,55 @@
 			]
 		},
 		{
-			"id": "17896341-4594-422e-bfb1-62bb15a387b8",
+			"id": "e7f6df3c-599a-43cb-bb8f-fd9bdbd6bcbc",
 			"name": "GET session-invitations/9999 → 404",
-			"url": "http://localhost:3000/v1/session-invitations/9999",
-			"time": 7,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/9999",
+			"time": 94,
 			"responseCode": {
 				"code": 404,
 				"name": "Not Found"
 			},
 			"tests": {
-				"Status 404": true
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
 			},
 			"testPassFailCounts": {
 				"Status 404": {
 					"pass": 1,
 					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
 				}
 			},
 			"times": [
-				7
+				94
 			],
 			"allTests": [
 				{
-					"Status 404": true
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
 				}
 			]
 		},
 		{
-			"id": "9e7ab649-f2a8-4907-8d39-2c351c058ec3",
+			"id": "b9d71287-0d03-4e3f-8ea4-3b2615a791da",
 			"name": "[E2E 1/5] Register new user",
-			"url": "http://localhost:3000/v1/auth/register",
-			"time": 84,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/auth/register",
+			"time": 172,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2512,7 +2656,7 @@
 				}
 			},
 			"times": [
-				84
+				172
 			],
 			"allTests": [
 				{
@@ -2524,10 +2668,10 @@
 			]
 		},
 		{
-			"id": "0afa93e2-83e0-4807-b5ca-379fe88b91a0",
+			"id": "a1aff8ea-d232-470a-b247-abd8c2ddd392",
 			"name": "[E2E 2/5] Login con el nuevo user",
-			"url": "http://localhost:3000/v1/users/login",
-			"time": 82,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 170,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2552,7 +2696,7 @@
 				}
 			},
 			"times": [
-				82
+				170
 			],
 			"allTests": [
 				{
@@ -2563,10 +2707,10 @@
 			]
 		},
 		{
-			"id": "d0ab2c8a-45a1-4ad2-bb65-1bb9baf69253",
+			"id": "40890f4d-7024-4c5a-88f5-cf1625ecd16d",
 			"name": "[E2E 3/5] GET su profile",
-			"url": "http://localhost:3000/v1/profile-summary?userId=61",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=64",
+			"time": 97,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2596,7 +2740,7 @@
 				}
 			},
 			"times": [
-				8
+				97
 			],
 			"allTests": [
 				{
@@ -2608,10 +2752,10 @@
 			]
 		},
 		{
-			"id": "44061a31-f4b0-4582-aa19-5ca84ba13d65",
+			"id": "f90b3fdc-e67e-4d09-ab9b-0879c764bc83",
 			"name": "[E2E 4/5] PUT actualizar bio",
-			"url": "http://localhost:3000/v1/profile-summary?userId=61",
-			"time": 18,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=64",
+			"time": 99,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2636,7 +2780,7 @@
 				}
 			},
 			"times": [
-				18
+				99
 			],
 			"allTests": [
 				{
@@ -2647,10 +2791,10 @@
 			]
 		},
 		{
-			"id": "4efa3e5f-34de-444c-ad3c-4a183217f96c",
+			"id": "bf1fa265-bc71-4220-8ff3-e6c56e7c469c",
 			"name": "[E2E 5/5] Verificar persistencia",
-			"url": "http://localhost:3000/v1/profile-summary?userId=61",
-			"time": 8,
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=64",
+			"time": 106,
 			"responseCode": {
 				"code": 200,
 				"name": "OK"
@@ -2680,7 +2824,7 @@
 				}
 			},
 			"times": [
-				8
+				106
 			],
 			"allTests": [
 				{
@@ -2693,243 +2837,243 @@
 		}
 	],
 	"count": 1,
-	"totalTime": 1304,
+	"totalTime": 8032,
 	"collection": {
 		"requests": [
 			{
-				"id": "467aeb97-e771-4b84-802d-70f54c5e74e0",
+				"id": "fed1b000-09bc-4033-9d12-3b4404f6792a",
 				"method": "GET"
 			},
 			{
-				"id": "ec531053-43c8-46ae-8732-0f15a0fc3309",
+				"id": "07bce0ea-6c98-4855-96d2-13641486b015",
 				"method": "POST"
 			},
 			{
-				"id": "c9bcef28-5381-4220-8305-1ecfb00af57b",
+				"id": "59d9564a-c113-42d0-98f1-defac9d941cc",
 				"method": "POST"
 			},
 			{
-				"id": "12f6aa70-fae2-4b8d-b67b-ef61bfd6da2c",
+				"id": "ed811643-e1d9-47b4-857e-a07bb2860569",
 				"method": "POST"
 			},
 			{
-				"id": "c23d328f-0366-447c-a677-e390fe95f3f3",
+				"id": "6f3b11e7-90fe-47c7-8393-f683aa290ec3",
 				"method": "POST"
 			},
 			{
-				"id": "9e10bda4-cb52-4573-abc8-5b1130b58879",
+				"id": "05e37beb-bea8-4780-b329-d446bfed7de2",
 				"method": "POST"
 			},
 			{
-				"id": "c46264c9-9139-4ead-9a1d-93f6e62c4890",
+				"id": "e9fc0ddd-18a2-474f-81ff-ca813fddfb3c",
 				"method": "GET"
 			},
 			{
-				"id": "e9640c6d-a5eb-43dd-931c-3505450092c6",
+				"id": "a9f5fabb-46d3-4446-a0c8-e65608e7f8d0",
 				"method": "GET"
 			},
 			{
-				"id": "04b14f13-ac21-46e9-8375-8c2c70d22e00",
+				"id": "24acd674-edc9-425d-88bb-2875da9d8e07",
 				"method": "GET"
 			},
 			{
-				"id": "c58c3ce0-6145-4f69-ad63-efbc751bcd53",
+				"id": "d646b5a9-e9b7-4257-a261-f8436616ddd3",
 				"method": "GET"
 			},
 			{
-				"id": "7ef6e656-023b-4e2f-8e49-c7008db5c4a7",
+				"id": "8f71d57f-99fd-444f-ac46-96c5e7dd8128",
 				"method": "PUT"
 			},
 			{
-				"id": "cf1bf57d-0894-4e00-9516-fbd74e7d24e3",
+				"id": "b80817fb-2b0e-45c0-883b-8d5bff7d3f40",
 				"method": "PUT"
 			},
 			{
-				"id": "86a519c9-5319-4d2f-8793-2a697c6d810d",
+				"id": "be73bcf0-7f1b-48fd-95a0-0c6d0f00dab0",
 				"method": "GET"
 			},
 			{
-				"id": "04acbdf8-8499-46cb-940b-eca9e7b1b490",
+				"id": "ca7da7b9-68b8-48d2-b7ae-7361f85b3bcb",
 				"method": "GET"
 			},
 			{
-				"id": "b1a4dea8-a141-45e3-8422-65e33b74964f",
+				"id": "65eb04ff-8159-453c-b684-159fcd8f3ac0",
 				"method": "GET"
 			},
 			{
-				"id": "5c9f27cb-6d50-4616-b9c4-2dc18d83003b",
+				"id": "7bb4902c-ebee-417b-a5b5-eaf2557a662e",
 				"method": "GET"
 			},
 			{
-				"id": "515ece6b-d613-4b41-975d-f44eae6db50b",
+				"id": "2bbf926c-f61c-4ee8-a3f7-983afc710771",
 				"method": "GET"
 			},
 			{
-				"id": "e6a0baf5-2745-4910-bf47-83fc3d481b23",
+				"id": "af9c2ffd-f918-4301-9526-29ce3fd59af9",
 				"method": "GET"
 			},
 			{
-				"id": "7e362dc7-670e-4702-ace4-47e7f5a6464e",
+				"id": "4a7ae4e4-e42e-422e-9a8c-7196563d43a5",
 				"method": "GET"
 			},
 			{
-				"id": "9f748398-5867-431c-a0ea-7d77f37f364c",
+				"id": "67d54776-bc4e-4772-bf09-96e89192e943",
 				"method": "GET"
 			},
 			{
-				"id": "76d88601-f580-495f-a55f-74d6cee207b6",
+				"id": "29eb5178-f45f-4a2d-b261-91cff95da9dc",
 				"method": "GET"
 			},
 			{
-				"id": "973485b7-a0e8-4528-a794-fd6267c0adab",
+				"id": "ba425391-55d0-4366-912a-ead38458738e",
 				"method": "GET"
 			},
 			{
-				"id": "61b7087a-b6df-448a-bb75-6d303428e4e3",
+				"id": "25a90c9d-3948-4639-a1e6-1954f48055b8",
 				"method": "GET"
 			},
 			{
-				"id": "2d646fb1-c78b-4253-ab0f-8aa16bb48cae",
+				"id": "7b291a1b-485b-4171-9c04-5de8f58c3148",
 				"method": "GET"
 			},
 			{
-				"id": "f40ca33e-1c51-4099-93ff-3a5b814c74e9",
+				"id": "fd1b0a1b-e5b2-4a3b-909a-697cf5c7d6da",
 				"method": "GET"
 			},
 			{
-				"id": "d2251ac0-a9ce-4f55-9c5e-1804f2b47b3d",
+				"id": "01cdf7f7-c700-49e1-b691-8ed63cffe5ef",
 				"method": "POST"
 			},
 			{
-				"id": "268f11c0-235c-4558-856f-7b9c955c8137",
+				"id": "8c066b3e-4237-4e2b-9747-4332fb54b07e",
 				"method": "PUT"
 			},
 			{
-				"id": "bdae54eb-8904-4b45-95c4-f132d4f2817e",
+				"id": "a1876a41-5daa-4c14-8029-e7e7f39d2593",
 				"method": "PATCH"
 			},
 			{
-				"id": "a2c1a098-4e92-454c-acd3-623e9320afe9",
+				"id": "6f7d954b-423e-4ad6-bfdb-e7e7c9b749a2",
 				"method": "DELETE"
 			},
 			{
-				"id": "2c512917-4fce-476b-a323-00e171f8ec95",
+				"id": "a76b12e6-e0ee-4d8d-a714-efab927423e9",
 				"method": "GET"
 			},
 			{
-				"id": "ef34feb4-ab9d-4088-b4da-34ba340b061a",
+				"id": "9e74dfad-8e20-411f-a831-acf60f5dd6f4",
 				"method": "GET"
 			},
 			{
-				"id": "cf17273d-eb9d-4bad-94be-c5ce1419c85c",
+				"id": "aab4d952-24de-4e5a-96f1-1192ca9b1be3",
 				"method": "GET"
 			},
 			{
-				"id": "bfb611ec-dcbf-4f32-af88-f84feb063c1e",
+				"id": "86057a00-0ffa-49e0-ad88-0d52f0b55d76",
 				"method": "GET"
 			},
 			{
-				"id": "9a8bf3ad-9705-4201-9b8c-c2dcff8ad18b",
+				"id": "8be7978a-2796-4d43-b04c-a9ea794b2664",
 				"method": "POST"
 			},
 			{
-				"id": "b2d0021c-f8a7-4c0e-9b1a-9695e80f635c",
+				"id": "0f3815d1-4295-4c1e-8165-138c28d3b780",
 				"method": "GET"
 			},
 			{
-				"id": "e9f28b65-3a65-4591-91bd-9bba34577fa3",
+				"id": "934f84ff-61fa-4449-9e2d-2dbc6f4a8d69",
 				"method": "GET"
 			},
 			{
-				"id": "09b71def-3f56-4739-a82c-44f8276b01c4",
+				"id": "410bdbbb-2c44-4b5d-a6e1-153df7f5b330",
 				"method": "POST"
 			},
 			{
-				"id": "59523fd3-95e5-4036-8a84-046721f57ed6",
+				"id": "e62c1bf2-e4e5-41d0-82d5-94fb1707ff18",
 				"method": "GET"
 			},
 			{
-				"id": "3a6d5b4a-4bd4-42c1-a1fc-e7746c1d68a9",
+				"id": "7a6d45b3-6e34-4b0f-860d-2944e72275c0",
 				"method": "GET"
 			},
 			{
-				"id": "b29cc4ca-f02d-4298-9e06-e96adc4cbcf1",
+				"id": "ae693467-d10c-42c9-8dfd-e38dc54d8e19",
 				"method": "GET"
 			},
 			{
-				"id": "199ee0dd-4797-42ae-93cc-9ceeba3c49f6",
+				"id": "a047bcd8-47d3-4d7f-b148-5e742f6ef9b9",
 				"method": "PATCH"
 			},
 			{
-				"id": "2d87ca6f-27fe-48ac-afaa-ac8f92da5d0f",
+				"id": "62c6f3ad-2562-43d8-b447-df189574b512",
 				"method": "DELETE"
 			},
 			{
-				"id": "6c009cb7-c25f-4718-968d-81cb12122c54",
+				"id": "2832362d-d9d4-47be-ab7b-77cb3302106a",
 				"method": "GET"
 			},
 			{
-				"id": "bd4a972e-35ac-4bee-bd69-40aaa4e61d77",
+				"id": "46d0ed9f-37fc-41bb-8ec1-eba23a1595aa",
 				"method": "GET"
 			},
 			{
-				"id": "5d4f0f90-187c-49c5-8373-d2c82b95ac14",
+				"id": "24a7536b-b8d3-4944-8c84-a118e53b59da",
 				"method": "GET"
 			},
 			{
-				"id": "c006cfda-6568-4872-9f98-ed4db2e6c584",
+				"id": "ac3016d4-f398-482c-8059-32cb1d50a493",
 				"method": "POST"
 			},
 			{
-				"id": "1efb81bf-9934-44d5-a6b9-1149d10e195a",
+				"id": "b3ed9a23-3553-40be-93e7-b21f0010a3b9",
 				"method": "PUT"
 			},
 			{
-				"id": "9a3760f1-bbf5-4aee-bbad-f03836808879",
+				"id": "0fe768ba-882c-40df-a48a-9bbb18a132d7",
 				"method": "DELETE"
 			},
 			{
-				"id": "cc2186f1-a2d2-409b-994d-62c2ae66da0b",
+				"id": "3887a95c-c3e1-4451-96de-79228e4c9a5e",
 				"method": "GET"
 			},
 			{
-				"id": "4f246d51-01cc-4b8d-be6e-9047ea27ce40",
+				"id": "86f5ec08-ddc5-4625-bbdf-5eb9ad291e9a",
 				"method": "POST"
 			},
 			{
-				"id": "3c54a55c-02a5-4330-8618-67975c008f21",
+				"id": "1556e592-0dc1-4b5a-ab12-356463ce125c",
 				"method": "GET"
 			},
 			{
-				"id": "4583420f-e77f-4523-91d6-002c38196e8d",
+				"id": "a8f5d926-56f2-42d8-97c9-fd196939d7fd",
 				"method": "GET"
 			},
 			{
-				"id": "431315c0-2890-4fe6-899a-f83357028873",
+				"id": "d92fb7ac-25cf-4ddc-928f-cf2f4c714bfa",
 				"method": "PATCH"
 			},
 			{
-				"id": "17896341-4594-422e-bfb1-62bb15a387b8",
+				"id": "e7f6df3c-599a-43cb-bb8f-fd9bdbd6bcbc",
 				"method": "GET"
 			},
 			{
-				"id": "9e7ab649-f2a8-4907-8d39-2c351c058ec3",
+				"id": "b9d71287-0d03-4e3f-8ea4-3b2615a791da",
 				"method": "POST"
 			},
 			{
-				"id": "0afa93e2-83e0-4807-b5ca-379fe88b91a0",
+				"id": "a1aff8ea-d232-470a-b247-abd8c2ddd392",
 				"method": "POST"
 			},
 			{
-				"id": "d0ab2c8a-45a1-4ad2-bb65-1bb9baf69253",
+				"id": "40890f4d-7024-4c5a-88f5-cf1625ecd16d",
 				"method": "GET"
 			},
 			{
-				"id": "44061a31-f4b0-4582-aa19-5ca84ba13d65",
+				"id": "f90b3fdc-e67e-4d09-ab9b-0879c764bc83",
 				"method": "PUT"
 			},
 			{
-				"id": "4efa3e5f-34de-444c-ad3c-4a183217f96c",
+				"id": "bf1fa265-bc71-4220-8ff3-e6c56e7c469c",
 				"method": "GET"
 			}
 		]
