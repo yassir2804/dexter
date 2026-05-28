@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController
  * ReviewTags — tags asociados a reviews (Buen profesor, Paciente, etc).
  *
  *  GET /v1/review-tags?reviewId=    — tags de un review específico
+ *  GET /v1/review-tags/catalog      — catálogo sugerido para el picker del front
  */
 @RestController
 @RequestMapping("\${url.reviewTags}")
@@ -27,4 +28,23 @@ class ReviewTagController(
                 tagName = t.tagName,
             )
         }
+
+    /**
+     * Catalogo fijo de tags sugeridos para el picker del cliente.
+     * No se guardan como entidad — son strings que el cliente envía
+     * al crear el review en `tags`.
+     */
+    @GetMapping("/catalog")
+    fun catalog(): List<String> = listOf(
+        "Paciente",
+        "Buen profesor",
+        "Claro",
+        "Puntual",
+        "Amable",
+        "Bien preparado",
+        "Motivador",
+        "Practico",
+        "Profesional",
+        "Recomendado",
+    )
 }

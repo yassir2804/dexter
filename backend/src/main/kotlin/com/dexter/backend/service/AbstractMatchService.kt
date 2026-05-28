@@ -103,6 +103,13 @@ class AbstractMatchService(
 
         generateSessions(saved)
 
+        // Contar el match en el historial de ambos participantes.
+        listOfNotNull(match.initiator, match.receiver).forEach { u ->
+            u.totalMatches = (u.totalMatches ?: 0) + 1
+            u.updatedAt = Date()
+            userRepository.save(u)
+        }
+
         match.initiator?.let { initiator ->
             match.receiver?.let { receiver ->
                 notificationRepository.save(Notification(

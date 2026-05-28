@@ -22,15 +22,9 @@ class AppUserDetailsService(
 
     @Throws(UsernameNotFoundException::class)
     override fun loadUserByUsername(username: String): UserDetails {
-        val user: User = userRepository.findByEmail(username).orElse(null)
-            ?: return org.springframework.security.core.userdetails.User(
-                "", "", true, true, true, true,
-                getAuthorities(
-                    listOfNotNull(
-                        roleRepository.findByName("ROLE_USER").orElse(null)
-                    )
-                )
-            )
+        val user: User = userRepository.findByEmail(username).orElseThrow {
+            UsernameNotFoundException("User not found: $username")
+        }
 
         return org.springframework.security.core.userdetails.User(
             user.email ?: "",

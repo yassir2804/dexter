@@ -9,4 +9,5 @@ data class ReviewInput(
     var sessionId: Long? = null,
     var rating: Int? = null,
     var comment: String? = null,
+    var tags: List<String> = emptyList(),
 )

@@ -35,7 +35,17 @@ class AbstractSearchService(
         groupToSummaries(skillRepository.findByCategoryIgnoreCase(category))
 
     override fun findPeopleForSkill(skillName: String, viewerUserId: Long): List<PersonResult> {
-        val alreadyMatchedIds = matchRepository
+        // Usuarios con quien el viewer ya tiene un match (cualquier estado salvo REJECTED):
+        // a esos SI les puede seguir viendo el perfil aunque hayan ocultado su perfil,
+        // porque ya hubo intencion de match entre las dos partes.
+        val alreadyContactedIds = matchRepository
+            .findByInitiatorIdOrReceiverId(viewerUserId, viewerUserId)
+            .filter { it.status != MatchStatus.REJECTED }
+            .flatMap { listOfNotNull(it.initiator?.id, it.receiver?.id) }
+            .toSet()
+
+        // Para evitar ofrecer matches duplicados, ocultamos los que ya estan PENDING o ACCEPTED.
+        val activeMatchIds = matchRepository
             .findByInitiatorIdOrReceiverId(viewerUserId, viewerUserId)
             .filter { it.status == MatchStatus.PENDING || it.status == MatchStatus.ACCEPTED }
             .flatMap { listOfNotNull(it.initiator?.id, it.receiver?.id) }
@@ -46,7 +56,9 @@ class AbstractSearchService(
         return skills.mapNotNull { s ->
             val u = s.user ?: return@mapNotNull null
             val uid = u.id ?: return@mapNotNull null
-            if (uid == viewerUserId || uid in alreadyMatchedIds) return@mapNotNull null
+            if (uid == viewerUserId || uid in activeMatchIds) return@mapNotNull null
+            // Perfil oculto: solo se respeta para usuarios con los que NO hubo contacto previo
+            if (!u.profileVisible && uid !in alreadyContactedIds) return@mapNotNull null
             PersonResult(
                 userId = uid,
                 name = "${u.firstName ?: ""} ${u.lastName ?: ""}".trim(),

@@ -13,4 +13,5 @@ data class ReviewDetails(
     var rating: Int? = null,
     var comment: String? = null,
     var createdAt: Long? = null,
+    var tags: List<String> = emptyList(),
 )

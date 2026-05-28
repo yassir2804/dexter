@@ -21,6 +21,8 @@ data class User(
     var avatarUrl: String? = null,
     var country: String? = null,
     var enabled: Boolean = true,
+    @Column(name = "profile_visible")
+    var profileVisible: Boolean = true,
     @Column(name = "token_expired")
     var tokenExpired: Boolean? = false,
     var rating: Double? = 0.0,

@@ -2,13 +2,19 @@ package com.dexter.backend.service
 
 import com.dexter.backend.dto.SessionDetails
 import com.dexter.backend.dto.SessionInput
+import com.dexter.backend.entity.MatchStatus
+import com.dexter.backend.entity.Notification
+import com.dexter.backend.entity.NotificationType
 import com.dexter.backend.entity.Session
 import com.dexter.backend.entity.SessionStatus
 import com.dexter.backend.repository.MatchRepository
+import com.dexter.backend.repository.NotificationRepository
 import com.dexter.backend.repository.SessionRepository
 import com.dexter.backend.repository.SkillRepository
+import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.Date
 
 @Service
@@ -16,6 +22,8 @@ class AbstractSessionService(
     @Autowired val sessionRepository: SessionRepository,
     @Autowired val matchRepository: MatchRepository,
     @Autowired val skillRepository: SkillRepository,
+    @Autowired val notificationRepository: NotificationRepository,
+    @Autowired val userRepository: UserRepository,
 ) : SessionService {
 
     override fun findByMatch(matchId: Long): List<SessionDetails> =
@@ -75,13 +83,96 @@ class AbstractSessionService(
         return toDetails(sessionRepository.save(session))
     }
 
+    @Transactional
     override fun complete(id: Long): SessionDetails {
         val session = sessionRepository.findById(id).orElseThrow {
             NoSuchElementException("Session with id $id not found")
         }
+        // Idempotente: si ya estaba COMPLETED no re-disparamos efectos secundarios.
+        val wasAlreadyCompleted = session.status == SessionStatus.COMPLETED
         session.status = SessionStatus.COMPLETED
-        session.completedAt = Date()
-        return toDetails(sessionRepository.save(session))
+        session.completedAt = session.completedAt ?: Date()
+        val saved = sessionRepository.save(session)
+
+        if (!wasAlreadyCompleted) {
+            incrementTotalSessions(saved)
+            notifyStudentToReview(saved)
+        }
+
+        // Si todas las sesiones del match estan COMPLETED, cerrar el match.
+        val match = saved.match
+        if (match != null && match.status == MatchStatus.ACCEPTED) {
+            val all = sessionRepository.findByMatchIdOrderBySessionNumberAsc(match.id ?: 0L)
+            if (all.isNotEmpty() && all.all { it.status == SessionStatus.COMPLETED }) {
+                match.status = MatchStatus.COMPLETED
+                matchRepository.save(match)
+                notifyMatchCompleted(match)
+            }
+        }
+
+        return toDetails(saved)
+    }
+
+    /**
+     * Incrementa `totalSessions` para los dos participantes del match
+     * (no solo el profesor: ambos cuentan la sesion en su historial).
+     */
+    private fun incrementTotalSessions(session: Session) {
+        val match = session.match ?: return
+        listOfNotNull(match.initiator, match.receiver).forEach { u ->
+            u.totalSessions = (u.totalSessions ?: 0) + 1
+            u.updatedAt = Date()
+            userRepository.save(u)
+        }
+    }
+
+    /**
+     * Manda una notificacion al "estudiante" de la sesion (el otro miembro
+     * del match, el que no enseno) para que deje una resena al profesor.
+     * Si por alguna razon no se puede determinar al profesor, notifica a
+     * ambos para que se evaluen mutuamente.
+     */
+    private fun notifyStudentToReview(session: Session) {
+        val match = session.match ?: return
+        val teacher = session.skill?.user
+        val initiator = match.initiator
+        val receiver = match.receiver
+
+        val recipients = when (teacher?.id) {
+            initiator?.id -> listOfNotNull(receiver)
+            receiver?.id -> listOfNotNull(initiator)
+            else -> listOfNotNull(initiator, receiver)
+        }
+
+        recipients.forEach { student ->
+            notificationRepository.save(Notification(
+                user = student,
+                referenceId = session.id,
+                title = "Sesion completada",
+                body = "Deja tu resena a ${teacher?.firstName ?: "tu companero"} de la sesion '${session.title}'",
+                notificationType = NotificationType.SESSION_REMINDER,
+                isRead = false,
+                createdAt = Date(),
+            ))
+        }
+    }
+
+    private fun notifyMatchCompleted(match: com.dexter.backend.entity.Match) {
+        val initiator = match.initiator
+        val receiver = match.receiver
+        val title = "Match completado"
+        val body = "Han terminado todas las sesiones del intercambio. Felicidades!"
+        listOfNotNull(initiator, receiver).forEach { user ->
+            notificationRepository.save(Notification(
+                user = user,
+                referenceId = match.id,
+                title = title,
+                body = body,
+                notificationType = NotificationType.SESSION_REMINDER,
+                isRead = false,
+                createdAt = Date(),
+            ))
+        }
     }
 
     override fun delete(id: Long) {

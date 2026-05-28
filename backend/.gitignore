@@ -38,3 +38,11 @@ out/
 
 ### Kotlin ###
 .kotlin
+
+### Python AI Service ###
+ai-service/.env
+ai-service/__pycache__/
+__pycache__/
+
+### Local ###
+local.properties

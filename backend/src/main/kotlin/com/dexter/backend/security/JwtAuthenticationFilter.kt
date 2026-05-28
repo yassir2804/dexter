@@ -1,9 +1,12 @@
 package com.dexter.backend.security
 
 import com.dexter.backend.dto.UserLoginInput
+import com.dexter.backend.error.ApiError
+import com.dexter.backend.error.ApiSubError
 import com.dexter.backend.mapper.UserMapper
 import com.dexter.backend.repository.UserRepository
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.springframework.http.HttpStatus
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.Decoders
@@ -26,14 +29,23 @@ class JwtAuthenticationFilter(
     private val authManager: AuthenticationManager,
     private val userRepository: UserRepository,
     private val userMapper: UserMapper,
+    private val jwtProperties: JwtProperties,
 ) : UsernamePasswordAuthenticationFilter() {
 
     init {
         setFilterProcessesUrl("/v1/users/login")
         setAuthenticationFailureHandler { _, response, exception ->
+            val apiError = ApiError(
+                status = HttpStatus.UNAUTHORIZED,
+                message = "authentication failed",
+                debugMessage = exception.message,
+            )
+            apiError.addSubError(ApiSubError("INVALID_CREDENTIALS", "Invalid username or password"))
+
             response.status = jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = SecurityConstants.APPLICATION_JSON
-            response.writer.print("{\"error\":\"${exception.message}\"}")
+            response.characterEncoding = SecurityConstants.UTF_8
+            response.writer.print(ObjectMapper().writeValueAsString(apiError))
             response.writer.flush()
         }
     }
@@ -70,14 +82,16 @@ class JwtAuthenticationFilter(
     ) {
         val objectMapper = ObjectMapper()
         val username = (authentication.principal as org.springframework.security.core.userdetails.User).username
+        val authorities = authentication.authorities.map { it.authority }
 
         val token = Jwts.builder()
-            .signWith(key(), SignatureAlgorithm.HS512)
+            .signWith(signingKey(jwtProperties.secret), SignatureAlgorithm.HS512)
             .setHeaderParam("typ", SecurityConstants.TOKEN_TYPE)
-            .setIssuer(SecurityConstants.TOKEN_ISSUER)
-            .setAudience(SecurityConstants.TOKEN_AUDIENCE)
+            .setIssuer(jwtProperties.issuer)
+            .setAudience(jwtProperties.audience)
             .setSubject(username)
-            .setExpiration(Date(System.currentTimeMillis() + SecurityConstants.TOKEN_LIFETIME))
+            .claim("authorities", authorities)
+            .setExpiration(Date(System.currentTimeMillis() + jwtProperties.expiration))
             .compact()
 
         val userDto = userRepository.findByEmail(username)
@@ -92,5 +106,5 @@ class JwtAuthenticationFilter(
     }
 }
 
-internal fun key(): Key =
-    Keys.hmacShaKeyFor(Decoders.BASE64.decode(SecurityConstants.TOKEN_SECRET))
+internal fun signingKey(secret: String): Key =
+    Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret))

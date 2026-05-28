@@ -7,12 +7,14 @@ import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import java.io.IOException
 
 class JwtAuthorizationFilter(
     authenticationManager: AuthenticationManager,
+    private val jwtProperties: JwtProperties,
 ) : BasicAuthenticationFilter(authenticationManager) {
 
     @Throws(IOException::class)
@@ -25,17 +27,20 @@ class JwtAuthorizationFilter(
 
         if (authorizationToken != null && authorizationToken.startsWith(SecurityConstants.TOKEN_PREFIX)) {
             authorizationToken = authorizationToken.replaceFirst(SecurityConstants.TOKEN_PREFIX.toRegex(), "")
-            val username: String = Jwts.parserBuilder()
-                .setSigningKey(key())
+            val claims = Jwts.parserBuilder()
+                .setSigningKey(signingKey(jwtProperties.secret))
                 .build()
                 .parseClaimsJws(authorizationToken)
                 .body
-                .subject
 
-            LoggedUser.logIn(username)
+            val username: String = claims.subject
+
+            @Suppress("UNCHECKED_CAST")
+            val authoritiesClaim = claims["authorities"] as? List<String> ?: emptyList()
+            val grantedAuthorities = authoritiesClaim.map { SimpleGrantedAuthority(it) }
 
             SecurityContextHolder.getContext().authentication =
-                UsernamePasswordAuthenticationToken(username, null, emptyList())
+                UsernamePasswordAuthenticationToken(username, null, grantedAuthorities)
         }
 
         filterChain.doFilter(request, response)
