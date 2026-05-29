@@ -20,6 +20,8 @@ data class MatchDetailResult(
     val status: String,
     /** Skill the initiator will teach the receiver. Null if not yet chosen by the receiver. */
     val initiatorSkill: String?,
+    /** Skill the receiver will teach the initiator. Null if not yet chosen. */
+    val receiverSkill: String?,
     /** True when the viewer is the receiver (B) of this match. */
     @get:JsonProperty("isReceiver")
     val isReceiver: Boolean,

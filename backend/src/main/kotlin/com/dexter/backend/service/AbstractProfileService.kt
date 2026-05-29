@@ -27,6 +27,7 @@ class AbstractProfileService(
         val sought = skills.filter { it.skillRole == SkillRole.SOUGHT }.map { it.name }
 
         val reviews = reviewRepository.findByRevieweeIdOrderByCreatedAtDesc(userId)
+            .filter { !it.comment.isNullOrBlank() }
             .take(10)
             .map { r ->
                 ProfileReviewItemDetails(

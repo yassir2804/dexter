@@ -18,4 +18,8 @@ data class MatchSummaryResult(
     @JsonProperty("isReceiver")
     val isReceiver: Boolean,
     val availability: List<Int> = emptyList(),
+    /** Skill the initiator teaches (what the receiver learns). Null until chosen. */
+    val initiatorSkill: String? = null,
+    /** Skill the receiver teaches (what the initiator learns). Null until chosen. */
+    val receiverSkill: String? = null,
 )

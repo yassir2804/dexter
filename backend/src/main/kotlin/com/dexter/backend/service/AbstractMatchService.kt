@@ -99,6 +99,9 @@ class AbstractMatchService(
 
         match.status = MatchStatus.ACCEPTED
         if (initiatorSkill != null) match.initiatorSkill = initiatorSkill
+        // Garantiza que ambos lados del intercambio queden definidos para que el
+        // plan use exactamente dos skills (y no todas las del usuario).
+        ensureExchangeSkills(match)
         val saved = matchRepository.save(match)
 
         generateSessions(saved)
@@ -226,6 +229,7 @@ class AbstractMatchService(
             aiAnalysis = aiAnalysis,
             status = match.status.name,
             initiatorSkill = match.initiatorSkill,
+            receiverSkill = match.receiverSkill,
             isReceiver = match.receiver?.id == viewerUserId,
             canLearnFromOther = offered.filter { it.lowercase() in canLearn },
         )
@@ -293,9 +297,15 @@ class AbstractMatchService(
 
         val allSkills = initiatorSkills + receiverSkills
 
-        val availableDays = availabilityRepository.findByUserId(initiatorId)
-            .map { dayName(it.dayOfWeek) }
-            .distinct()
+        // Días en que ambos coinciden (ISO 1=Lun … 7=Dom). Si no hay, queda vacío
+        // y las sesiones se crean sin fecha (scheduledAt = null), editables luego.
+        val overlapDays = computeOverlapDays(initiatorId, receiverId)
+        val scheduledDates = computeScheduledDates(overlapDays, 6)
+
+        val availableDays = (
+            if (overlapDays.isNotEmpty()) overlapDays
+            else availabilityRepository.findByUserId(initiatorId).map { it.dayOfWeek }.distinct().sorted()
+        ).map { dayName(it) }
 
         // Intentar generar plan con IA
         val aiPlans = aiServiceClient.generatePlan(
@@ -326,6 +336,7 @@ class AbstractMatchService(
                     title = plan.title,
                     description = plan.description,
                     status = SessionStatus.SCHEDULED,
+                    scheduledAt = scheduledDates.getOrNull(plan.sessionNumber - 1),
                     createdAt = Date(),
                 ))
             }
@@ -352,6 +363,7 @@ class AbstractMatchService(
                     sessionNumber = index + 1,
                     title = title,
                     status = SessionStatus.SCHEDULED,
+                    scheduledAt = scheduledDates.getOrNull(index),
                     createdAt = Date(),
                 ))
             }
@@ -361,6 +373,39 @@ class AbstractMatchService(
     private fun dayName(dayOfWeek: Int): String = listOf(
         "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
     ).getOrElse(dayOfWeek - 1) { "Día $dayOfWeek" }
+
+    /** Días (ISO 1=Lun … 7=Dom) en que ambos usuarios tienen disponibilidad. */
+    private fun computeOverlapDays(initiatorId: Long, receiverId: Long): List<Int> {
+        val a = availabilityRepository.findByUserId(initiatorId).map { it.dayOfWeek }.toSet()
+        val b = availabilityRepository.findByUserId(receiverId).map { it.dayOfWeek }.toSet()
+        return a.intersect(b).sorted()
+    }
+
+    /**
+     * Genera [count] fechas futuras cayendo en los [overlapDays] (ISO 1=Lun … 7=Dom),
+     * en orden cronológico. Si no hay días en común, devuelve una lista de nulls.
+     */
+    private fun computeScheduledDates(overlapDays: List<Int>, count: Int): List<Date?> {
+        if (overlapDays.isEmpty()) return List(count) { null }
+        val overlap = overlapDays.toSet()
+        val cal = java.util.Calendar.getInstance().apply {
+            add(java.util.Calendar.DAY_OF_MONTH, 1) // empezar mañana
+            set(java.util.Calendar.HOUR_OF_DAY, 15)
+            set(java.util.Calendar.MINUTE, 0)
+            set(java.util.Calendar.SECOND, 0)
+            set(java.util.Calendar.MILLISECOND, 0)
+        }
+        val result = mutableListOf<Date?>()
+        var guard = 0
+        while (result.size < count && guard < count * 14) {
+            val isoDay = ((cal.get(java.util.Calendar.DAY_OF_WEEK) + 5) % 7) + 1 // Cal(1=Dom) → ISO(1=Lun)
+            if (isoDay in overlap) result.add(cal.time)
+            cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
+            guard++
+        }
+        while (result.size < count) result.add(null)
+        return result
+    }
 
     private fun toSuggestionSummary(user: User, score: Double): MatchSummaryResult {
         val uid = user.id ?: 0L
@@ -417,6 +462,36 @@ class AbstractMatchService(
             status = match.status.name,
             sessionsCount = sessionsCount,
             isReceiver = match.receiver?.id == viewerUserId,
+            initiatorSkill = match.initiatorSkill,
+            receiverSkill = match.receiverSkill,
         )
+    }
+
+    /**
+     * Rellena `initiatorSkill` / `receiverSkill` del match si alguno falta, para que
+     * el intercambio quede acotado a exactamente dos skills:
+     *  - initiatorSkill = lo que el iniciador enseña (= lo que aprende el receptor).
+     *  - receiverSkill  = lo que el receptor enseña  (= lo que aprende el iniciador).
+     * Prioriza la intersección con lo que el otro busca; si no hay, usa la primera
+     * skill ofrecida por quien enseña.
+     */
+    private fun ensureExchangeSkills(match: Match) {
+        val initiatorId = match.initiator?.id ?: return
+        val receiverId = match.receiver?.id ?: return
+
+        if (match.initiatorSkill == null) {
+            match.initiatorSkill = pickExchangeSkill(teacherId = initiatorId, learnerId = receiverId)
+        }
+        if (match.receiverSkill == null) {
+            match.receiverSkill = pickExchangeSkill(teacherId = receiverId, learnerId = initiatorId)
+        }
+    }
+
+    /** Elige la skill que `teacher` enseña: la primera que el `learner` busca, o la primera ofrecida. */
+    private fun pickExchangeSkill(teacherId: Long, learnerId: Long): String? {
+        val teacherOffered = skillRepository.findByUserIdAndSkillRole(teacherId, SkillRole.OFFERED).map { it.name }
+        val learnerSought = skillRepository.findByUserIdAndSkillRole(learnerId, SkillRole.SOUGHT)
+            .map { it.name.lowercase() }.toSet()
+        return teacherOffered.firstOrNull { it.lowercase() in learnerSought } ?: teacherOffered.firstOrNull()
     }
 }
