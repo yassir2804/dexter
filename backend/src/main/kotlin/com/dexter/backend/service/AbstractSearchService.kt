@@ -58,7 +58,7 @@ class AbstractSearchService(
             val uid = u.id ?: return@mapNotNull null
             if (uid == viewerUserId || uid in activeMatchIds) return@mapNotNull null
             // Perfil oculto: solo se respeta para usuarios con los que NO hubo contacto previo
-            if (!u.profileVisible && uid !in alreadyContactedIds) return@mapNotNull null
+            if (u.profileVisible == false && uid !in alreadyContactedIds) return@mapNotNull null
             PersonResult(
                 userId = uid,
                 name = "${u.firstName ?: ""} ${u.lastName ?: ""}".trim(),
