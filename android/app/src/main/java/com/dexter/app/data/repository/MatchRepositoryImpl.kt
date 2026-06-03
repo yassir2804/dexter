@@ -130,6 +130,17 @@ class MatchRepositoryImpl @Inject constructor(
         Result.failure(DomainError.UnknownError("Unknown error rejecting match", e))
     }
 
+    override suspend fun completeMatch(matchId: Long): Result<MatchSummary> = try {
+        val dto = dataSource.completeMatch(matchId)
+        Result.success(matchSummaryMapper.mapToDomain(dto))
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to complete match $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error completing match", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in completeMatch", e)
+        Result.failure(DomainError.UnknownError("Unknown error completing match", e))
+    }
+
     override suspend fun ensureSessions(matchId: Long): Result<Unit> = try {
         dataSource.ensureSessions(matchId)
         Result.success(Unit)

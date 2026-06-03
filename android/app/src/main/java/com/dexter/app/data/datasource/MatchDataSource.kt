@@ -18,5 +18,6 @@ interface MatchDataSource {
     suspend fun rejectMatch(matchId: Long)
     suspend fun getMatchDetail(matchId: Long, viewerUserId: Long): MatchDetailDto
     suspend fun getSuggestions(userId: Long): List<MatchSummaryDto>
+    suspend fun completeMatch(matchId: Long): MatchSummaryDto
     suspend fun ensureSessions(matchId: Long)
 }

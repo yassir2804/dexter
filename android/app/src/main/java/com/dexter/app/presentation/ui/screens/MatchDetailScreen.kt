@@ -360,9 +360,10 @@ private fun MatchDetailBody(
                                 }
                             }
                         }
-                        Spacer(Modifier.height(12.dp))
                     }
                 }
+
+                Spacer(Modifier.height(24.dp))
 
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),

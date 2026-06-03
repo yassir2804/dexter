@@ -58,6 +58,9 @@ class MatchDataSourceImpl @Inject constructor(
     override suspend fun getSuggestions(userId: Long): List<MatchSummaryDto> =
         remoteDataSource.getSuggestions(userId).getOrElse { emptyList() }
 
+    override suspend fun completeMatch(matchId: Long): MatchSummaryDto =
+        remoteDataSource.completeMatch(matchId).getOrThrow()
+
     override suspend fun ensureSessions(matchId: Long) {
         remoteDataSource.ensureSessions(matchId).getOrThrow()
     }

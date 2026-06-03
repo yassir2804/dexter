@@ -57,6 +57,16 @@ class PlanViewModel @Inject constructor(
         }
     }
 
+    fun completePlan(onDone: () -> Unit = {}) {
+        viewModelScope.launch {
+            matchRepository.completeMatch(currentMatchId).onSuccess {
+                onDone()
+            }.onFailure { e ->
+                Log.e(TAG, "Error completing match $currentMatchId", e)
+            }
+        }
+    }
+
     fun loadPlan(matchId: Long) {
         viewModelScope.launch {
             _state.value = PlanState.Loading

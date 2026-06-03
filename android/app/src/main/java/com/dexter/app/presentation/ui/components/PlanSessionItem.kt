@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -124,29 +123,21 @@ fun PlanSessionItem(
             }
             if (!completed) {
                 if (isNext) {
-                    FilledTonalButton(
-                        onClick = onComplete,
-                        shape = RoundedCornerShape(50)
-                    ) {
+                    IconButton(onClick = onComplete) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(R.string.plan_complete_session),
-                            style = MaterialTheme.typography.labelMedium
-                        )
-                    }
-                } else {
-                    IconButton(onClick = onEdit) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.plan_complete_session),
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
+                }
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = if (isNext) MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.primary
+                    )
                 }
             }
         }
