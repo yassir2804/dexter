@@ -76,6 +76,7 @@ class MatchRepositoryImpl @Inject constructor(
             aiAnalysis        = dto.aiAnalysis ?: "",
             status            = status,
             initiatorSkill    = dto.initiatorSkill,
+            receiverSkill     = dto.receiverSkill,
             isReceiver        = dto.isReceiver,
             canLearnFromOther = dto.canLearnFromOther,
         ))
