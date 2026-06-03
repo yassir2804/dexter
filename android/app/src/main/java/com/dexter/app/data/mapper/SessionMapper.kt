@@ -4,9 +4,10 @@ import com.dexter.app.data.datasource.model.SessionDto
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.model.SessionStatus
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `SessionDto` ↔ `Session`. */
-class SessionMapper {
+class SessionMapper @Inject constructor() {
 
     private fun parseStatus(value: String?): SessionStatus = when (value?.uppercase()) {
         "SCHEDULED" -> SessionStatus.SCHEDULED

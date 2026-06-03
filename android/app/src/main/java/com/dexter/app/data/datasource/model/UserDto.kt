@@ -10,7 +10,6 @@ package com.dexter.app.data.datasource.model
 data class UserDto(
     val id: Long? = null,
     val email: String? = null,
-    val password: String? = null,
     val firstName: String? = null,
     val lastName: String? = null,
     val username: String? = null,
@@ -18,6 +17,7 @@ data class UserDto(
     val avatarUrl: String? = null,
     val country: String? = null,
     val enabled: Boolean? = null,
+    val profileVisible: Boolean? = null,
     val tokenExpired: Boolean? = null,
     val rating: Double? = null,
     val totalSessions: Int? = null,

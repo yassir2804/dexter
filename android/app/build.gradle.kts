@@ -1,15 +1,16 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // LAB 3: KSP para generar codigo de Hilt
+    alias(libs.plugins.ksp)
+    // LAB 3: Hilt plugin
+    alias(libs.plugins.hilt.android)
 }
 
 android {
     namespace = "com.dexter.app"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.dexter.app"
@@ -31,11 +32,27 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         compose = true
+    }
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+    splits {
+        abi {
+            isEnable = false
+        }
+    }
+}
+
+// LAB 3: Configuración de Java Toolchain para evitar errores con jlink
+// Esto obliga a Gradle a usar un JDK completo en lugar de un JRE parcial.
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -58,5 +75,20 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation("androidx.compose.ui:ui-text-google-fonts:1.10.5")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
+    // LAB 3: INYECCION DE DEPENDENCIAS (Hilt)
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+    // Hilt + Compose Navigation (hiltViewModel() en composables)
+    implementation(libs.hilt.navigation.compose)
+
+    // LAB 3: CONSUMO DE APIs (HTTP + JSON)
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging.interceptor)
+
+    // Persistencia de datos (DataStore) para persistir el JWT del usuario logueado
+    implementation(libs.androidx.datastore.preferences)
 }

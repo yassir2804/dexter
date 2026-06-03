@@ -4,9 +4,10 @@ import com.dexter.app.data.datasource.model.MatchDto
 import com.dexter.app.domain.model.Match
 import com.dexter.app.domain.model.MatchStatus
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `MatchDto` ↔ `Match`. */
-class MatchMapper {
+class MatchMapper @Inject constructor() {
 
     private fun parseStatus(value: String?): MatchStatus = when (value?.uppercase()) {
         "PENDING" -> MatchStatus.PENDING

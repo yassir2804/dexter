@@ -4,17 +4,17 @@ import com.dexter.app.data.datasource.model.NotificationDto
 import com.dexter.app.domain.model.Notification
 import com.dexter.app.domain.model.NotificationType
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `NotificationDto` ↔ `Notification`. */
-class NotificationMapper {
+class NotificationMapper @Inject constructor() {
 
     private fun parseType(value: String?): NotificationType = when (value?.uppercase()) {
         "NEW_MATCH" -> NotificationType.NEW_MATCH
         "SESSION_REMINDER" -> NotificationType.SESSION_REMINDER
-        "NEW_MESSAGE" -> NotificationType.NEW_MESSAGE
         "NEW_REVIEW" -> NotificationType.NEW_REVIEW
         "AI_SUGGESTION" -> NotificationType.AI_SUGGESTION
-        else -> NotificationType.NEW_MESSAGE
+        else -> NotificationType.NEW_MATCH
     }
 
     fun mapToDomain(dto: NotificationDto): Notification = Notification(

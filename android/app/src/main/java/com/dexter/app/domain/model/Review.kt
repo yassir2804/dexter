@@ -20,5 +20,6 @@ data class Review(
     val sessionId: Long,
     val rating: Int,
     val comment: String?,
-    val createdAt: Date
+    val createdAt: Date,
+    val tags: List<String> = emptyList(),
 )
