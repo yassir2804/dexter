@@ -325,6 +325,15 @@
     <string name="settings_change_password">Cambiar contraseña</string>
     <string name="settings_language">Idioma de la app</string>
     <string name="settings_logout">Cerrar sesión</string>
+
+    <!-- Language selector dialog -->
+    <string name="settings_language_dialog_title">Selecciona un idioma</string>
+    <string name="settings_language_dialog_cancel">Cancelar</string>
+    <string name="cd_language_selected">Idioma seleccionado</string>
+    <!-- Nombres de idioma en su forma nativa (iguales en todos los idiomas) -->
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+    <string name="language_pt">Português</string>
     <string name="settings_logout_confirm_title">¿Cerrar sesión?</string>
     <string name="settings_logout_confirm_body">Deberás volver a iniciar sesión para acceder a tu cuenta.</string>
     <string name="settings_logout_confirm_yes">Cerrar sesión</string>

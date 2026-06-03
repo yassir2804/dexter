@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- ══ App ══════════════════════════════════════════════════ -->
+    <string name="app_name">Dexter</string>
+    <string name="app_tagline">Troque conhecimento, aprenda sem limites</string>
+    <string name="app_welcome_subtitle">Crie sua conta para começar a trocar habilidades</string>
+
+    <!-- ══ Navegación principal (NavigationBar) ════════════════ -->
+    <string name="nav_home">Início</string>
+    <string name="nav_search">Buscar</string>
+    <string name="nav_matches">Matches</string>
+
+    <string name="nav_profile">Perfil</string>
+
+    <!-- ══ Login Screen ════════════════════════════════════════ -->
+    <string name="login_email_label">E-mail</string>
+    <string name="login_email_placeholder">email@exemplo.com</string>
+    <string name="login_password_label">Senha</string>
+    <string name="login_password_placeholder">••••••••</string>
+    <string name="login_forgot_password">Esqueceu sua senha?</string>
+    <string name="login_button">Entrar</string>
+    <string name="login_divider">ou</string>
+    <string name="login_google_button">Continuar com Google</string>
+    <string name="login_no_account">Não tem uma conta?</string>
+    <string name="login_register_link">Cadastre-se</string>
+
+    <!-- Accessibility / content descriptions -->
+    <string name="cd_email_input">Campo de e-mail</string>
+    <string name="cd_password_input">Campo de senha</string>
+    <string name="cd_login_button">Botão entrar</string>
+    <string name="cd_google_button">Botão continuar com Google</string>
+    <string name="cd_register_link">Link de cadastro</string>
+    <string name="cd_back_to_login">Voltar para o login</string>
+    <string name="cd_notes_input">Campo de notas</string>
+    <string name="toggle_show_password">Mostrar senha</string>
+    <string name="toggle_hide_password">Ocultar senha</string>
+    <string name="login_error_content_description">Erro de login: %1$s</string>
+
+    <!-- ══ Welcome Screen (Registro paso 1) ═══════════════════ -->
+    <string name="welcome_title">Dexter</string>
+    <string name="welcome_confirm_password_label">Confirmar senha</string>
+    <string name="welcome_benefit_1">Encontre pessoas com os seus interesses</string>
+    <string name="welcome_benefit_2">Troque conhecimento sem dinheiro</string>
+    <string name="welcome_benefit_3">Agende sessões flexíveis</string>
+    <string name="welcome_benefit_4">Construa sua reputação</string>
+    <string name="welcome_continue">Continuar</string>
+    <string name="welcome_has_account">Já tem uma conta?</string>
+    <string name="welcome_login_link">Entrar</string>
+
+    <!-- ══ Onboarding Screen (Registro paso 2) ════════════════ -->
+    <string name="onboard_title">Configurar perfil</string>
+    <string name="onboard_add_photo">Adicionar foto de perfil</string>
+    <string name="onboard_name_label">Seu nome</string>
+    <string name="onboard_name_placeholder">Nome completo</string>
+    <string name="onboard_country_label">País</string>
+    <string name="onboard_country_placeholder">Seu país</string>
+    <string name="onboard_skills_teach">Quais habilidades você pode ensinar?</string>
+    <string name="onboard_skills_learn">O que você gostaria de aprender?</string>
+    <string name="onboard_add_skill">Adicionar</string>
+    <string name="onboard_finish">Finalizar</string>
+
+    <!-- Validation errors -->
+    <string name="error_invalid_email">Digite um e-mail válido</string>
+    <string name="error_password_short">A senha deve ter pelo menos %1$d caracteres</string>
+    <string name="error_password_mismatch">As senhas não coincidem</string>
+    <string name="error_name_required">Digite seu nome</string>
+
+    <!-- ══ Skill Search Screen ════════════════════════════════ -->
+    <string name="skill_search_add_title">Adicionar habilidade</string>
+    <string name="skill_search_add_interest_title">Adicionar interesse</string>
+    <string name="skill_search_placeholder">Buscar habilidade…</string>
+    <string name="skill_search_suggestions">SUGESTÕES</string>
+    <string name="skill_search_no_results">Nenhuma sugestão encontrada</string>
+    <string name="skill_search_custom">ADICIONAR PERSONALIZADO</string>
+    <string name="skill_search_add_custom">Adicionar "%1$s"</string>
+    <string name="edit_profile_skills_offered_title">Habilidades que ofereço</string>
+    <string name="edit_profile_skills_sought_title">Habilidades que busco</string>
+    <string name="cd_add_skill">Adicionar habilidade</string>
+
+    <!-- ══ Forgot Password Screen ═════════════════════════════ -->
+    <string name="forgot_title">Recuperar senha</string>
+    <string name="forgot_heading">Esqueceu sua senha?</string>
+    <string name="forgot_description">Digite seu e-mail e enviaremos instruções para redefinir sua senha</string>
+    <string name="forgot_send_button">Enviar instruções</string>
+    <string name="forgot_back_login">Voltar para o login</string>
+    <string name="forgot_check_email">Verifique seu e-mail</string>
+    <string name="forgot_sent_description">Enviamos instruções para redefinir sua senha para:</string>
+    <string name="forgot_spam_hint">Se não receber o e-mail em alguns minutos, verifique sua pasta de spam</string>
+    <string name="forgot_resend">Reenviar instruções</string>
+
+    <!-- ══ Home Screen ════════════════════════════════════════ -->
+    <string name="home_greeting">Olá, %1$s</string>
+    <string name="home_headline">Encontre seu match</string>
+    <string name="home_search_placeholder">Buscar por nome…</string>
+    <string name="home_search_no_results">Nenhum resultado para "%1$s"</string>
+    <string name="home_active_session">Sessão em andamento</string>
+    <string name="home_active_session_desc">Aula de Violão com %1$s</string>
+    <string name="home_suggested_matches">Meus matches</string>
+    <string name="home_pending_requests">Solicitações recebidas</string>
+    <string name="home_ai_badge">por IA</string>
+    <string name="home_offers">Oferece: %1$s</string>
+    <string name="home_seeks">Busca: %1$s</string>
+    <string name="home_sessions_count">%1$d sessões</string>
+    <string name="home_activity_recent">Atividade recente</string>
+    <string name="home_session_completed">Sessão 2 concluída com María</string>
+    <string name="home_session_completed_time">Há 2 dias · Violão → Inglês</string>
+
+    <!-- Login / Auth errors -->
+    <string name="login_error_invalid_credentials">Credenciais inválidas</string>
+    <string name="login_error_generic">Ocorreu um erro. Tente novamente</string>
+
+    <!-- ══ Search Screen ══════════════════════════════════════ -->
+    <string name="search_title">Buscar</string>
+    <string name="search_placeholder">Buscar habilidade ou pessoa…</string>
+    <string name="search_popular">Habilidades populares</string>
+    <string name="search_people_count">%1$d pessoas disponíveis</string>
+    <string name="search_ai_recommendations">Recomendações de IA</string>
+    <string name="search_ai_ordered">Ordenadas pela sua disponibilidade: %1$s</string>
+    <string name="search_ai_match">%1$d%% Match</string>
+
+    <!-- Categorías de filtro -->
+    <string name="search_category_all">Todas</string>
+    <string name="search_category_languages">Idiomas</string>
+    <string name="search_category_music">Música</string>
+    <string name="search_category_tech">Tech</string>
+    <string name="search_category_design">Design</string>
+    <string name="search_category_sports">Esporte</string>
+    <string name="search_no_results">Sem resultados</string>
+    <string name="search_sessions_count">%1$d sessões</string>
+    <string name="cd_search_back">Voltar para a lista de habilidades</string>
+    <string name="cd_person_card">Ver perfil de %1$s</string>
+    <string name="cd_ai_badge">%1$d por cento de compatibilidade</string>
+
+    <!-- ══ Match Detail Screen ════════════════════════════════ -->
+    <string name="match_title">Detalhe do Match</string>
+    <string name="match_sessions_completed">%1$.1f · %2$d sessões concluídas</string>
+    <string name="match_compatibility">Compatibilidade</string>
+    <string name="match_skills">Habilidades</string>
+    <string name="match_offers">OFERECE</string>
+    <string name="match_seeks">BUSCA</string>
+    <string name="match_ai_analysis">Análise de IA</string>
+    <string name="match_ai_description">Alta compatibilidade: seu nível de inglês complementa a busca dela. Horários semelhantes detectados.</string>
+    <string name="match_learning_goal">Seu objetivo de aprendizagem</string>
+    <string name="match_learning_time">TEMPO DE APRENDIZAGEM</string>
+    <string name="match_desired_level">NÍVEL QUE DESEJA ALCANÇAR</string>
+    <string name="match_availability">Disponibilidade</string>
+    <string name="match_connect">Conectar com %1$s</string>
+    <string name="match_accept">Aceitar</string>
+    <string name="match_reject">Recusar</string>
+    <string name="match_view_plan">Ver plano de sessões</string>
+    <string name="match_tap_profile">Toque para ver o perfil completo</string>
+
+    <!-- Timeframes -->
+    <string name="match_time_2w">2 semanas</string>
+    <string name="match_time_4w">4 semanas</string>
+    <string name="match_time_2m">2 meses</string>
+    <string name="match_time_3m">3 meses</string>
+
+    <!-- Levels -->
+    <string name="match_level_basic">Básico</string>
+    <string name="match_level_intermediate">Intermediário</string>
+    <string name="match_level_advanced">Avançado</string>
+
+    <!-- Days -->
+    <string name="day_mon">Seg</string>
+    <string name="day_tue">Ter</string>
+    <string name="day_wed">Qua</string>
+    <string name="day_thu">Qui</string>
+    <string name="day_fri">Sex</string>
+    <string name="day_sat">Sáb</string>
+    <string name="day_sun">Dom</string>
+
+    <!-- ══ Plan Screen ════════════════════════════════════════ -->
+    <string name="plan_title">Plano de Intercâmbio</string>
+    <string name="plan_ai_roadmap">Roadmap gerado por IA</string>
+    <string name="plan_ai_based_on">Com base no seu nível iniciante e disponibilidade %1$s</string>
+    <string name="plan_ai_explanation">Plano personalizado com base nas habilidades e disponibilidade de %1$s.</string>
+    <string name="plan_pending_invite">Novo convite pendente</string>
+    <string name="plan_pending_invite_desc">%1$s convidou você para a sessão #%2$d - %3$s</string>
+    <string name="plan_exchange">%1$s ↔ %2$s</string>
+    <string name="plan_status_active">Ativo</string>
+    <string name="plan_objective">OBJETIVO</string>
+    <string name="plan_duration">DURAÇÃO</string>
+    <string name="plan_objective_value">5 músicas</string>
+    <string name="plan_duration_value">4 semanas</string>
+    <string name="plan_progress">Progresso Geral</string>
+    <string name="plan_sessions_completed">%1$d de %2$d sessões concluídas</string>
+    <string name="plan_sessions_roadmap">Sessões do Roadmap</string>
+    <string name="plan_next_badge">PRÓXIMA</string>
+    <string name="plan_status_completed">Concluído</string>
+    <string name="plan_rate_session">Avaliar Sessão %1$d</string>
+
+    <!-- Session titles (mock data) -->
+    <string name="session_1_title">Acordes básicos</string>
+    <string name="session_1_desc">Aprender Em, Am, C, G - Mudanças suaves</string>
+    <string name="session_2_title">Ritmos fundamentais</string>
+    <string name="session_2_desc">Padrões de batida - Tempo constante</string>
+    <string name="session_3_title">Primeira música</string>
+    <string name="session_3_desc">Aplicar acordes em música simples</string>
+    <string name="session_4_title">Técnicas avançadas</string>
+    <string name="session_4_desc">Arpejos e fingerpicking básico</string>
+    <string name="session_5_title">Repertório completo</string>
+    <string name="session_5_desc">2–3 músicas completas - Apresentação</string>
+
+    <!-- ══ Edit Session Screen ════════════════════════════════ -->
+    <string name="edit_session_title">Editar Sessão #%1$d</string>
+    <string name="edit_session_field_title">Título da sessão</string>
+    <string name="edit_session_field_title_placeholder">Ex: Acordes básicos</string>
+    <string name="edit_session_field_description">Descrição</string>
+    <string name="edit_session_field_description_placeholder">O que vão praticar?</string>
+    <string name="edit_session_field_date">Data</string>
+    <string name="edit_session_field_time">Hora</string>
+    <string name="edit_session_field_duration">Duração (min)</string>
+    <string name="edit_session_ai_suggestion">💡 Sugestão de IA</string>
+    <string name="edit_session_ai_description">Com base nos calendários de ambos, os melhores horários disponíveis são:</string>
+    <string name="edit_session_save">Salvar alterações</string>
+    <string name="edit_session_cancel">Cancelar</string>
+    <string name="edit_session_delete">Cancelar esta sessão</string>
+    <string name="edit_session_confirm_title">Cancelar sessão</string>
+    <string name="edit_session_confirm_heading">Cancelar sessão?</string>
+    <string name="edit_session_confirm_description">Esta ação não pode ser desfeita. %1$s receberá uma notificação sobre o cancelamento.</string>
+    <string name="edit_session_confirm_yes">Sim, cancelar sessão</string>
+    <string name="edit_session_confirm_no">Não, manter sessão</string>
+
+    <!-- ══ Rate Screen ════════════════════════════════════════ -->
+    <string name="rate_title">Avaliar sessão</string>
+    <string name="rate_session_with">Sessão %1$d com %2$s</string>
+    <string name="rate_how_was_it">Como foi a sessão?</string>
+    <string name="rate_label_1">Muito ruim</string>
+    <string name="rate_label_2">Ruim</string>
+    <string name="rate_label_3">Regular</string>
+    <string name="rate_label_4">Muito boa</string>
+    <string name="rate_label_5">Excelente</string>
+    <string name="rate_tags_title">Tags de experiência</string>
+    <string name="rate_tag_punctual">Pontual</string>
+    <string name="rate_tag_good_teacher">Bom professor</string>
+    <string name="rate_tag_patient">Paciente</string>
+    <string name="rate_tag_clear_method">Metodologia clara</string>
+    <string name="rate_tag_motivator">Motivador</string>
+    <string name="rate_comment_label">Comentário (opcional)</string>
+    <string name="rate_submit">Enviar avaliação</string>
+
+    <!-- ══ Profile Screen ═════════════════════════════════════ -->
+    <string name="profile_title">Meu perfil</string>
+    <string name="profile_bio_default">Apaixonado por aprender e ensinar</string>
+    <string name="profile_stat_matches">Matches</string>
+    <string name="profile_stat_sessions">Sessões</string>
+    <string name="profile_stat_rating">Avaliação</string>
+    <string name="profile_skills_offered">Habilidades que ofereço</string>
+    <string name="profile_skills_wanted">Habilidades que busco</string>
+    <string name="profile_reviews">Avaliações recentes</string>
+    <string name="profile_edit">Editar perfil</string>
+
+    <!-- ══ User Profile Screen (otro usuario) ═════════════════ -->
+    <string name="user_profile_title">Perfil</string>
+    <string name="user_profile_sessions">Sessões</string>
+    <string name="user_profile_rating">Avaliação</string>
+    <string name="user_profile_match">Match</string>
+
+    <string name="user_profile_schedule">Conectar</string>
+    <string name="user_profile_request_sent">Solicitação enviada</string>
+    <string name="user_profile_about">Sobre mim</string>
+    <string name="user_profile_skills_offered">Habilidades que oferece</string>
+    <string name="user_profile_skills_wanted">Quer aprender</string>
+    <string name="user_profile_reviews">Avaliações (%1$d)</string>
+
+    <!-- ══ Edit Profile Screen ════════════════════════════════ -->
+    <string name="edit_profile_title">Editar perfil</string>
+    <string name="edit_profile_save_top">Salvar</string>
+    <string name="edit_profile_basic_info">Informações básicas</string>
+    <string name="edit_profile_name_label">Nome completo</string>
+    <string name="edit_profile_email_label">E-mail</string>
+    <string name="edit_profile_city_label">Cidade</string>
+    <string name="edit_profile_about_label">Sobre mim</string>
+    <string name="edit_profile_skills_section">Habilidades que você oferece</string>
+    <string name="edit_profile_save_button">Salvar alterações</string>
+
+    <!-- ══ Notifications Screen ═══════════════════════════════ -->
+    <string name="notifs_title">Notificações</string>
+    <string name="notifs_read_all">Ler tudo</string>
+    <string name="notifs_section_new">NOVAS</string>
+    <string name="notifs_section_old">ANTERIORES</string>
+
+    <!-- Notification items (mock) -->
+    <string name="notif_new_match">Novo match encontrado!</string>
+    <string name="notif_new_match_desc">%1$s tem %2$d%% de compatibilidade com você</string>
+    <string name="notif_session_reminder">Lembrete de sessão</string>
+    <string name="notif_session_reminder_desc">Sua sessão %1$d com %2$s é amanhã às %3$s</string>
+
+    <string name="notif_new_rating">Nova avaliação</string>
+    <string name="notif_new_rating_desc">%1$s avaliou você com %2$d estrelas</string>
+    <string name="notif_new_ai_matches">Novos matches de IA</string>
+    <string name="notif_new_ai_matches_desc">%1$d novos matches sugeridos por IA disponíveis</string>
+
+    <!-- Timestamps -->
+    <string name="time_minutes_ago">Há %1$d min</string>
+    <string name="time_hours_ago">Há %1$d hora</string>
+    <string name="time_hours_ago_plural">Há %1$d horas</string>
+    <string name="time_yesterday">Ontem</string>
+    <string name="time_days_ago">Há %1$d dias</string>
+
+    <!-- ══ Settings Screen ════════════════════════════════════ -->
+    <string name="settings_title">Configurações</string>
+    <string name="settings_edit_profile">Editar perfil</string>
+
+    <!-- Notifications section -->
+    <string name="settings_section_notifications">NOTIFICAÇÕES</string>
+    <string name="settings_notif_matches">Novos matches</string>
+    <string name="settings_notif_reminders">Lembretes de sessões</string>
+
+    <string name="settings_notif_ratings">Avaliações recebidas</string>
+
+    <!-- Privacy section -->
+    <string name="settings_section_privacy">PRIVACIDADE</string>
+    <string name="settings_privacy_visible">Perfil visível</string>
+    <string name="settings_privacy_availability">Compartilhar disponibilidade</string>
+
+    <!-- Appearance section -->
+    <string name="settings_section_appearance">APARÊNCIA</string>
+    <string name="settings_dark_mode">Modo escuro</string>
+
+    <!-- Account section -->
+    <string name="settings_section_account">CONTA</string>
+    <string name="settings_change_password">Alterar senha</string>
+    <string name="settings_language">Idioma do app</string>
+    <string name="settings_logout">Sair</string>
+    <string name="settings_logout_confirm_title">Sair?</string>
+    <string name="settings_logout_confirm_body">Você precisará entrar novamente para acessar sua conta.</string>
+    <string name="settings_logout_confirm_yes">Sair</string>
+    <string name="settings_logout_confirm_no">Cancelar</string>
+
+    <!-- Language selector dialog -->
+    <string name="settings_language_dialog_title">Selecione um idioma</string>
+    <string name="settings_language_dialog_cancel">Cancelar</string>
+    <string name="cd_language_selected">Idioma selecionado</string>
+    <string name="language_es">Español</string>
+    <string name="language_en">English</string>
+    <string name="language_pt">Português</string>
+
+    <!-- ══ Active Session Screen ══════════════════════════════ -->
+    <string name="active_session_title">Sessão em andamento</string>
+    <string name="active_session_status">EM ANDAMENTO</string>
+    <string name="active_session_elapsed">TEMPO DECORRIDO</string>
+    <string name="active_session_class">Aula de %1$s</string>
+
+    <string name="active_session_notes">Notas da sessão</string>
+    <string name="active_session_notes_placeholder">Escreva notas sobre esta sessão…</string>
+    <string name="active_session_end">Finalizar sessão</string>
+    <string name="active_session_back_home">Voltar ao início</string>
+    <string name="active_session_time_range">%1$s - %2$s</string>
+    <string name="active_session_location">Online - Google Meet</string>
+
+    <!-- ══ Session Invite Screen ══════════════════════════════ -->
+    <string name="invite_receive_title">Convite para sessão</string>
+    <string name="invite_send_title">Enviar convite</string>
+    <string name="invite_badge">NOVO CONVITE</string>
+    <string name="invite_user_invited">convidou você para uma sessão</string>
+    <string name="invite_details">Detalhes da sessão</string>
+    <string name="invite_in_days">Em %1$d dias</string>
+    <string name="invite_duration">%1$s (%2$s)</string>
+    <string name="invite_location_online">Online - Google Meet</string>
+    <string name="invite_topic">TEMA</string>
+    <string name="invite_message">MENSAGEM</string>
+    <string name="invite_reject">Recusar</string>
+    <string name="invite_accept">Aceitar</string>
+    <string name="invite_send_message">Enviar mensagem</string>
+    <string name="invite_send_description">Envie um convite para %1$s confirmar a sessão</string>
+    <string name="invite_topic_label">Tema da sessão</string>
+    <string name="invite_message_label">Mensagem (opcional)</string>
+    <string name="invite_message_placeholder">Adicione uma mensagem personalizada…</string>
+    <string name="invite_send_button">Enviar convite</string>
+
+    <!-- ══ Habilidades predefinidas ════════════════════════════ -->
+    <!-- Categoría: General -->
+    <string name="skill_programming">Programação</string>
+    <string name="skill_graphic_design">Design gráfico</string>
+    <string name="skill_marketing">Marketing</string>
+    <string name="skill_photography">Fotografia</string>
+    <string name="skill_music">Música</string>
+    <string name="skill_languages">Idiomas</string>
+    <string name="skill_cooking">Culinária</string>
+    <string name="skill_fitness">Fitness</string>
+
+    <!-- Categoría: Música -->
+    <string name="skill_guitar">Violão</string>
+    <string name="skill_piano">Piano</string>
+    <string name="skill_drums">Bateria</string>
+    <string name="skill_singing">Canto</string>
+    <string name="skill_violin">Violino</string>
+
+    <!-- Categoría: Idiomas -->
+    <string name="skill_english">Inglês</string>
+    <string name="skill_french">Francês</string>
+    <string name="skill_german">Alemão</string>
+    <string name="skill_italian">Italiano</string>
+    <string name="skill_japanese">Japonês</string>
+    <string name="skill_chinese">Chinês</string>
+    <string name="skill_portuguese">Português</string>
+
+    <!-- Categoría: Tech -->
+    <string name="skill_react">React</string>
+    <string name="skill_python">Python</string>
+    <string name="skill_javascript">JavaScript</string>
+    <string name="skill_java">Java</string>
+    <string name="skill_cpp">C++</string>
+    <string name="skill_swift">Swift</string>
+
+    <!-- Categoría: Diseño -->
+    <string name="skill_photoshop">Photoshop</string>
+    <string name="skill_illustrator">Illustrator</string>
+    <string name="skill_figma">Figma</string>
+    <string name="skill_canva">Canva</string>
+
+    <!-- Categoría: Marketing -->
+    <string name="skill_seo">SEO</string>
+    <string name="skill_social_media">Redes sociais</string>
+    <string name="skill_email_marketing">Email marketing</string>
+    <string name="skill_google_ads">Google Ads</string>
+
+    <!-- Categoría: Deporte/Bienestar -->
+    <string name="skill_yoga">Yoga</string>
+    <string name="skill_running">Corrida</string>
+    <string name="skill_swimming">Natação</string>
+    <string name="skill_cycling">Ciclismo</string>
+    <string name="skill_boxing">Boxe</string>
+    <string name="skill_pilates">Pilates</string>
+
+    <!-- Categoría: Otros -->
+    <string name="skill_painting">Pintura</string>
+    <string name="skill_writing">Escrita</string>
+    <string name="skill_dance">Dança</string>
+    <string name="skill_meditation">Meditação</string>
+    <string name="skill_videogames">Videogames</string>
+    <string name="skill_gardening">Jardinagem</string>
+    <string name="skill_cinema">Cinema</string>
+    <string name="skill_chess">Xadrez</string>
+    <string name="skill_video_editing">Edição de vídeo</string>
+    <string name="skill_animation">Animação</string>
+    <string name="skill_3d_modeling">Modelagem 3D</string>
+
+    <!-- ══ Content Descriptions (Accesibilidad) ═══════════════ -->
+    <string name="cd_back">Voltar</string>
+    <string name="cd_more_options">Mais opções</string>
+    <string name="cd_camera">Alterar foto</string>
+    <string name="cd_star_rating">Avaliação %1$d de 5</string>
+
+    <!-- Local strings for Home UI components -->
+    <string name="home_no_matches">Ainda não há matches</string>
+    <string name="home_no_pending">Você não tem solicitações recebidas</string>
+    <string name="home_suggestions_title">Matches sugeridos</string>
+    <string name="home_connect">Conectar</string>
+    <string name="matches_title">Meus Matches</string>
+    <string name="matches_pending_title">Solicitações pendentes</string>
+    <string name="matches_no_matches">Você ainda não tem matches ativos</string>
+    <string name="match_label">Match #%1$d</string>
+    <string name="match_compatibility_percent">Compatibilidade: %1$d%%</string>
+    <string name="error_with_message">Erro: %1$s</string>
+
+</resources>
