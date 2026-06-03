@@ -59,7 +59,7 @@ class AbstractMatchService(
         val existing = matchRepository.findByInitiatorIdOrReceiverId(request.initiatorId, request.initiatorId)
             .filter { m ->
                 val otherId = if (m.initiator?.id == request.initiatorId) m.receiver?.id else m.initiator?.id
-                otherId == request.receiverId && m.status != MatchStatus.REJECTED
+                otherId == request.receiverId && m.status != MatchStatus.REJECTED && m.status != MatchStatus.COMPLETED
             }
         if (existing.isNotEmpty())
             throw IllegalArgumentException("A match between these users already exists")
@@ -137,6 +137,34 @@ class AbstractMatchService(
             throw IllegalArgumentException("Match $id is not in PENDING state (current: ${match.status})")
         match.status = MatchStatus.REJECTED
         matchRepository.save(match)
+    }
+
+    @Transactional
+    override fun complete(id: Long): MatchSummaryResult {
+        val match = matchRepository.findById(id)
+            .orElseThrow { NoSuchElementException("Match $id not found") }
+        if (match.status != MatchStatus.ACCEPTED)
+            throw IllegalArgumentException("Match $id is not in ACCEPTED state (current: ${match.status})")
+        match.status = MatchStatus.COMPLETED
+        val saved = matchRepository.save(match)
+        val initiatorId = saved.initiator?.id ?: 0L
+        saved.initiator?.let { notifyMatchCompleted(saved, it) }
+        saved.receiver?.let { notifyMatchCompleted(saved, it) }
+        return toSummary(saved, initiatorId)
+    }
+
+    private fun notifyMatchCompleted(match: Match, user: User) {
+        val otherName = if (user.id == match.initiator?.id)
+            match.receiver?.firstName else match.initiator?.firstName
+        notificationRepository.save(Notification(
+            user = user,
+            referenceId = match.id,
+            title = "Plan finalizado",
+            body = "Tu plan de intercambio con ${otherName ?: "tu match"} ha sido completado",
+            notificationType = NotificationType.NEW_MATCH,
+            isRead = false,
+            createdAt = Date(),
+        ))
     }
 
     override fun ensureSessions(matchId: Long) {

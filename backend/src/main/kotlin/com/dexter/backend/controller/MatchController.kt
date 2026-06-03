@@ -58,6 +58,9 @@ class MatchController(private val matchService: MatchService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun reject(@PathVariable id: Long) = matchService.reject(id)
 
+    @PatchMapping("/{id}/complete", produces = [MediaType.APPLICATION_JSON_VALUE])
+    fun complete(@PathVariable id: Long): MatchSummaryResult = matchService.complete(id)
+
     @PostMapping("/{id}/ensure-sessions")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun ensureSessions(@PathVariable id: Long) = matchService.ensureSessions(id)

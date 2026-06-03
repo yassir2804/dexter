@@ -13,5 +13,6 @@ interface MatchService {
     fun create(request: MatchInput): MatchSummaryResult
     fun accept(id: Long, viewerUserId: Long, initiatorSkill: String? = null): MatchSummaryResult
     fun reject(id: Long)
+    fun complete(id: Long): MatchSummaryResult
     fun ensureSessions(matchId: Long)
 }
