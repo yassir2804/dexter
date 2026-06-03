@@ -394,6 +394,11 @@ fun NavGraph(
                 },
                 onRateSession = { sessionId ->
                     navController.navigate(NavRoutes.Rate.createRoute(sessionId))
+                },
+                onPlanFinished = {
+                    navController.navigate(NavRoutes.Home.ROUTE) {
+                        popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                    }
                 }
             )
         }

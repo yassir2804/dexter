@@ -64,6 +64,7 @@ fun PlanScreen(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onPlanFinished: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
@@ -88,7 +89,7 @@ fun PlanScreen(
         onEditSession = onEditSession,
         onRateSession = onRateSession,
         onCompleteSession = { sessionId -> viewModel.completeSession(sessionId) },
-        onCompletePlan = { viewModel.completePlan { onBackClick() } },
+        onCompletePlan = { viewModel.completePlan { onPlanFinished() } },
         modifier = modifier
     )
 }
