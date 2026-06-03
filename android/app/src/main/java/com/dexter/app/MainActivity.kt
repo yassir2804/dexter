@@ -5,6 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Scaffold
@@ -12,49 +17,52 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.dexter.app.data.datasource.UserDataSourceImpl
-import com.dexter.app.data.mapper.UserMapper
-import com.dexter.app.data.repository.UserRepositoryImpl
-import com.dexter.app.presentation.factory.LoginViewModelFactory
 import com.dexter.app.presentation.navigation.NavGraph
 import com.dexter.app.presentation.navigation.NavRoutes
 import com.dexter.app.presentation.ui.components.BottomNavigationBar
 import com.dexter.app.presentation.ui.theme.AppTheme
+import com.dexter.app.presentation.viewmodel.HomeViewModel
+import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
-import com.dexter.app.presentation.ui.layout.MainLayout
+import com.dexter.app.presentation.viewmodel.ProfileViewModel
+import com.dexter.app.presentation.viewmodel.SearchViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.collectAsState
+import com.dexter.app.presentation.session.ThemePreference
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    // Manual DI chain (same pattern as TaskApp)
-    private val loginViewModel: LoginViewModel by viewModels {
-        val userMapper = UserMapper()
-        val dataSource = UserDataSourceImpl(userMapper)
-        val repository = UserRepositoryImpl(dataSource, userMapper)
-        LoginViewModelFactory(repository)
-    }
+    private val loginViewModel: LoginViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
+    private val profileViewModel: ProfileViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppTheme(dynamicColor = false) {
-                MainScreen(loginViewModel)
+            val darkModePref by ThemePreference.isDarkMode.collectAsState()
+            val isDark = darkModePref ?: isSystemInDarkTheme()
+
+            AppTheme(dynamicColor = false, darkTheme = isDark) {
+                MainScreen(loginViewModel, homeViewModel, profileViewModel, searchViewModel)
             }
         }
     }
 }
 
-/**
- * Root composable that sets up the Scaffold with conditional bottom bar.
- *
- * Follows TaskApp's MainScreen pattern: Scaffold wraps the NavGraph,
- * and the BottomNavigationBar only appears on main-flow screens.
- */
 @Composable
-fun MainScreen(loginViewModel: LoginViewModel) {
+fun MainScreen(
+    loginViewModel: LoginViewModel,
+    homeViewModel: HomeViewModel,
+    profileViewModel: ProfileViewModel,
+    searchViewModel: SearchViewModel
+) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -62,21 +70,33 @@ fun MainScreen(loginViewModel: LoginViewModel) {
     val showBottomBar = currentRoute in listOf(
         NavRoutes.Home.ROUTE,
         NavRoutes.Search.ROUTE,
-        NavRoutes.Messages.ROUTE,
+        NavRoutes.Matches.ROUTE,
         NavRoutes.Profile.ROUTE
     )
+
+    val userName = (loginViewModel.loginState.value as? LoginState.Success)?.user?.firstName ?: ""
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         bottomBar = {
-            if (showBottomBar) {
+            AnimatedVisibility(
+                visible = showBottomBar,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
+            ) {
                 BottomNavigationBar(navController)
             }
         }
     ) { paddingValues ->
-        MainLayout(paddingValues = paddingValues) {
-            NavGraph(navController, loginViewModel, PaddingValues(0.dp))
-        }
+        NavGraph(
+            navController = navController,
+            loginViewModel = loginViewModel,
+            homeViewModel = homeViewModel,
+            profileViewModel = profileViewModel,
+            searchViewModel = searchViewModel,
+            paddingValues = paddingValues,
+            userName = userName
+        )
     }
 }
 
@@ -84,10 +104,10 @@ fun MainScreen(loginViewModel: LoginViewModel) {
 @Composable
 private fun MainScreenPreview() {
     AppTheme(dynamicColor = false) {
-        // Preview only shows the scaffold structure
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             bottomBar = { BottomNavigationBar(rememberNavController()) }
-        ) { }
+        ) { _: PaddingValues ->
+        }
     }
 }

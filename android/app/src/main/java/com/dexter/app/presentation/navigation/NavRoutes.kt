@@ -22,6 +22,14 @@ sealed class NavRoutes {
         const val ROUTE = "forgotPassword"
     }
 
+    data object Onboarding : NavRoutes() {
+        const val ROUTE = "onboarding/{email}/{password}"
+        const val ARG_EMAIL = "email"
+        const val ARG_PASSWORD = "password"
+        fun createRoute(email: String, password: String) =
+            "onboarding/${android.net.Uri.encode(email)}/${android.net.Uri.encode(password)}"
+    }
+
     // ── Main flow (with bottom bar) ─────────────────────────────────
 
     data object Home : NavRoutes() {
@@ -32,8 +40,8 @@ sealed class NavRoutes {
         const val ROUTE = "search"
     }
 
-    data object Messages : NavRoutes() {
-        const val ROUTE = "messages"
+    data object Matches : NavRoutes() {
+        const val ROUTE = "matches"
     }
 
     data object Profile : NavRoutes() {
@@ -54,16 +62,15 @@ sealed class NavRoutes {
         fun createRoute(matchId: Long) = "plan/$matchId"
     }
 
-    data object Chat : NavRoutes() {
-        const val ROUTE = "chat/{conversationId}"
-        const val ARG_CONVERSATION_ID = "conversationId"
-        fun createRoute(conversationId: Long) = "chat/$conversationId"
-    }
-
     data object UserProfile : NavRoutes() {
-        const val ROUTE = "userProfile/{userId}"
+        const val ROUTE = "userProfile/{userId}?searchedSkill={searchedSkill}"
         const val ARG_USER_ID = "userId"
-        fun createRoute(userId: Long) = "userProfile/$userId"
+        const val ARG_SEARCHED_SKILL = "searchedSkill"
+        fun createRoute(userId: Long, searchedSkill: String? = null): String =
+            if (searchedSkill != null)
+                "userProfile/$userId?searchedSkill=${android.net.Uri.encode(searchedSkill)}"
+            else
+                "userProfile/$userId"
     }
 
     data object EditProfile : NavRoutes() {
@@ -100,5 +107,11 @@ sealed class NavRoutes {
         const val ROUTE = "sessionInvite/{invitationId}"
         const val ARG_INVITATION_ID = "invitationId"
         fun createRoute(invitationId: Long) = "sessionInvite/$invitationId"
+    }
+
+    data object PeopleList : NavRoutes() {
+        const val ROUTE = "peopleList/{skillName}"
+        const val ARG_SKILL_NAME = "skillName"
+        fun createRoute(skillName: String) = "peopleList/${android.net.Uri.encode(skillName)}"
     }
 }

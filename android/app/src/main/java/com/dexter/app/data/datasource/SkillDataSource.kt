@@ -12,4 +12,5 @@ interface SkillDataSource {
     suspend fun insertSkill(skillDto: SkillDto)
     suspend fun updateSkill(skillDto: SkillDto)
     suspend fun deleteSkill(skillDto: SkillDto)
+    suspend fun getSkillsByUserId(userId: Long): List<SkillDto>
 }

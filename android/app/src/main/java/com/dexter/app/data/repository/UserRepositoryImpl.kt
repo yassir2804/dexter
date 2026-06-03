@@ -2,11 +2,16 @@ package com.dexter.app.data.repository
 
 import android.util.Log
 import com.dexter.app.data.datasource.UserDataSource
+import com.dexter.app.data.datasource.model.RegisterRequestDto
+import com.dexter.app.data.mapper.ProfileSummaryMapper
 import com.dexter.app.data.mapper.UserMapper
+import com.dexter.app.data.remote.UserRemoteDataSource
 import com.dexter.app.domain.error.DomainError
+import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
 import java.io.IOException
+import javax.inject.Inject
 
 /**
  * Placeholder implementation of [UserRepository]:
@@ -14,16 +19,22 @@ import java.io.IOException
  * safe defaults. Replace the internals with real data-source calls when
  * integrating a backend.
  */
-class UserRepositoryImpl(
+class UserRepositoryImpl @Inject constructor(
     private val dataSource: UserDataSource,
-    private val userMapper: UserMapper
+    private val remoteDataSource: UserRemoteDataSource,
+    private val userMapper: UserMapper,
+    private val profileSummaryMapper: ProfileSummaryMapper
 ) : UserRepository {
 
     companion object { private const val TAG = "UserRepository" }
 
     override suspend fun getUserById(id: Long): Result<User> = try {
-        // TODO: replace with dataSource call + mapping
-        Result.failure(DomainError.UnknownError("User not found"))
+        val userDto = dataSource.getUserById(id)
+        if (userDto != null) {
+            Result.success(userMapper.mapToDomain(userDto))
+        } else {
+            Result.failure(DomainError.UserError("User not found"))
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to get user by id: $id", e)
         Result.failure(DomainError.NetworkError("Network error fetching user $id", e))
@@ -55,8 +66,24 @@ class UserRepositoryImpl(
     }
 
     override suspend fun saveUser(user: User): Result<User> = try {
-        // TODO: replace with dataSource call + mapping
-        Result.success(user)
+        // Build the request DTO from the domain model
+        val request = RegisterRequestDto(
+            email = user.email,
+            password = user.password ?: "",
+            firstName = user.firstName,
+            lastName = user.lastName,
+            country = user.country ?: "",
+            skillsToTeach = user.skillsToTeach,
+            skillsToLearn = user.skillsToLearn,
+        )
+
+        // Call the API via DataSource
+        val createdDto = dataSource.insertUser(request)
+        if (createdDto != null) {
+            Result.success(userMapper.mapToDomain(createdDto))
+        } else {
+            Result.failure(DomainError.NetworkError("Registration failed — server unavailable"))
+        }
     } catch (e: IOException) {
         Log.e(TAG, "Failed to save user", e)
         Result.failure(DomainError.NetworkError("Network error saving user", e))
@@ -76,14 +103,40 @@ class UserRepositoryImpl(
         Result.failure(DomainError.UnknownError("Unknown error deleting user $id", e))
     }
 
-    override suspend fun login(email: String, password: String): Result<User> = try {
-        val userDto = dataSource.getUserByEmail(email)
-        val user = userDto?.let { userMapper.mapToDomain(it) }
-        if (user != null && user.password == password) {
-            Result.success(user)
+    override suspend fun getProfileSummary(userId: Long): Result<ProfileSummary> = try {
+        val dto = dataSource.getProfileSummary(userId)
+        if (dto != null) {
+            Result.success(profileSummaryMapper.mapToDomain(dto))
         } else {
-            Result.failure(DomainError.AuthError("Credenciales Inválidas"))
+            Result.failure(DomainError.UserError("Profile not found"))
         }
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get profile summary for user: $userId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching profile", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in getProfileSummary", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching profile", e))
+    }
+
+    override suspend fun updateProfile(profile: ProfileSummary): Result<ProfileSummary> = try {
+        val dto = profileSummaryMapper.mapToDto(profile)
+        val updatedDto = dataSource.updateProfile(dto)
+        if (updatedDto != null) {
+            Result.success(profileSummaryMapper.mapToDomain(updatedDto))
+        } else {
+            Result.failure(DomainError.NetworkError("Failed to update profile — server unavailable"))
+        }
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to update profile", e)
+        Result.failure(DomainError.NetworkError("Network error updating profile", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in updateProfile", e)
+        Result.failure(DomainError.UnknownError("Unknown error updating profile", e))
+    }
+
+    override suspend fun login(email: String, password: String): Result<User> = try {
+        remoteDataSource.login(email, password)
+            .map { userMapper.mapToDomain(it) }
     } catch (e: IOException) {
         Log.e(TAG, "Network error during login", e)
         Result.failure(DomainError.NetworkError("Network error during login", e))

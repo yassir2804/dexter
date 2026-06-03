@@ -31,4 +31,7 @@ class SkillDataSourceImpl(
     override suspend fun deleteSkill(skillDto: SkillDto) {
         // Mock implementation
     }
+
+    override suspend fun getSkillsByUserId(userId: Long): List<SkillDto> =
+        SkillProvider.findSkillsByUserId(userId).map { skillMapper.mapToDto(it) }
 }

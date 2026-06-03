@@ -17,6 +17,26 @@ sealed class DomainError(
         cause: Throwable? = null
     ) : DomainError(message, cause)
 
+    class UserError(
+        message: String,
+        cause: Throwable? = null
+    ) : DomainError(message, cause)
+
+    class MatchError(
+        message: String,
+        cause: Throwable? = null
+    ) : DomainError(message, cause)
+
+    class SkillError(
+        message: String,
+        cause: Throwable? = null
+    ) : DomainError(message, cause)
+
+    class ReviewError(
+        message: String,
+        cause: Throwable? = null
+    ) : DomainError(message, cause)
+
     class NetworkError(
         message: String,
         cause: Throwable? = null

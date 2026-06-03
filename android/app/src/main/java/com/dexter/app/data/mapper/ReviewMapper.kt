@@ -3,9 +3,10 @@ package com.dexter.app.data.mapper
 import com.dexter.app.data.datasource.model.ReviewDto
 import com.dexter.app.domain.model.Review
 import java.util.Date
+import javax.inject.Inject
 
 /** Mapper for `ReviewDto` ↔ `Review`. */
-class ReviewMapper {
+class ReviewMapper @Inject constructor() {
 
     fun mapToDomain(dto: ReviewDto): Review = Review(
         id = dto.id ?: 0L,
@@ -14,7 +15,8 @@ class ReviewMapper {
         sessionId = dto.sessionId ?: 0L,
         rating = dto.rating ?: 0,
         comment = dto.comment,
-        createdAt = Date(dto.createdAt ?: 0L)
+        createdAt = Date(dto.createdAt ?: 0L),
+        tags = dto.tags,
     )
 
     fun mapToDto(domain: Review): ReviewDto = ReviewDto(
@@ -24,6 +26,7 @@ class ReviewMapper {
         sessionId = domain.sessionId,
         rating = domain.rating,
         comment = domain.comment,
-        createdAt = domain.createdAt.time
+        createdAt = domain.createdAt.time,
+        tags = domain.tags,
     )
 }
