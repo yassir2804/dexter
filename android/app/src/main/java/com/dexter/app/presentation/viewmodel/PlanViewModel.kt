@@ -22,7 +22,8 @@ sealed class PlanState {
         val match: MatchDetail,
         val sessions: List<Session>,
         val progress: Float,
-        val nextSessionId: Long?
+        val nextSessionId: Long?,
+        val actionError: String? = null
     ) : PlanState()
     data class Error(val message: String) : PlanState()
 }
@@ -53,6 +54,7 @@ class PlanViewModel @Inject constructor(
                 loadPlan(currentMatchId)
             }.onFailure { e ->
                 Log.e(TAG, "Error completing session $sessionId", e)
+                showActionError(e.message ?: "Error al completar sesión")
             }
         }
     }
@@ -63,7 +65,22 @@ class PlanViewModel @Inject constructor(
                 onDone()
             }.onFailure { e ->
                 Log.e(TAG, "Error completing match $currentMatchId", e)
+                showActionError(e.message ?: "Error al finalizar plan")
             }
+        }
+    }
+
+    private fun showActionError(message: String) {
+        val current = _state.value
+        if (current is PlanState.Success) {
+            _state.value = current.copy(actionError = message)
+        }
+    }
+
+    fun clearActionError() {
+        val current = _state.value
+        if (current is PlanState.Success) {
+            _state.value = current.copy(actionError = null)
         }
     }
 
