@@ -151,6 +151,15 @@
     <string name="match_view_plan">Ver plan de sesiones</string>
     <string name="match_tap_profile">Toca para ver perfil completo</string>
 
+    <!-- Mensaje contextual de compatibilidad -->
+    <string name="match_info_can_learn">Puedes aprender %1$s de %2$s. %2$s enseña %3$s</string>
+    <string name="match_info_choose">%1$s enseña %2$s. Puedes elegir qué aprender al aceptar.</string>
+    <string name="match_info_seeking">%1$s está buscando %2$s</string>
+
+    <!-- Selector de habilidad a aprender (Match Detail / User Profile) -->
+    <string name="picker_what_to_learn">¿Qué quieres aprender?</string>
+    <string name="picker_learn_button">Aprender %1$s</string>
+
     <!-- Timeframes -->
     <string name="match_time_2w">2 semanas</string>
     <string name="match_time_4w">4 semanas</string>
@@ -294,6 +303,7 @@
     <string name="notif_new_ai_matches_desc">%1$d nuevos matches sugeridos por IA disponibles</string>
 
     <!-- Timestamps -->
+    <string name="time_just_now">Hace un momento</string>
     <string name="time_minutes_ago">Hace %1$d min</string>
     <string name="time_hours_ago">Hace %1$d hora</string>
     <string name="time_hours_ago_plural">Hace %1$d horas</string>

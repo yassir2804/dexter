@@ -1,7 +1,9 @@
 package com.dexter.app.presentation.viewmodel
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dexter.app.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +22,8 @@ sealed class ForgotPasswordState {
     /** Email sent successfully — confirmation view */
     data class Sent(val email: String) : ForgotPasswordState()
 
-    /** Validation or sending error */
-    data class Error(val message: String) : ForgotPasswordState()
+    /** Validation or sending error (localized via string resource) */
+    data class Error(@StringRes val messageRes: Int) : ForgotPasswordState()
 }
 
 /**
@@ -52,7 +54,7 @@ class ForgotPasswordViewModel : ViewModel() {
         val currentEmail = _email.value.trim()
 
         if (currentEmail.isBlank() || !android.util.Patterns.EMAIL_ADDRESS.matcher(currentEmail).matches()) {
-            _state.value = ForgotPasswordState.Error("Ingresa un correo válido")
+            _state.value = ForgotPasswordState.Error(R.string.error_invalid_email)
             return
         }
 

@@ -259,7 +259,7 @@ private fun UserProfileBody(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "¿Qué quieres aprender?",
+                            text = stringResource(R.string.picker_what_to_learn),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -283,7 +283,7 @@ private fun UserProfileBody(
                             shape = RoundedCornerShape(50)
                         ) {
                             Text(
-                                text = "Aprender ${picker.selectedLearn}",
+                                text = stringResource(R.string.picker_learn_button, picker.selectedLearn),
                                 fontWeight = FontWeight.SemiBold
                             )
                         }

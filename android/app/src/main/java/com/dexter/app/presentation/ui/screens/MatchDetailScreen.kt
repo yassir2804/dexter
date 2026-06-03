@@ -265,11 +265,24 @@ private fun MatchDetailBody(
         // ── Contextual compatibility message ────────────────────────
         val infoMessage = when {
             match.canLearnFromOther.isNotEmpty() ->
-                "Puedes aprender ${match.canLearnFromOther.joinToString(", ")} de ${match.name}. ${match.name} enseña ${match.offeredSkills.joinToString(", ")}"
+                stringResource(
+                    R.string.match_info_can_learn,
+                    match.canLearnFromOther.joinToString(", "),
+                    match.name,
+                    match.offeredSkills.joinToString(", ")
+                )
             match.offeredSkills.isNotEmpty() ->
-                "${match.name} enseña ${match.offeredSkills.joinToString(", ")}. Puedes elegir qué aprender al aceptar."
+                stringResource(
+                    R.string.match_info_choose,
+                    match.name,
+                    match.offeredSkills.joinToString(", ")
+                )
             else ->
-                "${match.name} está buscando ${match.soughtSkills.joinToString(", ")}"
+                stringResource(
+                    R.string.match_info_seeking,
+                    match.name,
+                    match.soughtSkills.joinToString(", ")
+                )
         }
         Card(
             shape = RoundedCornerShape(12.dp),
@@ -330,7 +343,7 @@ private fun MatchDetailBody(
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Text(
-                                    text = "¿Qué quieres aprender?",
+                                    text = stringResource(R.string.picker_what_to_learn),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -354,7 +367,7 @@ private fun MatchDetailBody(
                                     shape = RoundedCornerShape(50)
                                 ) {
                                     Text(
-                                        text = "Aprender ${picker.selected}",
+                                        text = stringResource(R.string.picker_learn_button, picker.selected),
                                         fontWeight = FontWeight.SemiBold
                                     )
                                 }
