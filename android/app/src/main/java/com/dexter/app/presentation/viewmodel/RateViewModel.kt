@@ -19,6 +19,9 @@ import javax.inject.Inject
 sealed class RateState {
     data object Loading : RateState()
     data class Editing(
+        val revieweeName: String = "",
+        val revieweeInitials: String = "",
+        val sessionNumber: Int = 0,
         val tagCatalog: List<String>,
         val rating: Int,
         val selectedTags: Set<String>,
@@ -44,22 +47,23 @@ class RateViewModel @Inject constructor(
 
     private var sessionId: Long = 0L
     private var revieweeId: Long = 0L
+    private var revieweeName: String = ""
+    private var revieweeInitials: String = ""
+    private var sessionNumber: Int = 0
 
-    /**
-     * @param sessionId    sesion completada que se esta calificando
-     * @param revieweeId   usuario al que se le deja la resena (la otra parte del match)
-     */
-    fun start(sessionId: Long, revieweeId: Long) {
+    fun loadTags(sessionId: Long) {
         this.sessionId = sessionId
-        this.revieweeId = revieweeId
         viewModelScope.launch {
             _state.value = RateState.Loading
-            if (revieweeId == 0L) {
-                resolveRevieweeFromSession(sessionId)
-            }
+
+            resolveRevieweeFromSession(sessionId)
+
             reviewTagRepository.getCatalog()
                 .onSuccess { catalog ->
                     _state.value = RateState.Editing(
+                        revieweeName = revieweeName,
+                        revieweeInitials = revieweeInitials,
+                        sessionNumber = sessionNumber,
                         tagCatalog = catalog,
                         rating = 0,
                         selectedTags = emptySet(),
@@ -80,26 +84,16 @@ class RateViewModel @Inject constructor(
         val currentUserId = CurrentUserSession.userId ?: return
         sessionRepository.getSessionById(sessionId)
             .onSuccess { session ->
-                matchRepository.getMatchById(session.matchId)
-                    .onSuccess { match ->
-                        revieweeId = if (match.initiatorId == currentUserId) {
-                            match.receiverId
-                        } else {
-                            match.initiatorId
-                        }
+                sessionNumber = session.sessionNumber
+                matchRepository.getMatchDetail(session.matchId, currentUserId)
+                    .onSuccess { detail ->
+                        revieweeId = detail.otherUserId
+                        revieweeName = detail.name
+                        revieweeInitials = detail.initials
                     }
                     .onFailure { Log.e(TAG, "Could not load match ${session.matchId}", it) }
             }
             .onFailure { Log.e(TAG, "Could not load session $sessionId", it) }
-    }
-
-    /** Compat: la pantalla aun llama loadTags(sessionId). El revieweeId debe setearse antes. */
-    fun loadTags(sessionId: Long) {
-        start(sessionId, revieweeId)
-    }
-
-    fun setReviewee(userId: Long) {
-        this.revieweeId = userId
     }
 
     private fun currentEditing(): RateState.Editing? =

@@ -160,10 +160,10 @@ private fun RateBody(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                AvatarCircle(initials = "ML", size = 64.dp)
+                AvatarCircle(initials = state.revieweeInitials, size = 64.dp)
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    text = stringResource(R.string.rate_session_with, 2, "Maria Lopez"),
+                    text = stringResource(R.string.rate_session_with, state.sessionNumber, state.revieweeName),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )

@@ -29,10 +29,13 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +67,15 @@ fun PlanScreen(
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val actionError = (state as? PlanState.Success)?.actionError
+    LaunchedEffect(actionError) {
+        if (actionError != null) {
+            snackbarHostState.showSnackbar(actionError)
+            viewModel.clearActionError()
+        }
+    }
 
     LaunchedEffect(matchId) {
         viewModel.loadPlan(matchId)
@@ -71,6 +83,7 @@ fun PlanScreen(
 
     PlanContent(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
         onEditSession = onEditSession,
         onRateSession = onRateSession,
@@ -84,6 +97,7 @@ fun PlanScreen(
 @Composable
 private fun PlanContent(
     state: PlanState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
@@ -98,6 +112,7 @@ private fun PlanContent(
                 onBack = onBackClick
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { padding ->
         when (state) {
