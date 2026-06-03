@@ -66,6 +66,12 @@ interface MatchApiService {
         @Query("userId") userId: Long
     ): Response<List<MatchSummaryDto>>
 
+    /** PATCH /matches/{id}/complete — finalize a match manually. */
+    @PATCH("matches/{id}/complete")
+    suspend fun completeMatch(
+        @Path("id") matchId: Long
+    ): Response<MatchSummaryDto>
+
     /** POST /matches/{id}/ensure-sessions — generate sessions if none exist for an accepted match. */
     @POST("matches/{id}/ensure-sessions")
     suspend fun ensureSessions(

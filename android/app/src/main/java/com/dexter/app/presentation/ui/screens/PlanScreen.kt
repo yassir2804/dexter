@@ -19,8 +19,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
@@ -73,6 +75,7 @@ fun PlanScreen(
         onEditSession = onEditSession,
         onRateSession = onRateSession,
         onCompleteSession = { sessionId -> viewModel.completeSession(sessionId) },
+        onCompletePlan = { viewModel.completePlan { onBackClick() } },
         modifier = modifier
     )
 }
@@ -85,6 +88,7 @@ private fun PlanContent(
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
     onCompleteSession: (Long) -> Unit = {},
+    onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -127,6 +131,7 @@ private fun PlanContent(
                     onEditSession = onEditSession,
                     onRateSession = onRateSession,
                     onCompleteSession = onCompleteSession,
+                    onCompletePlan = onCompletePlan,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -145,6 +150,7 @@ private fun PlanBody(
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
     onCompleteSession: (Long) -> Unit = {},
+    onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
@@ -224,6 +230,28 @@ private fun PlanBody(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
+            }
+        }
+
+        item {
+            OutlinedButton(
+                onClick = onCompletePlan,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.plan_finish),
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
 
