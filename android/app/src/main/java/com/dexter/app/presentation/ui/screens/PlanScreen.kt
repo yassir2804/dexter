@@ -285,8 +285,8 @@ private fun MatchSummaryHeader(match: MatchDetail) {
                 Text(
                     text = stringResource(
                         R.string.plan_exchange,
-                        match.offeredSkills.firstOrNull() ?: "",
-                        match.soughtSkills.firstOrNull() ?: ""
+                        match.initiatorSkill ?: match.offeredSkills.firstOrNull() ?: "",
+                        match.receiverSkill ?: match.soughtSkills.firstOrNull() ?: ""
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
