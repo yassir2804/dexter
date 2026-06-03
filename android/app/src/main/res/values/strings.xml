@@ -190,6 +190,7 @@
     <string name="plan_next_badge">PRÓXIMO</string>
     <string name="plan_status_completed">Completado</string>
     <string name="plan_rate_session">Calificar Sesión %1$d</string>
+    <string name="plan_complete_session">Completar Sesión</string>
 
     <!-- Session titles (mock data) -->
     <string name="session_1_title">Acordes básicos</string>
