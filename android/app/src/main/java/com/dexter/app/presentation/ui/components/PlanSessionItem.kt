@@ -17,7 +17,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +54,7 @@ fun PlanSessionItem(
     session: Session,
     isNext: Boolean,
     onEdit: () -> Unit,
+    onComplete: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completed = session.status == SessionStatus.COMPLETED
@@ -120,12 +123,30 @@ fun PlanSessionItem(
                 }
             }
             if (!completed) {
-                IconButton(onClick = onEdit) {
-                    Icon(
-                        imageVector = Icons.Default.Edit,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
+                if (isNext) {
+                    FilledTonalButton(
+                        onClick = onComplete,
+                        shape = RoundedCornerShape(50)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = stringResource(R.string.plan_complete_session),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
+                } else {
+                    IconButton(onClick = onEdit) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
         }

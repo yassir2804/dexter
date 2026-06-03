@@ -72,6 +72,7 @@ fun PlanScreen(
         onBackClick = onBackClick,
         onEditSession = onEditSession,
         onRateSession = onRateSession,
+        onCompleteSession = { sessionId -> viewModel.completeSession(sessionId) },
         modifier = modifier
     )
 }
@@ -83,6 +84,7 @@ private fun PlanContent(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCompleteSession: (Long) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -124,6 +126,7 @@ private fun PlanContent(
                     nextSessionId = state.nextSessionId,
                     onEditSession = onEditSession,
                     onRateSession = onRateSession,
+                    onCompleteSession = onCompleteSession,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -141,6 +144,7 @@ private fun PlanBody(
     nextSessionId: Long?,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCompleteSession: (Long) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
@@ -198,7 +202,8 @@ private fun PlanBody(
             PlanSessionItem(
                 session = session,
                 isNext = session.id == nextSessionId,
-                onEdit = { onEditSession(session.id) }
+                onEdit = { onEditSession(session.id) },
+                onComplete = { onCompleteSession(session.id) }
             )
         }
 

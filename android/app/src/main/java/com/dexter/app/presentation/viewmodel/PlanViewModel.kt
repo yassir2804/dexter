@@ -45,9 +45,22 @@ class PlanViewModel @Inject constructor(
     private val _state = MutableStateFlow<PlanState>(PlanState.Loading)
     val state = _state.asStateFlow()
 
+    private var currentMatchId: Long = 0L
+
+    fun completeSession(sessionId: Long) {
+        viewModelScope.launch {
+            sessionRepository.completeSession(sessionId, "").onSuccess {
+                loadPlan(currentMatchId)
+            }.onFailure { e ->
+                Log.e(TAG, "Error completing session $sessionId", e)
+            }
+        }
+    }
+
     fun loadPlan(matchId: Long) {
         viewModelScope.launch {
             _state.value = PlanState.Loading
+            currentMatchId = matchId
 
             val matchResult = matchRepository.getMatchDetail(matchId, CurrentUserSession.userId ?: 0L)
             val sessionsResult = sessionRepository.getSessionsByMatch(matchId)
