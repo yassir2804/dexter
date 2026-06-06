@@ -42,4 +42,5 @@ data class User(
     val updatedAt: Date,
     val skillsToTeach: List<String> = emptyList(),
     val skillsToLearn: List<String> = emptyList(),
+    val roles: List<String> = emptyList(),
 )

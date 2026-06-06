@@ -11,8 +11,12 @@ package com.dexter.app.presentation.session
  */
 object CurrentUserSession {
     var userId: Long? = null
+    var userRole: String? = null
+
+    fun isAdmin(): Boolean = userRole == "ROLE_ADMIN"
 
     fun clear() {
         userId = null
+        userRole = null
     }
 }

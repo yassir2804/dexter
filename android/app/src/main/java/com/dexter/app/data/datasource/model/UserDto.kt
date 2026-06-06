@@ -25,5 +25,6 @@ data class UserDto(
     /** Epoch millis for created date */
     val createDate: Long? = null,
     /** Epoch millis for last updated date */
-    val updatedAt: Long? = null
+    val updatedAt: Long? = null,
+    val roles: List<String>? = null
 )

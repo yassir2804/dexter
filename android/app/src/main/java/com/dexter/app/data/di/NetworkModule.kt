@@ -8,6 +8,7 @@ import com.dexter.app.data.remote.api.ReviewApiService
 import com.dexter.app.data.remote.api.ReviewTagApiService
 import com.dexter.app.data.remote.api.SearchApiService
 import com.dexter.app.data.remote.api.SessionApiService
+import com.dexter.app.data.remote.api.AdminApiService
 import com.dexter.app.data.remote.api.SessionInvitationApiService
 import com.dexter.app.data.remote.api.UserApiService
 import com.google.gson.Gson
@@ -110,4 +111,9 @@ object NetworkModule {
     @Singleton
     fun provideSessionInvitationApiService(retrofit: Retrofit): SessionInvitationApiService =
         retrofit.create(SessionInvitationApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminApiService(retrofit: Retrofit): AdminApiService =
+        retrofit.create(AdminApiService::class.java)
 }

@@ -89,18 +89,20 @@ fun MainLayout(
                                     modifier = Modifier.size(22.dp)
                                 )
                             }
-                            Badge(
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .offset(x = (-6).dp, y = 6.dp)
-                            ) {
-                                Text(
-                                    text = notificationCount.toString(),
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        fontSize = 11.sp,
-                                        fontWeight = FontWeight.SemiBold
+                            if (notificationCount > 0) {
+                                Badge(
+                                    modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .offset(x = (-6).dp, y = 6.dp)
+                                ) {
+                                    Text(
+                                        text = notificationCount.toString(),
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.SemiBold
+                                        )
                                     )
-                                )
+                                }
                             }
                         }
                     }
@@ -140,6 +142,22 @@ fun MainLayout(
                             )
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                NavRoutes.AdminDashboard.ROUTE -> {
+                    Text(
+                        text = stringResource(R.string.admin_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                NavRoutes.AdminSettings.ROUTE -> {
+                    Text(
+                        text = stringResource(R.string.settings_title),
+                        style = MaterialTheme.typography.headlineMedium
+                    )
                     Spacer(modifier = Modifier.height(16.dp))
                 }
             }

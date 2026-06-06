@@ -31,7 +31,7 @@ import com.dexter.app.presentation.ui.theme.AppTheme
  * with popUpTo + launchSingleTop + restoreState.
  */
 @Composable
-fun BottomNavigationBar(navController: NavController) {
+fun BottomNavigationBar(navController: NavController, isAdmin: Boolean = false) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
@@ -39,7 +39,7 @@ fun BottomNavigationBar(navController: NavController) {
         containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        BottomNavItem.items().forEach { item ->
+        BottomNavItem.items(isAdmin).forEach { item ->
             val isSelected = currentDestination?.hierarchy?.any {
                 it.route == item.route
             } ?: false
@@ -87,5 +87,13 @@ fun BottomNavigationBar(navController: NavController) {
 private fun BottomNavigationBarPreview() {
     AppTheme(dynamicColor = false) {
         BottomNavigationBar(navController = rememberNavController())
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun BottomNavigationBarAdminPreview() {
+    AppTheme(dynamicColor = false) {
+        BottomNavigationBar(navController = rememberNavController(), isAdmin = true)
     }
 }

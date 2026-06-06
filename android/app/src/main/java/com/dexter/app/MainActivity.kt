@@ -26,6 +26,7 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.HomeViewModel
 import com.dexter.app.presentation.viewmodel.LoginState
 import com.dexter.app.presentation.viewmodel.LoginViewModel
+import com.dexter.app.presentation.viewmodel.NotificationsViewModel
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
 import com.dexter.app.presentation.viewmodel.SearchViewModel
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -40,6 +41,7 @@ class MainActivity : ComponentActivity() {
     private val homeViewModel: HomeViewModel by viewModels()
     private val profileViewModel: ProfileViewModel by viewModels()
     private val searchViewModel: SearchViewModel by viewModels()
+    private val notificationsViewModel: NotificationsViewModel by viewModels()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +52,7 @@ class MainActivity : ComponentActivity() {
             val isDark = darkModePref ?: isSystemInDarkTheme()
 
             AppTheme(dynamicColor = false, darkTheme = isDark) {
-                MainScreen(loginViewModel, homeViewModel, profileViewModel, searchViewModel)
+                MainScreen(loginViewModel, homeViewModel, profileViewModel, searchViewModel, notificationsViewModel)
             }
         }
     }
@@ -61,7 +63,8 @@ fun MainScreen(
     loginViewModel: LoginViewModel,
     homeViewModel: HomeViewModel,
     profileViewModel: ProfileViewModel,
-    searchViewModel: SearchViewModel
+    searchViewModel: SearchViewModel,
+    notificationsViewModel: NotificationsViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -71,10 +74,14 @@ fun MainScreen(
         NavRoutes.Home.ROUTE,
         NavRoutes.Search.ROUTE,
         NavRoutes.Matches.ROUTE,
-        NavRoutes.Profile.ROUTE
+        NavRoutes.Profile.ROUTE,
+        NavRoutes.AdminDashboard.ROUTE,
+        NavRoutes.AdminSettings.ROUTE
     )
 
-    val userName = (loginViewModel.loginState.value as? LoginState.Success)?.user?.firstName ?: ""
+    val loginUser = (loginViewModel.loginState.value as? LoginState.Success)?.user
+    val userName = loginUser?.firstName ?: ""
+    val isAdmin = loginUser?.roles?.any { it.contains("ADMIN") } ?: false
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -84,7 +91,7 @@ fun MainScreen(
                 enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
                 exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()
             ) {
-                BottomNavigationBar(navController)
+                BottomNavigationBar(navController, isAdmin = isAdmin)
             }
         }
     ) { paddingValues ->
@@ -94,6 +101,7 @@ fun MainScreen(
             homeViewModel = homeViewModel,
             profileViewModel = profileViewModel,
             searchViewModel = searchViewModel,
+            notificationsViewModel = notificationsViewModel,
             paddingValues = paddingValues,
             userName = userName
         )
