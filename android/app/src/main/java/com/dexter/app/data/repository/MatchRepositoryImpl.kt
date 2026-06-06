@@ -137,8 +137,8 @@ class MatchRepositoryImpl @Inject constructor(
         Log.e(TAG, "Failed to complete match $matchId", e)
         Result.failure(DomainError.NetworkError("Network error completing match", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in completeMatch", e)
-        Result.failure(DomainError.UnknownError("Unknown error completing match", e))
+        Log.e(TAG, "Unknown error in completeMatch: ${e.message}", e)
+        Result.failure(DomainError.UnknownError(e.message ?: "Unknown error completing match", e))
     }
 
     override suspend fun ensureSessions(matchId: Long): Result<Unit> = try {
