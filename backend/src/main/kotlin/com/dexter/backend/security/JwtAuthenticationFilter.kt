@@ -97,6 +97,7 @@ class JwtAuthenticationFilter(
         val userDto = userRepository.findByEmail(username)
             .map(userMapper::userToUserResult)
             .orElse(null)
+        userDto?.roles = authorities.filterNotNull().filter { it.startsWith("ROLE_") }
 
         response.addHeader(HttpHeaders.AUTHORIZATION, SecurityConstants.TOKEN_PREFIX + token)
         response.contentType = SecurityConstants.APPLICATION_JSON

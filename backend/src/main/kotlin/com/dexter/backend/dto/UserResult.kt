@@ -28,4 +28,5 @@ data class UserResult(
     var createDate: Long? = null,
     /** Epoch millis for last updated date */
     var updatedAt: Long? = null,
+    var roles: List<String>? = null,
 )

@@ -22,8 +22,12 @@ class AbstractAuthService(
             throw AccessDeniedException("Authentication missing principal")
         }
 
-        return userRepository.findByEmail(email)
+        val result = userRepository.findByEmail(email)
             .map(userMapper::userToUserResult)
             .orElseThrow { AccessDeniedException("Authenticated user not found") }
+        result.roles = auth.authorities
+            ?.mapNotNull { it.authority }
+            ?.filter { it.startsWith("ROLE_") }
+        return result
     }
 }
