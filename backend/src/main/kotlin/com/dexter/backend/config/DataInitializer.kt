@@ -7,6 +7,7 @@ import com.dexter.backend.repository.PrivilegeRepository
 import com.dexter.backend.repository.RoleRepository
 import com.dexter.backend.repository.UserRepository
 import org.slf4j.LoggerFactory
+import jakarta.transaction.Transactional
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -23,6 +24,7 @@ class DataInitializer(
 
     private val log = LoggerFactory.getLogger(DataInitializer::class.java)
 
+    @Transactional
     override fun run(args: ApplicationArguments) {
         val readPrivilege = privilegeRepository.findByName("READ_PRIVILEGE").orElseGet {
             log.info("Creating READ_PRIVILEGE")
