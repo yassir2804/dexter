@@ -31,6 +31,19 @@ class SessionPlan(BaseModel):
     skill: str
 
 
+class ScheduleSlot(BaseModel):
+    day: str
+    time: str
+
+
+class ScheduleRequest(BaseModel):
+    userAName: str
+    userBName: str
+    userAAvailability: list[dict]
+    userBAvailability: list[dict]
+    sessionTitle: str
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 def extract_json(text: str) -> str:
@@ -114,3 +127,57 @@ Responde ÚNICAMENTE con un JSON array válido, sin texto ni markdown adicional:
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error al generar plan: {str(e)}")
+
+
+@app.post("/suggest-schedule", response_model=list[ScheduleSlot])
+def suggest_schedule(req: ScheduleRequest):
+    day_names = {1: "Lunes", 2: "Martes", 3: "Miércoles", 4: "Jueves", 5: "Viernes", 6: "Sábado", 7: "Domingo"}
+
+    def format_availability(slots: list[dict]) -> str:
+        lines = []
+        for s in slots:
+            d = day_names.get(s.get("dayOfWeek", 0), f"Día {s.get('dayOfWeek')}")
+            lines.append(f"  - {d}: {s.get('startTime', '?')} a {s.get('endTime', '?')}")
+        return "\n".join(lines) if lines else "  Sin disponibilidad registrada"
+
+    avail_a = format_availability(req.userAAvailability)
+    avail_b = format_availability(req.userBAvailability)
+
+    prompt = f"""Eres un asistente de agenda para una app de intercambio de habilidades.
+
+Necesitas sugerir los 3 mejores horarios para la sesión "{req.sessionTitle}" entre {req.userAName} y {req.userBName}.
+
+DISPONIBILIDAD de {req.userAName}:
+{avail_a}
+
+DISPONIBILIDAD de {req.userBName}:
+{avail_b}
+
+REGLAS:
+- Sugiere exactamente 3 horarios donde AMBOS estén disponibles.
+- Si no hay intersección perfecta, sugiere los horarios más cercanos a la disponibilidad de ambos.
+- Usa formato corto para el día: "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom".
+- El campo "day" debe incluir día abreviado y una fecha próxima (ej: "Lun 9 Jun").
+- El campo "time" debe ser un rango de 1.5 horas (ej: "18:00 - 19:30").
+
+Responde ÚNICAMENTE con un JSON array válido:
+[
+  {{"day": "Lun 9 Jun", "time": "18:00 - 19:30"}}
+]"""
+
+    try:
+        response = client.models.generate_content(model=MODEL, contents=prompt)
+        raw = extract_json(response.text)
+        slots = json.loads(raw)
+
+        if not isinstance(slots, list) or len(slots) == 0:
+            raise ValueError("No se generaron sugerencias de horario")
+
+        return slots[:3]
+
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Gemini devolvió JSON inválido: {e}")
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al sugerir horarios: {str(e)}")

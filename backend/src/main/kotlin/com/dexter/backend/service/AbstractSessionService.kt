@@ -1,5 +1,8 @@
 package com.dexter.backend.service
 
+import com.dexter.backend.client.AiScheduleRequest
+import com.dexter.backend.client.AiScheduleSlot
+import com.dexter.backend.client.AiServiceClient
 import com.dexter.backend.dto.SessionDetails
 import com.dexter.backend.dto.SessionInput
 import com.dexter.backend.entity.MatchStatus
@@ -7,6 +10,7 @@ import com.dexter.backend.entity.Notification
 import com.dexter.backend.entity.NotificationType
 import com.dexter.backend.entity.Session
 import com.dexter.backend.entity.SessionStatus
+import com.dexter.backend.repository.AvailabilityRepository
 import com.dexter.backend.repository.MatchRepository
 import com.dexter.backend.repository.NotificationRepository
 import com.dexter.backend.repository.SessionRepository
@@ -24,6 +28,8 @@ class AbstractSessionService(
     @Autowired val skillRepository: SkillRepository,
     @Autowired val notificationRepository: NotificationRepository,
     @Autowired val userRepository: UserRepository,
+    @Autowired val availabilityRepository: AvailabilityRepository,
+    @Autowired val aiServiceClient: AiServiceClient,
 ) : SessionService {
 
     override fun findByMatch(matchId: Long): List<SessionDetails> =
@@ -173,6 +179,32 @@ class AbstractSessionService(
                 createdAt = Date(),
             ))
         }
+    }
+
+    override fun suggestSchedule(sessionId: Long): List<AiScheduleSlot> {
+        val session = sessionRepository.findById(sessionId).orElseThrow {
+            NoSuchElementException("Session with id $sessionId not found")
+        }
+        val match = session.match ?: throw IllegalStateException("Session has no match")
+        val initiator = match.initiator ?: throw IllegalStateException("Match has no initiator")
+        val receiver = match.receiver ?: throw IllegalStateException("Match has no receiver")
+
+        val initiatorAvail = availabilityRepository.findByUserId(initiator.id!!).map {
+            mapOf("dayOfWeek" to it.dayOfWeek as Any, "startTime" to it.startTime.toString(), "endTime" to it.endTime.toString())
+        }
+        val receiverAvail = availabilityRepository.findByUserId(receiver.id!!).map {
+            mapOf("dayOfWeek" to it.dayOfWeek as Any, "startTime" to it.startTime.toString(), "endTime" to it.endTime.toString())
+        }
+
+        return aiServiceClient.suggestSchedule(
+            AiScheduleRequest(
+                userAName = initiator.firstName ?: "Usuario A",
+                userBName = receiver.firstName ?: "Usuario B",
+                userAAvailability = initiatorAvail,
+                userBAvailability = receiverAvail,
+                sessionTitle = session.title ?: "Sesión"
+            )
+        ) ?: emptyList()
     }
 
     override fun delete(id: Long) {
