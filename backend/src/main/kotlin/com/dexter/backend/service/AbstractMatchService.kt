@@ -143,11 +143,14 @@ class AbstractMatchService(
     override fun complete(id: Long): MatchSummaryResult {
         val match = matchRepository.findById(id)
             .orElseThrow { NoSuchElementException("Match $id not found") }
+        val initiatorId = match.initiator?.id ?: 0L
+        if (match.status == MatchStatus.COMPLETED) {
+            return toSummary(match, initiatorId)
+        }
         if (match.status != MatchStatus.ACCEPTED)
             throw IllegalArgumentException("Match $id is not in ACCEPTED state (current: ${match.status})")
         match.status = MatchStatus.COMPLETED
         val saved = matchRepository.save(match)
-        val initiatorId = saved.initiator?.id ?: 0L
         saved.initiator?.let { notifyMatchCompleted(saved, it) }
         saved.receiver?.let { notifyMatchCompleted(saved, it) }
         return toSummary(saved, initiatorId)
