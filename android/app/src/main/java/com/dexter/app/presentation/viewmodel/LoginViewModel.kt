@@ -46,10 +46,10 @@ class LoginViewModel @Inject constructor(
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Empty)
     val loginState = _loginState.asStateFlow()
 
-    private val _email = MutableStateFlow("")
+    private val _email = MutableStateFlow("user@dexter.app")
     val email = _email.asStateFlow()
 
-    private val _password = MutableStateFlow("")
+    private val _password = MutableStateFlow("user123")
     val password = _password.asStateFlow()
 
     private val _passwordVisible = MutableStateFlow(false)
