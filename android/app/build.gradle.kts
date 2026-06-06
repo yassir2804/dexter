@@ -31,6 +31,15 @@ android {
             )
         }
     }
+
+    // Per-app language: incluir SIEMPRE todos los idiomas en el App Bundle.
+    // Sin esto, Play podria no descargar los recursos de un idioma que el
+    // usuario elige dentro de la app pero que no es el del sistema.
+    bundle {
+        language {
+            enableSplit = false
+        }
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17

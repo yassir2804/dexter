@@ -2,6 +2,7 @@ package com.dexter.app.presentation.session
 
 import android.content.Context
 import android.content.res.Configuration
+import androidx.core.content.edit
 import java.util.Locale
 
 /**
@@ -49,9 +50,7 @@ object LocalePreference {
         require(tag in SUPPORTED) { "Unsupported language tag: $tag" }
         context.applicationContext
             .getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putString(KEY_LANGUAGE, tag)
-            .apply()
+            .edit { putString(KEY_LANGUAGE, tag) }
     }
 
     /**
