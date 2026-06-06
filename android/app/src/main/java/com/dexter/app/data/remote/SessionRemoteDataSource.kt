@@ -1,6 +1,7 @@
 package com.dexter.app.data.remote
 
 import com.dexter.app.data.datasource.model.SessionDto
+import com.dexter.app.data.remote.api.ScheduleSlotDto
 import com.dexter.app.data.remote.api.SessionApiService
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
@@ -33,6 +34,10 @@ class SessionRemoteDataSource @Inject constructor(
 
     suspend fun completeSession(sessionId: Long): Result<SessionDto> = safeApiCall {
         sessionApiService.completeSession(sessionId)
+    }
+
+    suspend fun suggestSchedule(sessionId: Long): Result<List<ScheduleSlotDto>> = safeApiCall {
+        sessionApiService.suggestSchedule(sessionId)
     }
 
     private suspend fun <T> safeApiCall(

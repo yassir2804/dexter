@@ -75,7 +75,6 @@ class SearchViewModel @Inject constructor(
 
         searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_MS)
-            _searchState.value = SearchState.Loading
             repository.searchSkills(newQuery)
                 .onSuccess { skills ->
                     val top5 = skills.sortedByDescending { it.peopleCount }.take(TOP_N)

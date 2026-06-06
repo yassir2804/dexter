@@ -36,7 +36,8 @@ class UserMapper @Inject constructor() {
         totalSessions = dto.totalSessions ?: 0,
         totalMatches = dto.totalMatches ?: 0,
         createDate = Date(dto.createDate ?: 0L),
-        updatedAt = Date(dto.updatedAt ?: 0L)
+        updatedAt = Date(dto.updatedAt ?: 0L),
+        roles = dto.roles ?: emptyList()
     )
 
     /**
@@ -59,6 +60,7 @@ class UserMapper @Inject constructor() {
         totalSessions = domain.totalSessions,
         totalMatches = domain.totalMatches,
         createDate = domain.createDate.time,
-        updatedAt = domain.updatedAt.time
+        updatedAt = domain.updatedAt.time,
+        roles = domain.roles
     )
 }

@@ -16,6 +16,7 @@ data class MatchDetailDto(
     val aiAnalysis: String? = null,
     val status: String? = null,
     val initiatorSkill: String? = null,
+    val receiverSkill: String? = null,
     val isReceiver: Boolean = false,
     val canLearnFromOther: List<String> = emptyList(),
 )

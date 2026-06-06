@@ -1,12 +1,14 @@
 package com.dexter.app.data.di
 
 import com.dexter.app.data.remote.AuthInterceptor
+import com.dexter.app.data.remote.ResponseInterceptor
 import com.dexter.app.data.remote.api.MatchApiService
 import com.dexter.app.data.remote.api.NotificationApiService
 import com.dexter.app.data.remote.api.ReviewApiService
 import com.dexter.app.data.remote.api.ReviewTagApiService
 import com.dexter.app.data.remote.api.SearchApiService
 import com.dexter.app.data.remote.api.SessionApiService
+import com.dexter.app.data.remote.api.AdminApiService
 import com.dexter.app.data.remote.api.SessionInvitationApiService
 import com.dexter.app.data.remote.api.UserApiService
 import com.google.gson.Gson
@@ -48,15 +50,15 @@ object NetworkModule {
     @Singleton
     fun provideOkHttpClient(
         loggingInterceptor: HttpLoggingInterceptor,
+        responseInterceptor: ResponseInterceptor,
         authInterceptor: AuthInterceptor,
     ): OkHttpClient = OkHttpClient.Builder()
-        // Registrado antes del logging para que el header Authorization aparezca en los logs.
-        .addInterceptor(authInterceptor)
         .addInterceptor(loggingInterceptor)
-        .connectTimeout(8, TimeUnit.SECONDS)
-        .readTimeout(8, TimeUnit.SECONDS)
-        .writeTimeout(8, TimeUnit.SECONDS)
-        .callTimeout(10, TimeUnit.SECONDS)
+        .addInterceptor(responseInterceptor)
+        .addInterceptor(authInterceptor)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
         .build()
 
     @Provides
@@ -109,4 +111,9 @@ object NetworkModule {
     @Singleton
     fun provideSessionInvitationApiService(retrofit: Retrofit): SessionInvitationApiService =
         retrofit.create(SessionInvitationApiService::class.java)
+
+    @Provides
+    @Singleton
+    fun provideAdminApiService(retrofit: Retrofit): AdminApiService =
+        retrofit.create(AdminApiService::class.java)
 }

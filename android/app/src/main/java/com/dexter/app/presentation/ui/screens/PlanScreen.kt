@@ -19,18 +19,23 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,9 +64,19 @@ fun PlanScreen(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onPlanFinished: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val actionError = (state as? PlanState.Success)?.actionError
+    LaunchedEffect(actionError) {
+        if (actionError != null) {
+            snackbarHostState.showSnackbar(actionError)
+            viewModel.clearActionError()
+        }
+    }
 
     LaunchedEffect(matchId) {
         viewModel.loadPlan(matchId)
@@ -69,9 +84,12 @@ fun PlanScreen(
 
     PlanContent(
         state = state,
+        snackbarHostState = snackbarHostState,
         onBackClick = onBackClick,
         onEditSession = onEditSession,
         onRateSession = onRateSession,
+        onCompleteSession = { sessionId -> viewModel.completeSession(sessionId) },
+        onCompletePlan = { viewModel.completePlan { onPlanFinished() } },
         modifier = modifier
     )
 }
@@ -80,9 +98,12 @@ fun PlanScreen(
 @Composable
 private fun PlanContent(
     state: PlanState,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCompleteSession: (Long) -> Unit = {},
+    onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -92,6 +113,7 @@ private fun PlanContent(
                 onBack = onBackClick
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier
     ) { padding ->
         when (state) {
@@ -124,6 +146,8 @@ private fun PlanContent(
                     nextSessionId = state.nextSessionId,
                     onEditSession = onEditSession,
                     onRateSession = onRateSession,
+                    onCompleteSession = onCompleteSession,
+                    onCompletePlan = onCompletePlan,
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
@@ -141,6 +165,8 @@ private fun PlanBody(
     nextSessionId: Long?,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCompleteSession: (Long) -> Unit = {},
+    onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
@@ -198,7 +224,8 @@ private fun PlanBody(
             PlanSessionItem(
                 session = session,
                 isNext = session.id == nextSessionId,
-                onEdit = { onEditSession(session.id) }
+                onEdit = { onEditSession(session.id) },
+                onComplete = { onCompleteSession(session.id) }
             )
         }
 
@@ -219,6 +246,28 @@ private fun PlanBody(
                         fontWeight = FontWeight.SemiBold
                     )
                 }
+            }
+        }
+
+        item {
+            OutlinedButton(
+                onClick = onCompletePlan,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                shape = RoundedCornerShape(50),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    1.dp,
+                    MaterialTheme.colorScheme.error
+                )
+            ) {
+                Text(
+                    text = stringResource(R.string.plan_finish),
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
 
@@ -285,8 +334,8 @@ private fun MatchSummaryHeader(match: MatchDetail) {
                 Text(
                     text = stringResource(
                         R.string.plan_exchange,
-                        match.offeredSkills.firstOrNull() ?: "",
-                        match.soughtSkills.firstOrNull() ?: ""
+                        match.initiatorSkill ?: match.offeredSkills.firstOrNull() ?: "",
+                        match.receiverSkill ?: match.soughtSkills.firstOrNull() ?: ""
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant

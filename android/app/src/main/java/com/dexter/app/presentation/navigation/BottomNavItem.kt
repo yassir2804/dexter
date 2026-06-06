@@ -2,10 +2,12 @@ package com.dexter.app.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.dexter.app.R
 
@@ -38,7 +40,22 @@ sealed class BottomNavItem(
         Icons.Default.Person
     )
 
+    data object Admin : BottomNavItem(
+        NavRoutes.AdminDashboard.ROUTE,
+        R.string.nav_admin,
+        Icons.Default.AdminPanelSettings
+    )
+
+    data object AdminSettingsTab : BottomNavItem(
+        NavRoutes.AdminSettings.ROUTE,
+        R.string.settings_title,
+        Icons.Default.Settings
+    )
+
     companion object {
-        fun items() = listOf(Home, Search, Matches, Profile)
+        fun items(isAdmin: Boolean = false): List<BottomNavItem> {
+            return if (isAdmin) listOf(Admin, AdminSettingsTab)
+            else listOf(Home, Search, Matches, Profile)
+        }
     }
 }

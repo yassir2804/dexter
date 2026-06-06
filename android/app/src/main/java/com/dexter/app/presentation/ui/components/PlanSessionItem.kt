@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,6 +53,7 @@ fun PlanSessionItem(
     session: Session,
     isNext: Boolean,
     onEdit: () -> Unit,
+    onComplete: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completed = session.status == SessionStatus.COMPLETED
@@ -120,11 +122,21 @@ fun PlanSessionItem(
                 }
             }
             if (!completed) {
+                if (isNext) {
+                    IconButton(onClick = onComplete) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = stringResource(R.string.plan_complete_session),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
                 IconButton(onClick = onEdit) {
                     Icon(
                         imageVector = Icons.Default.Edit,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = if (isNext) MaterialTheme.colorScheme.onSurfaceVariant
+                        else MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -186,8 +198,8 @@ private fun NextBadge() {
 }
 
 private fun formatDate(date: Date?): String {
-    if (date == null) return ""
-    val fmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    if (date == null) return "Sin programar"
+    val fmt = SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault())
     return fmt.format(date)
 }
 

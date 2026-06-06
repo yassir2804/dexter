@@ -4,6 +4,7 @@ import android.util.Log
 import com.dexter.app.data.mapper.SessionMapper
 import com.dexter.app.data.remote.SessionRemoteDataSource
 import com.dexter.app.domain.error.DomainError
+import com.dexter.app.domain.model.ScheduleSlot
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.repository.SessionRepository
 import java.io.IOException
@@ -123,5 +124,25 @@ class SessionRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in completeSession", e)
         Result.failure(DomainError.UnknownError("Unknown error completing session", e))
+    }
+
+    override suspend fun suggestSchedule(sessionId: Long): Result<List<ScheduleSlot>> = try {
+        remoteDataSource.suggestSchedule(sessionId).fold(
+            onSuccess = { dtos ->
+                Result.success(dtos.mapNotNull { dto ->
+                    if (dto.day != null && dto.time != null) ScheduleSlot(dto.day, dto.time) else null
+                })
+            },
+            onFailure = { exception ->
+                Log.e(TAG, "Remote suggestSchedule failed", exception)
+                Result.failure(DomainError.NetworkError("Network error fetching schedule suggestions", exception))
+            }
+        )
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to get schedule suggestions: $sessionId", e)
+        Result.failure(DomainError.NetworkError("Network error fetching schedule suggestions", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in suggestSchedule", e)
+        Result.failure(DomainError.UnknownError("Unknown error fetching schedule suggestions", e))
     }
 }

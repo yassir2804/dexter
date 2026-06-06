@@ -49,6 +49,10 @@ class MatchRemoteDataSource @Inject constructor(
         matchApiService.getSuggestions(userId)
     }
 
+    suspend fun completeMatch(matchId: Long): Result<MatchSummaryDto> = safeApiCall {
+        matchApiService.completeMatch(matchId)
+    }
+
     suspend fun ensureSessions(matchId: Long): Result<Unit> = try {
         val response = withTimeout(API_TIMEOUT_MS) { matchApiService.ensureSessions(matchId) }
         if (response.isSuccessful) Result.success(Unit)

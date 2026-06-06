@@ -76,6 +76,7 @@ class MatchRepositoryImpl @Inject constructor(
             aiAnalysis        = dto.aiAnalysis ?: "",
             status            = status,
             initiatorSkill    = dto.initiatorSkill,
+            receiverSkill     = dto.receiverSkill,
             isReceiver        = dto.isReceiver,
             canLearnFromOther = dto.canLearnFromOther,
         ))
@@ -127,6 +128,17 @@ class MatchRepositoryImpl @Inject constructor(
     } catch (e: Exception) {
         Log.e(TAG, "Unknown error in rejectMatch", e)
         Result.failure(DomainError.UnknownError("Unknown error rejecting match", e))
+    }
+
+    override suspend fun completeMatch(matchId: Long): Result<MatchSummary> = try {
+        val dto = dataSource.completeMatch(matchId)
+        Result.success(matchSummaryMapper.mapToDomain(dto))
+    } catch (e: IOException) {
+        Log.e(TAG, "Failed to complete match $matchId", e)
+        Result.failure(DomainError.NetworkError("Network error completing match", e))
+    } catch (e: Exception) {
+        Log.e(TAG, "Unknown error in completeMatch: ${e.message}", e)
+        Result.failure(DomainError.UnknownError(e.message ?: "Unknown error completing match", e))
     }
 
     override suspend fun ensureSessions(matchId: Long): Result<Unit> = try {

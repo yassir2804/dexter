@@ -22,7 +22,8 @@ sealed class PlanState {
         val match: MatchDetail,
         val sessions: List<Session>,
         val progress: Float,
-        val nextSessionId: Long?
+        val nextSessionId: Long?,
+        val actionError: String? = null
     ) : PlanState()
     data class Error(val message: String) : PlanState()
 }
@@ -45,9 +46,52 @@ class PlanViewModel @Inject constructor(
     private val _state = MutableStateFlow<PlanState>(PlanState.Loading)
     val state = _state.asStateFlow()
 
+    private var currentMatchId: Long = 0L
+
+    fun completeSession(sessionId: Long) {
+        viewModelScope.launch {
+            sessionRepository.completeSession(sessionId, "").onSuccess {
+                loadPlan(currentMatchId)
+            }.onFailure { e ->
+                Log.e(TAG, "Error completing session $sessionId", e)
+                showActionError(e.message ?: "Error al completar sesión")
+            }
+        }
+    }
+
+    fun completePlan(onDone: () -> Unit = {}) {
+        if (currentMatchId == 0L) {
+            showActionError("No se pudo determinar el match")
+            return
+        }
+        viewModelScope.launch {
+            matchRepository.completeMatch(currentMatchId).onSuccess {
+                onDone()
+            }.onFailure { e ->
+                Log.e(TAG, "Error completing match $currentMatchId: ${e.message}", e)
+                showActionError(e.message ?: "Error al finalizar plan")
+            }
+        }
+    }
+
+    private fun showActionError(message: String) {
+        val current = _state.value
+        if (current is PlanState.Success) {
+            _state.value = current.copy(actionError = message)
+        }
+    }
+
+    fun clearActionError() {
+        val current = _state.value
+        if (current is PlanState.Success) {
+            _state.value = current.copy(actionError = null)
+        }
+    }
+
     fun loadPlan(matchId: Long) {
         viewModelScope.launch {
             _state.value = PlanState.Loading
+            currentMatchId = matchId
 
             val matchResult = matchRepository.getMatchDetail(matchId, CurrentUserSession.userId ?: 0L)
             val sessionsResult = sessionRepository.getSessionsByMatch(matchId)

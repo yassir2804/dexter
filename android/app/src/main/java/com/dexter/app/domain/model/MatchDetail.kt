@@ -24,6 +24,7 @@ data class MatchDetail(
     val aiAnalysis: String,
     val status: MatchStatus,
     val initiatorSkill: String? = null,
+    val receiverSkill: String? = null,
     val isReceiver: Boolean = false,
     val canLearnFromOther: List<String> = emptyList(),
 )

@@ -1,5 +1,6 @@
 package com.dexter.app.data.di
 
+import com.dexter.app.data.repository.AdminRepositoryImpl
 import com.dexter.app.data.repository.MatchRepositoryImpl
 import com.dexter.app.data.repository.NotificationRepositoryImpl
 import com.dexter.app.data.repository.ReviewRepositoryImpl
@@ -8,6 +9,7 @@ import com.dexter.app.data.repository.SearchRepositoryImpl
 import com.dexter.app.data.repository.SessionInvitationRepositoryImpl
 import com.dexter.app.data.repository.SessionRepositoryImpl
 import com.dexter.app.data.repository.UserRepositoryImpl
+import com.dexter.app.domain.repository.AdminRepository
 import com.dexter.app.domain.repository.MatchRepository
 import com.dexter.app.domain.repository.NotificationRepository
 import com.dexter.app.domain.repository.ReviewRepository
@@ -121,4 +123,10 @@ abstract class RepositoryModule {
     abstract fun bindNotificationRepository(
         notificationRepositoryImpl: NotificationRepositoryImpl
     ): NotificationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindAdminRepository(
+        adminRepositoryImpl: AdminRepositoryImpl
+    ): AdminRepository
 }
