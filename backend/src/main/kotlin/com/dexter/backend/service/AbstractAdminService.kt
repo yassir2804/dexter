@@ -40,7 +40,7 @@ class AbstractAdminService(
             .orElseThrow { NoSuchElementException("User not found: $userId") }
         val role = roleRepository.findByName(roleName)
             .orElseThrow { IllegalArgumentException("Role not found: $roleName") }
-        user.roleList = setOf(role)
+        user.roleList = mutableSetOf(role)
         val saved = userRepository.save(user)
         return userMapper.userToUserResult(saved).also { result ->
             result.roles = saved.roleList?.map { it.name }
