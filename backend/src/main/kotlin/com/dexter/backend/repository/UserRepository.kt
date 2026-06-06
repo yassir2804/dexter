@@ -15,4 +15,7 @@ interface UserRepository : JpaRepository<User, Long> {
 
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roleList")
     fun findAllWithRoles(): List<User>
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.roleList WHERE u.id = :id")
+    fun findByIdWithRoles(@Param("id") id: Long): Optional<User>
 }

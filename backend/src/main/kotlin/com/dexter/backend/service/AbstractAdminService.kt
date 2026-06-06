@@ -4,9 +4,9 @@ import com.dexter.backend.dto.UserResult
 import com.dexter.backend.mapper.UserMapper
 import com.dexter.backend.repository.RoleRepository
 import com.dexter.backend.repository.UserRepository
-import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AbstractAdminService(
@@ -25,7 +25,7 @@ class AbstractAdminService(
 
     @Transactional
     override fun toggleUserStatus(userId: Long): UserResult {
-        val user = userRepository.findById(userId)
+        val user = userRepository.findByIdWithRoles(userId)
             .orElseThrow { NoSuchElementException("User not found: $userId") }
         user.enabled = !user.enabled
         val saved = userRepository.save(user)
@@ -36,7 +36,7 @@ class AbstractAdminService(
 
     @Transactional
     override fun changeUserRole(userId: Long, roleName: String): UserResult {
-        val user = userRepository.findById(userId)
+        val user = userRepository.findByIdWithRoles(userId)
             .orElseThrow { NoSuchElementException("User not found: $userId") }
         val role = roleRepository.findByName(roleName)
             .orElseThrow { IllegalArgumentException("Role not found: $roleName") }

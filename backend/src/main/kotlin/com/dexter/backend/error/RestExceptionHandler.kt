@@ -44,7 +44,7 @@ class RestExceptionHandler : ResponseEntityExceptionHandler() {
             status = HttpStatus.INTERNAL_SERVER_ERROR,
         )
         apiError.addSubError(ApiSubError("INTERNAL_ERROR", "There is a serious error in the system"))
-        logger.debug("BackEnd - Dexter {}", ex)
+        logger.error("BackEnd - Dexter unhandled exception", ex)
         return buildResponseEntity(apiError)
     }
 }
