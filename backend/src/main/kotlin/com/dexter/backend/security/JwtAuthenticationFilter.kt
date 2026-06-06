@@ -35,12 +35,17 @@ class JwtAuthenticationFilter(
     init {
         setFilterProcessesUrl("/v1/users/login")
         setAuthenticationFailureHandler { _, response, exception ->
+            val isDisabled = exception is org.springframework.security.authentication.DisabledException
             val apiError = ApiError(
                 status = HttpStatus.UNAUTHORIZED,
                 message = "authentication failed",
                 debugMessage = exception.message,
             )
-            apiError.addSubError(ApiSubError("INVALID_CREDENTIALS", "Invalid username or password"))
+            if (isDisabled) {
+                apiError.addSubError(ApiSubError("USER_DISABLED", "User account is disabled"))
+            } else {
+                apiError.addSubError(ApiSubError("INVALID_CREDENTIALS", "Invalid username or password"))
+            }
 
             response.status = jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED
             response.contentType = SecurityConstants.APPLICATION_JSON
