@@ -27,4 +27,5 @@ data class MatchDetail(
     val receiverSkill: String? = null,
     val isReceiver: Boolean = false,
     val canLearnFromOther: List<String> = emptyList(),
+    val contactPhone: String? = null,
 )

@@ -149,6 +149,7 @@
     <string name="match_accept">Aceptar</string>
     <string name="match_reject">Rechazar</string>
     <string name="match_view_plan">Ver plan de sesiones</string>
+    <string name="match_contact_label">Número de contacto</string>
     <string name="match_tap_profile">Toca para ver perfil completo</string>
 
     <!-- Timeframes -->

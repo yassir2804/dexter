@@ -19,4 +19,5 @@ data class MatchDetailDto(
     val receiverSkill: String? = null,
     val isReceiver: Boolean = false,
     val canLearnFromOther: List<String> = emptyList(),
+    val otherUserPhone: String? = null,
 )

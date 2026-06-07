@@ -79,6 +79,7 @@ class MatchRepositoryImpl @Inject constructor(
             receiverSkill     = dto.receiverSkill,
             isReceiver        = dto.isReceiver,
             canLearnFromOther = dto.canLearnFromOther,
+            contactPhone      = dto.otherUserPhone,
         ))
     } catch (e: IOException) {
         Result.failure(DomainError.NetworkError("Network error fetching match detail", e))
