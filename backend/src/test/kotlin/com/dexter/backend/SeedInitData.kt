@@ -29,26 +29,24 @@ import java.time.LocalTime
 import java.util.Date
 
 /**
- * Ejecutar con el perfil `initlocal` (ddl-auto=create) para resetear DB y
- * sembrar roles, privilegios, usuarios, skills, matches, sessions y reviews:
+ * Seed de datos de prueba con scores de compatibilidad CONOCIDOS para testing funcional.
  *
+ * Ejecutar con el perfil `initlocal` (ddl-auto=create) para resetear DB:
  *     ./gradlew test --tests com.dexter.backend.SeedInitData -Dspring.profiles.active=initlocal
  *
- * Escenarios al loguear como admin@dexter.app:
- *   Home  → Solicitudes RECIBIDAS (admin es receiver):
- *             - regularUser → admin (PENDING)
- *             - mariaUser   → admin (PENDING)
- *   Matches → Matches aceptados:
- *             - admin ↔ juanUser  (ACCEPTED)
- *             - anaUser ↔ admin   (ACCEPTED)
- *   Search  → Usuarios sin match con admin (aparecen en resultados):
- *             - carlosUser, luisUser, sofiaUser, andresUser
- *             - pedroUser, gabrielaUser, danielUser
- *   Suggestions → Top compatibles >50% con admin:
- *             - pedroUser   ~90%
- *             - danielUser  ~90%
- *             - gabrielaUser ~72%
- *             - sofiaUser   ~70%
+ * ── SCORES ESPERADOS (TU1 = admin como referencia) ──
+ *   TU1 ↔ TU2  (Bruno)    = 100.0%  ← skills perfect + días solapan
+ *   TU1 ↔ TU5  (Elena)    =  76.7%  ← skills parcial + días solapan
+ *   TU1 ↔ TU3  (Carla)    =  70.0%  ← skills perfect + SIN solapamiento de días
+ *   TU1 ↔ TU7  (Gabriela) =  55.0%  ← skills parcial + 2/3 días solapan
+ *   TU1 ↔ TU4  (David)    =  30.0%  ← SIN skills + días solapan → NO sugerencia
+ *   TU1 ↔ TU6  (Felipe)   =   0.0%  ← SIN skills + SIN días      → NO sugerencia
+ *
+ * ── MATCHES PRE-ARMADOS ──
+ *   M1: TU2 (Bruno)  → TU1 (Ana):   PENDING  — para probar solicitudes recibidas
+ *   M2: TU3 (Carla)  → TU1 (Ana):   PENDING  — segunda solicitud para probar rechazo
+ *   M3: TU1 (Ana)    ↔ TU5 (Elena): ACCEPTED — 6 sesiones, 0 completadas
+ *   M4: TU1 (Ana)    ↔ TU8 (Hugo):  ACCEPTED — 6 sesiones, 1 completada + review
  */
 @SpringBootTest
 @ActiveProfiles("initlocal")
@@ -78,132 +76,164 @@ class SeedInitData {
             Role(name = "ROLE_USER", privilegeList = setOf(readPrivilege))
         )
 
-        // ── Users ───────────────────────────────────────────────────────
-        // Admin: ofrece Guitarra+Piano, busca Inglés+Francés, disponible Lun/Mié/Vie
+        // ── USUARIOS DE PRUEBA CON SCORES CONOCIDOS ─────────────────────
+
+        // TU1 — Ana (cuenta principal de prueba)
+        // Ofrece: Guitarra + Piano | Busca: Inglés + Francés | Avail: Lun/Mié/Vie
         val adminUser = userRepository.save(User(
-            email = "admin@dexter.app",
-            password = passwordEncoder.encode("admin123"),
-            firstName = "Admin", lastName = "Dexter", username = "admin",
-            bio = "Músico profesional con 10 años de experiencia en guitarra y piano.",
+            email = "admin@dexter.app", password = passwordEncoder.encode("admin123"),
+            firstName = "Ana", lastName = "Guitarra", username = "admin",
+            bio = "Músico profesional. Toco guitarra y piano. Quiero aprender idiomas.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.8, totalSessions = 12, totalMatches = 5,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0001", roleList = setOf(adminRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0001",
+            roleList = setOf(userRole),
         ))
 
-        // regularUser → admin: PENDING (admin receiver → Home)
-        val regularUser = userRepository.save(User(
-            email = "user@dexter.app",
-            password = passwordEncoder.encode("user123"),
-            firstName = "Regular", lastName = "User", username = "user",
-            bio = "Profesora de inglés y fotógrafa aficionada.",
+        // TU9 — Admin real del sistema
+        val systemAdmin = userRepository.save(User(
+            email = "admindexter@dexter.app", password = passwordEncoder.encode("admin123"),
+            firstName = "Admin", lastName = "Sistema", username = "admindexter",
+            bio = "Administrador del sistema Dexter.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 0.0, totalSessions = 0, totalMatches = 0,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0000",
+            roleList = setOf(adminRole),
+        ))
+
+        // TU2 — Bruno (100% con TU1)
+        // Ofrece: Inglés + Francés | Busca: Guitarra + Piano | Avail: Lun/Mié/Vie
+        // Score: skillScore=(2+2)/4=1.0, availScore=3/3=1.0 → 100%
+        val brunoUser = userRepository.save(User(
+            email = "user@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Bruno", lastName = "Idiomas", username = "user",
+            bio = "Bilingüe inglés-francés. Quiero aprender guitarra y piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.5, totalSessions = 8, totalMatches = 3,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0002", roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0002",
+            roleList = setOf(userRole),
         ))
 
-        // mariaUser → admin: PENDING (admin receiver → Home)
+        // TU3 — Carla (70% con TU1 — skills perfectas, SIN solapamiento de días)
+        // Ofrece: Inglés + Francés | Busca: Guitarra + Piano | Avail: Mar/Sáb
+        // Score: skillScore=(2+2)/4=1.0, availScore=0/5=0.0 → 70%
+        val carlaUser = userRepository.save(User(
+            email = "carla@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Carla", lastName = "Sin Horario", username = "carla",
+            bio = "Profesora de idiomas. Disponible fines de semana y martes.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 4.2, totalSessions = 5, totalMatches = 2,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0013",
+            roleList = setOf(userRole),
+        ))
+
+        // TU4 — David (30% con TU1 — SIN skills match, días solapan)
+        // Ofrece: Cocina + Yoga | Busca: Fotografía + Diseño | Avail: Lun/Mié/Vie
+        // Score: skillScore=(0+0)/4=0.0, availScore=3/3=1.0 → 30% → NO aparece en sugerencias
+        val davidUser = userRepository.save(User(
+            email = "david@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "David", lastName = "Incompatible", username = "david",
+            bio = "Chef y yogui. Busco aprender fotografía y diseño.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 4.0, totalSessions = 3, totalMatches = 1,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0014",
+            roleList = setOf(userRole),
+        ))
+
+        // TU5 — Elena (76.7% con TU1 — skill parcial + días solapan)
+        // Ofrece: Inglés | Busca: Guitarra | Avail: Lun/Mié/Vie
+        // Score: skillScore=(1+1)/3=0.667, availScore=3/3=1.0 → 76.7%
+        val elenaUser = userRepository.save(User(
+            email = "elena@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Elena", lastName = "Parcial", username = "elena",
+            bio = "Inglés nativo. Quiero aprender guitarra.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 4.3, totalSessions = 6, totalMatches = 2,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0015",
+            roleList = setOf(userRole),
+        ))
+
+        // TU6 — Felipe (0% con TU1 — SIN skills, SIN días)
+        // Ofrece: Fotografía | Busca: Cocina | Avail: Mar/Jue/Sáb
+        // Score: skillScore=0/3=0.0, availScore=0/6=0.0 → 0% → NO aparece en sugerencias
+        val felipeUser = userRepository.save(User(
+            email = "felipe@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Felipe", lastName = "Cero", username = "felipe",
+            bio = "Fotógrafo profesional. Aprendo cocina.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 3.8, totalSessions = 2, totalMatches = 1,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0016",
+            roleList = setOf(userRole),
+        ))
+
+        // TU7 — Gabriela (55% con TU1 — skills parcial + 2/3 días solapan)
+        // Ofrece: Inglés + Cocina | Busca: Guitarra + Fotografía | Avail: Lun/Mié
+        // Score: skillScore=(1+1)/4=0.5, availScore=2/3=0.667 → 55%
+        val gabrielaUser = userRepository.save(User(
+            email = "gabriela@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Gabriela", lastName = "Borde", username = "gabriela",
+            bio = "Inglés y cocina. Quiero aprender guitarra y fotografía.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 4.1, totalSessions = 4, totalMatches = 2,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0017",
+            roleList = setOf(userRole),
+        ))
+
+        // TU8 — Hugo (para probar calificaciones y cascada de sesiones)
+        // Ofrece: Piano | Busca: Inglés | Avail: Lun/Mié/Vie
+        val hugoUser = userRepository.save(User(
+            email = "hugo@dexter.app", password = passwordEncoder.encode("user123"),
+            firstName = "Hugo", lastName = "Revisor", username = "hugo",
+            bio = "Pianista clásico. Quiero aprender inglés.",
+            country = "CR", enabled = true, tokenExpired = false,
+            rating = 0.0, totalSessions = 1, totalMatches = 1,
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0018",
+            roleList = setOf(userRole),
+        ))
+
+        // ── Usuarios de fondo (para search, variedad) ───────────────────
         val mariaUser = userRepository.save(User(
-            email = "maria@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "maria@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "María", lastName = "López", username = "maria",
             bio = "Pianista y aficionada a la cocina. Busco aprender fotografía.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.7, totalSessions = 15, totalMatches = 4,
             createDate = Date(), updatedAt = Date(), phone = "+506 8888-0003", roleList = setOf(userRole),
         ))
-
-        // juanUser ↔ admin: ACCEPTED (Matches tab)
         val juanUser = userRepository.save(User(
-            email = "juan@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "juan@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "Juan", lastName = "Pérez", username = "juan",
-            bio = "Diseñador gráfico especializado en branding. Quiero aprender piano.",
+            bio = "Diseñador gráfico. Quiero aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.2, totalSessions = 6, totalMatches = 2,
             createDate = Date(), updatedAt = Date(), phone = "+506 8888-0004", roleList = setOf(userRole),
         ))
-
-        // anaUser ↔ admin: ACCEPTED (Matches tab)
         val anaUser = userRepository.save(User(
-            email = "ana@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "ana@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "Ana", lastName = "Ramírez", username = "ana",
-            bio = "Instructora de yoga y meditación. Interesada en aprender piano.",
+            bio = "Instructora de yoga. Interesada en aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.9, totalSessions = 20, totalMatches = 7,
             createDate = Date(), updatedAt = Date(), phone = "+506 8888-0005", roleList = setOf(userRole),
         ))
-
-        // Sin match con admin — Search + baja compatibilidad
-        val carlosUser = userRepository.save(User(
-            email = "carlos@dexter.app",
-            password = passwordEncoder.encode("user123"),
-            firstName = "Carlos", lastName = "Méndez", username = "carlos",
-            bio = "Desarrollador Python especializado en Machine Learning.",
-            country = "CR", enabled = true, tokenExpired = false,
-            rating = 4.3, totalSessions = 5, totalMatches = 1,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0006", roleList = setOf(userRole),
-        ))
-
-        // Sin match con admin — ofrece Guitarra para Search
-        val luisUser = userRepository.save(User(
-            email = "luis@dexter.app",
-            password = passwordEncoder.encode("user123"),
-            firstName = "Luis", lastName = "Vargas", username = "luis",
-            bio = "Guitarrista autodidacta con 5 años de práctica. Busco aprender inglés.",
-            country = "CR", enabled = true, tokenExpired = false,
-            rating = 4.6, totalSessions = 10, totalMatches = 2,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0007", roleList = setOf(userRole),
-        ))
-
-        // Sin match con admin — ofrece Inglés+Francés (suggestion ~70%)
         val sofiaUser = userRepository.save(User(
-            email = "sofia@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "sofia@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "Sofía", lastName = "Torres", username = "sofia",
-            bio = "Traductora bilingüe inglés-español. Me interesa aprender guitarra.",
+            bio = "Traductora bilingüe. Me interesa aprender guitarra.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.4, totalSessions = 7, totalMatches = 3,
             createDate = Date(), updatedAt = Date(), phone = "+506 8888-0008", roleList = setOf(userRole),
         ))
-
-        // Sin match con admin — ofrece Piano para Search
-        val andresUser = userRepository.save(User(
-            email = "andres@dexter.app",
-            password = passwordEncoder.encode("user123"),
-            firstName = "Andrés", lastName = "Mora", username = "andres",
-            bio = "Pianista clásico. Busco aprender fotografía y diseño.",
-            country = "CR", enabled = true, tokenExpired = false,
-            rating = 4.8, totalSessions = 18, totalMatches = 6,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0009", roleList = setOf(userRole),
-        ))
-
-        // Sin match con admin — suggestion ~90% (ofrece Inglés+Francés, busca Guitarra, días solapan)
         val pedroUser = userRepository.save(User(
-            email = "pedro@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "pedro@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "Pedro", lastName = "Alvarado", username = "pedro",
-            bio = "Profesor de idiomas con certificación Cambridge. Quiero aprender guitarra.",
+            bio = "Profesor de idiomas. Quiero aprender guitarra.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.7, totalSessions = 14, totalMatches = 5,
             createDate = Date(), updatedAt = Date(), phone = "+506 8888-0010", roleList = setOf(userRole),
         ))
-
-        // Sin match con admin — suggestion ~72% (ofrece Inglés, busca Piano+Guitarra, días solapan)
-        val gabrielaUser = userRepository.save(User(
-            email = "gabriela@dexter.app",
-            password = passwordEncoder.encode("user123"),
-            firstName = "Gabriela", lastName = "Solís", username = "gabriela",
-            bio = "Docente de inglés universitaria. Me encantaría aprender piano y guitarra.",
-            country = "CR", enabled = true, tokenExpired = false,
-            rating = 4.5, totalSessions = 9, totalMatches = 3,
-            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0011", roleList = setOf(userRole),
-        ))
-
-        // Sin match con admin — suggestion ~90% (ofrece Inglés+Francés, busca Piano, días solapan)
         val danielUser = userRepository.save(User(
-            email = "daniel@dexter.app",
-            password = passwordEncoder.encode("user123"),
+            email = "daniel@dexter.app", password = passwordEncoder.encode("user123"),
             firstName = "Daniel", lastName = "Rojas", username = "daniel",
             bio = "Bilingüe francés-español. Siempre quise aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
@@ -213,161 +243,294 @@ class SeedInitData {
 
         // ── Skills ──────────────────────────────────────────────────────
         skillRepository.saveAll(listOf(
-            // Admin
-            Skill(user = adminUser, name = "Guitarra",  category = "Música",       skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = adminUser, name = "Piano",     category = "Música",       skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = adminUser, name = "Inglés",    category = "Idiomas",      skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            Skill(user = adminUser, name = "Francés",   category = "Idiomas",      skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Regular (busca Guitarra, ofrece Inglés — compat moderada)
-            Skill(user = regularUser, name = "Inglés",     category = "Idiomas",      skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = regularUser, name = "Fotografía", category = "Arte",         skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = regularUser, name = "Guitarra",   category = "Música",       skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = regularUser, name = "Kotlin",     category = "Programación", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // María
-            Skill(user = mariaUser, name = "Piano",      category = "Música",       skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = mariaUser, name = "Cocina",     category = "Gastronomía",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = mariaUser, name = "Fotografía", category = "Arte",         skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            Skill(user = mariaUser, name = "Guitarra",   category = "Música",       skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Juan
-            Skill(user = juanUser, name = "Diseño Gráfico", category = "Diseño",   skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = juanUser, name = "Photoshop",      category = "Diseño",   skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = juanUser, name = "Piano",          category = "Música",   skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            Skill(user = juanUser, name = "Guitarra",       category = "Música",   skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Ana
-            Skill(user = anaUser, name = "Yoga",       category = "Bienestar",    skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = anaUser, name = "Meditación", category = "Bienestar",    skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = anaUser, name = "Piano",      category = "Música",       skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Carlos (baja compat con admin — días no solapan)
-            Skill(user = carlosUser, name = "Python",           category = "Programación", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = carlosUser, name = "Machine Learning", category = "Programación", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = carlosUser, name = "Piano",            category = "Música",       skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            Skill(user = carlosUser, name = "Guitarra",         category = "Música",       skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Luis (ofrece Guitarra → Search; compat baja porque no enseña inglés/francés)
-            Skill(user = luisUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = luisUser, name = "Bajo",     category = "Música",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.BEGINNER),
-            Skill(user = luisUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Sofía (ofrece Inglés+Francés, busca Guitarra → suggestion ~70%)
-            Skill(user = sofiaUser, name = "Inglés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = sofiaUser, name = "Francés", category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = sofiaUser, name = "Guitarra",category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Andrés (ofrece Piano → Search)
-            Skill(user = andresUser, name = "Piano",          category = "Música", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = andresUser, name = "Teoría Musical", category = "Música", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
-            Skill(user = andresUser, name = "Fotografía",     category = "Arte",   skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Pedro (ofrece Inglés+Francés, busca Guitarra, días Lun+Mié → suggestion ~90%)
-            Skill(user = pedroUser, name = "Inglés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = pedroUser, name = "Francés", category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = pedroUser, name = "Guitarra",category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Gabriela (ofrece Inglés, busca Piano+Guitarra, días Mié+Vie → suggestion ~72%)
-            Skill(user = gabrielaUser, name = "Inglés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
-            Skill(user = gabrielaUser, name = "Piano",   category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            Skill(user = gabrielaUser, name = "Guitarra",category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
-            // Daniel (ofrece Francés+Inglés, busca Piano, días Lun+Vie → suggestion ~90%)
+            // TU1 — Ana: Ofrece Guitarra+Piano, Busca Inglés+Francés
+            Skill(user = adminUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = adminUser, name = "Piano",    category = "Música",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = adminUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = adminUser, name = "Francés",  category = "Idiomas", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU2 — Bruno: Ofrece Inglés+Francés, Busca Guitarra+Piano → 100% con TU1
+            Skill(user = brunoUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = brunoUser, name = "Francés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = brunoUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = brunoUser, name = "Piano",    category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU3 — Carla: Ofrece Inglés+Francés, Busca Guitarra+Piano → 70% (sin días)
+            Skill(user = carlaUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = carlaUser, name = "Francés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = carlaUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = carlaUser, name = "Piano",    category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU4 — David: Ofrece Cocina+Yoga, Busca Fotografía+Diseño → 30% (sin skills match)
+            Skill(user = davidUser, name = "Cocina",      category = "Gastronomía", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = davidUser, name = "Yoga",        category = "Bienestar",   skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = davidUser, name = "Fotografía",  category = "Arte",        skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = davidUser, name = "Diseño",      category = "Diseño",      skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU5 — Elena: Ofrece Inglés, Busca Guitarra → 76.7% con TU1
+            Skill(user = elenaUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = elenaUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU6 — Felipe: Ofrece Fotografía, Busca Cocina → 0% con TU1
+            Skill(user = felipeUser, name = "Fotografía", category = "Arte",        skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = felipeUser, name = "Cocina",     category = "Gastronomía", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU7 — Gabriela: Ofrece Inglés+Cocina, Busca Guitarra+Fotografía → 55% con TU1
+            Skill(user = gabrielaUser, name = "Inglés",     category = "Idiomas",     skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = gabrielaUser, name = "Cocina",     category = "Gastronomía", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = gabrielaUser, name = "Guitarra",   category = "Música",      skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = gabrielaUser, name = "Fotografía", category = "Arte",        skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // TU8 — Hugo: Ofrece Piano, Busca Inglés (para probar calificaciones)
+            Skill(user = hugoUser, name = "Piano",  category = "Música",  skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = hugoUser, name = "Inglés", category = "Idiomas", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            // Usuarios de fondo
+            Skill(user = mariaUser, name = "Piano",      category = "Música",      skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = mariaUser, name = "Cocina",     category = "Gastronomía", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = mariaUser, name = "Fotografía", category = "Arte",        skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = mariaUser, name = "Guitarra",   category = "Música",      skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            Skill(user = juanUser, name = "Diseño Gráfico", category = "Diseño", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = juanUser, name = "Photoshop",      category = "Diseño", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = juanUser, name = "Piano",          category = "Música", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+            Skill(user = juanUser, name = "Guitarra",       category = "Música", skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            Skill(user = anaUser, name = "Yoga",       category = "Bienestar", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = anaUser, name = "Meditación", category = "Bienestar", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = anaUser, name = "Piano",      category = "Música",   skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            Skill(user = sofiaUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = sofiaUser, name = "Francés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
+            Skill(user = sofiaUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
+            Skill(user = pedroUser, name = "Inglés",   category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = pedroUser, name = "Francés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
+            Skill(user = pedroUser, name = "Guitarra", category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
+
             Skill(user = danielUser, name = "Francés", category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.ADVANCED),
             Skill(user = danielUser, name = "Inglés",  category = "Idiomas", skillRole = SkillRole.OFFERED, skillLevel = SkillLevel.INTERMEDIATE),
             Skill(user = danielUser, name = "Piano",   category = "Música",  skillRole = SkillRole.SOUGHT,  skillLevel = SkillLevel.BEGINNER),
         ))
 
-        // ── Availability (ISO-8601: 1=Lun … 7=Dom) ─────────────────────
+        // ── Availability (ISO-8601: 1=Lun, 2=Mar, 3=Mié, 4=Jue, 5=Vie, 6=Sáb, 7=Dom) ──
         availabilityRepository.saveAll(listOf(
-            // Admin: Lun, Mié, Vie
+            // TU1 — Ana: Lun/Mié/Vie
             Availability(user = adminUser, dayOfWeek = 1, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
             Availability(user = adminUser, dayOfWeek = 3, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
             Availability(user = adminUser, dayOfWeek = 5, startTime = LocalTime.of(16, 0), endTime = LocalTime.of(18, 0)),
-            // Regular: Mar, Jue
-            Availability(user = regularUser, dayOfWeek = 2, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
-            Availability(user = regularUser, dayOfWeek = 4, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
-            // María: Lun, Jue, Sáb
+
+            // TU2 — Bruno: Lun/Mié/Vie → solapamiento 3/3 con TU1 → availScore=1.0
+            Availability(user = brunoUser, dayOfWeek = 1, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
+            Availability(user = brunoUser, dayOfWeek = 3, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
+            Availability(user = brunoUser, dayOfWeek = 5, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+
+            // TU3 — Carla: Mar/Sáb → SIN solapamiento con TU1 → availScore=0 → score=70%
+            Availability(user = carlaUser, dayOfWeek = 2, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
+            Availability(user = carlaUser, dayOfWeek = 6, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
+
+            // TU4 — David: Lun/Mié/Vie → solapamiento perfecto con TU1 (pero skills=0)
+            Availability(user = davidUser, dayOfWeek = 1, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+            Availability(user = davidUser, dayOfWeek = 3, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+            Availability(user = davidUser, dayOfWeek = 5, startTime = LocalTime.of(15, 0), endTime = LocalTime.of(17, 0)),
+
+            // TU5 — Elena: Lun/Mié/Vie → solapamiento 3/3 con TU1 → availScore=1.0
+            Availability(user = elenaUser, dayOfWeek = 1, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
+            Availability(user = elenaUser, dayOfWeek = 3, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
+            Availability(user = elenaUser, dayOfWeek = 5, startTime = LocalTime.of(16, 0), endTime = LocalTime.of(18, 0)),
+
+            // TU6 — Felipe: Mar/Jue/Sáb → SIN solapamiento con TU1 → availScore=0 → score=0%
+            Availability(user = felipeUser, dayOfWeek = 2, startTime = LocalTime.of(9, 0), endTime = LocalTime.of(11, 0)),
+            Availability(user = felipeUser, dayOfWeek = 4, startTime = LocalTime.of(9, 0), endTime = LocalTime.of(11, 0)),
+            Availability(user = felipeUser, dayOfWeek = 6, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
+
+            // TU7 — Gabriela: Lun/Mié → overlap=2, union={1,3,5}=3 → availScore=2/3=0.667
+            Availability(user = gabrielaUser, dayOfWeek = 1, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+            Availability(user = gabrielaUser, dayOfWeek = 3, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+
+            // TU8 — Hugo: Lun/Mié/Vie (para match con Ana que usa esos días)
+            Availability(user = hugoUser, dayOfWeek = 1, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
+            Availability(user = hugoUser, dayOfWeek = 3, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
+            Availability(user = hugoUser, dayOfWeek = 5, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
+
+            // Usuarios de fondo
             Availability(user = mariaUser, dayOfWeek = 1, startTime = LocalTime.of(9, 0),  endTime = LocalTime.of(11, 0)),
             Availability(user = mariaUser, dayOfWeek = 4, startTime = LocalTime.of(15, 0), endTime = LocalTime.of(17, 0)),
             Availability(user = mariaUser, dayOfWeek = 6, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
-            // Juan: Lun, Mié (solapa con admin → match aceptado tiene sentido)
+
             Availability(user = juanUser, dayOfWeek = 1, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
             Availability(user = juanUser, dayOfWeek = 3, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
-            // Ana: Lun, Mié, Sáb
+
             Availability(user = anaUser, dayOfWeek = 1, startTime = LocalTime.of(7, 0),  endTime = LocalTime.of(9, 0)),
             Availability(user = anaUser, dayOfWeek = 3, startTime = LocalTime.of(7, 0),  endTime = LocalTime.of(9, 0)),
             Availability(user = anaUser, dayOfWeek = 6, startTime = LocalTime.of(9, 0),  endTime = LocalTime.of(11, 0)),
-            // Carlos: Mar, Jue, Dom (sin solapamiento con admin)
-            Availability(user = carlosUser, dayOfWeek = 2, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
-            Availability(user = carlosUser, dayOfWeek = 4, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
-            Availability(user = carlosUser, dayOfWeek = 7, startTime = LocalTime.of(14, 0), endTime = LocalTime.of(16, 0)),
-            // Luis: Lun, Mié
-            Availability(user = luisUser, dayOfWeek = 1, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
-            Availability(user = luisUser, dayOfWeek = 3, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
-            // Sofía: Mar, Jue, Sáb (sin solapamiento con admin → solo skills aportan)
+
             Availability(user = sofiaUser, dayOfWeek = 2, startTime = LocalTime.of(9, 0), endTime = LocalTime.of(11, 0)),
             Availability(user = sofiaUser, dayOfWeek = 4, startTime = LocalTime.of(9, 0), endTime = LocalTime.of(11, 0)),
             Availability(user = sofiaUser, dayOfWeek = 6, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
-            // Andrés: Vie, Dom
-            Availability(user = andresUser, dayOfWeek = 5, startTime = LocalTime.of(16, 0), endTime = LocalTime.of(18, 0)),
-            Availability(user = andresUser, dayOfWeek = 7, startTime = LocalTime.of(10, 0), endTime = LocalTime.of(12, 0)),
-            // Pedro: Lun, Mié (solapa con admin → boost por disponibilidad)
+
             Availability(user = pedroUser, dayOfWeek = 1, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
             Availability(user = pedroUser, dayOfWeek = 3, startTime = LocalTime.of(18, 0), endTime = LocalTime.of(20, 0)),
-            // Gabriela: Mié, Vie (solapa con admin)
-            Availability(user = gabrielaUser, dayOfWeek = 3, startTime = LocalTime.of(17, 0), endTime = LocalTime.of(19, 0)),
-            Availability(user = gabrielaUser, dayOfWeek = 5, startTime = LocalTime.of(15, 0), endTime = LocalTime.of(17, 0)),
-            // Daniel: Lun, Vie (solapa con admin)
+
             Availability(user = danielUser, dayOfWeek = 1, startTime = LocalTime.of(19, 0), endTime = LocalTime.of(21, 0)),
             Availability(user = danielUser, dayOfWeek = 5, startTime = LocalTime.of(16, 0), endTime = LocalTime.of(18, 0)),
         ))
 
-        // ── Matches ─────────────────────────────────────────────────────
-        // 1. regular → admin: PENDING (admin receiver → Home "Solicitudes recibidas")
+        // ── Matches pre-armados ─────────────────────────────────────────
+
+        // M1: Bruno → Ana (PENDING — para probar solicitudes recibidas y aceptar con picker)
         matchRepository.save(Match(
-            initiator = regularUser, receiver = adminUser,
-            compatibilityScore = 78.0, status = MatchStatus.PENDING, createdAt = Date(),
+            initiator = brunoUser, receiver = adminUser,
+            compatibilityScore = 100.0, status = MatchStatus.PENDING, createdAt = Date(),
         ))
 
-        // 2. maria → admin: PENDING (admin receiver → Home "Solicitudes recibidas")
+        // M2: Carla → Ana (PENDING — para probar rechazo de solicitud)
         matchRepository.save(Match(
-            initiator = mariaUser, receiver = adminUser,
-            compatibilityScore = 85.0, status = MatchStatus.PENDING, createdAt = Date(),
+            initiator = carlaUser, receiver = adminUser,
+            compatibilityScore = 70.0, status = MatchStatus.PENDING, createdAt = Date(),
         ))
 
-        // 3. admin → juan: ACCEPTED (aparece en Matches de admin)
-        val matchJuan = matchRepository.save(Match(
-            initiator = adminUser, receiver = juanUser,
-            compatibilityScore = 62.0, status = MatchStatus.ACCEPTED, createdAt = Date(),
-        ))
-
-        // 4. ana → admin: ACCEPTED (aparece en Matches de admin)
-        matchRepository.save(Match(
-            initiator = anaUser, receiver = adminUser,
-            compatibilityScore = 70.0, status = MatchStatus.ACCEPTED, createdAt = Date(),
-        ))
-
-        // ── Sesión completada (match admin↔juan) ────────────────────────
-        val guitarraSkill = skillRepository.findByUserId(adminUser.id!!)
-            .first { it.skillRole == SkillRole.OFFERED && it.name == "Guitarra" }
-
-        val session1 = sessionRepository.save(Session(
-            match = matchJuan,
-            skill = guitarraSkill,
-            sessionNumber = 1,
-            title = "Introducción a la guitarra",
-            description = "Primera clase — acordes básicos",
-            status = SessionStatus.COMPLETED,
-            scheduledAt = Date(), completedAt = Date(), createdAt = Date(),
-        ))
-
-        // ── Review ──────────────────────────────────────────────────────
-        reviewRepository.save(Review(
-            reviewer = juanUser,
-            reviewee = adminUser,
-            session = session1,
-            rating = 5,
-            comment = "Excelente profesor, muy paciente y claro.",
+        // M3: Ana ↔ Elena (ACCEPTED — 6 sesiones alternadas, 0 completadas)
+        // Ana enseña Guitarra (par), Elena enseña Inglés (impar)
+        val matchElena = matchRepository.save(Match(
+            initiator = adminUser, receiver = elenaUser,
+            compatibilityScore = 76.7, status = MatchStatus.ACCEPTED,
+            initiatorSkill = "Guitarra", receiverSkill = "Inglés",
             createdAt = Date(),
         ))
 
+        val guitarraAna = skillRepository.findByUserId(adminUser.id!!)
+            .first { it.skillRole == SkillRole.OFFERED && it.name == "Guitarra" }
+        val inglesElena = skillRepository.findByUserId(elenaUser.id!!)
+            .first { it.skillRole == SkillRole.OFFERED && it.name == "Inglés" }
+
+        // Fechas sugeridas: próximos Lun/Mié/Vie (en común Ana y Elena)
+        val today = java.util.Calendar.getInstance()
+        fun nextWeekday(dayOfWeek: Int): Date {
+            val cal = java.util.Calendar.getInstance()
+            while (cal.get(java.util.Calendar.DAY_OF_WEEK) != dayOfWeek) cal.add(java.util.Calendar.DAY_OF_YEAR, 1)
+            cal.set(java.util.Calendar.HOUR_OF_DAY, 18)
+            cal.set(java.util.Calendar.MINUTE, 0)
+            return cal.time
+        }
+        val lun1 = nextWeekday(java.util.Calendar.MONDAY)
+        val mie1 = nextWeekday(java.util.Calendar.WEDNESDAY)
+        val vie1 = nextWeekday(java.util.Calendar.FRIDAY)
+        val cal2 = java.util.Calendar.getInstance().also { it.time = lun1; it.add(java.util.Calendar.WEEK_OF_YEAR, 1) }
+        val lun2 = cal2.time
+        val cal3 = java.util.Calendar.getInstance().also { it.time = mie1; it.add(java.util.Calendar.WEEK_OF_YEAR, 1) }
+        val mie2 = cal3.time
+        val cal4 = java.util.Calendar.getInstance().also { it.time = vie1; it.add(java.util.Calendar.WEEK_OF_YEAR, 1) }
+        val vie2 = cal4.time
+
+        sessionRepository.saveAll(listOf(
+            // Impares (1,3,5): Elena enseña Inglés → receiver enseña
+            Session(match = matchElena, skill = inglesElena, sessionNumber = 1,
+                title = "Primeros pasos en Inglés: Saludos y presentaciones",
+                description = "Aprende los saludos básicos y cómo presentarte en inglés.",
+                status = SessionStatus.SCHEDULED, scheduledAt = lun1, createdAt = Date()),
+            // Pares (2,4,6): Ana enseña Guitarra → initiator enseña
+            Session(match = matchElena, skill = guitarraAna, sessionNumber = 2,
+                title = "Guitarra: Los 3 acordes fundamentales",
+                description = "Em, Am y C — los acordes con los que puedes tocar cientos de canciones.",
+                status = SessionStatus.SCHEDULED, scheduledAt = mie1, createdAt = Date()),
+            Session(match = matchElena, skill = inglesElena, sessionNumber = 3,
+                title = "Inglés conversacional: Situaciones cotidianas",
+                description = "Practicamos diálogos de la vida diaria: tienda, restaurante, trabajo.",
+                status = SessionStatus.SCHEDULED, scheduledAt = vie1, createdAt = Date()),
+            Session(match = matchElena, skill = guitarraAna, sessionNumber = 4,
+                title = "Guitarra: Cambios de acorde y ritmo básico",
+                description = "Aprende a cambiar entre acordes sin perder el pulso.",
+                status = SessionStatus.SCHEDULED, scheduledAt = lun2, createdAt = Date()),
+            Session(match = matchElena, skill = inglesElena, sessionNumber = 5,
+                title = "Inglés: Verbos irregulares más comunes",
+                description = "Dominamos los 20 verbos irregulares que más se usan.",
+                status = SessionStatus.SCHEDULED, scheduledAt = mie2, createdAt = Date()),
+            Session(match = matchElena, skill = guitarraAna, sessionNumber = 6,
+                title = "Guitarra: Primera canción completa",
+                description = "Tocamos una canción completa de principio a fin.",
+                status = SessionStatus.SCHEDULED, scheduledAt = vie2, createdAt = Date()),
+        ))
+
+        // M4: Ana ↔ Hugo (ACCEPTED — 6 sesiones, sesión 1 COMPLETED + review de Hugo)
+        // Ana enseña Piano (par), Hugo enseña Inglés (impar)
+        val matchHugo = matchRepository.save(Match(
+            initiator = adminUser, receiver = hugoUser,
+            compatibilityScore = 76.7, status = MatchStatus.ACCEPTED,
+            initiatorSkill = "Piano", receiverSkill = "Inglés",
+            createdAt = Date(),
+        ))
+
+        val pianoAna = skillRepository.findByUserId(adminUser.id!!)
+            .first { it.skillRole == SkillRole.OFFERED && it.name == "Piano" }
+        val inglesHugo = skillRepository.findByUserId(hugoUser.id!!)
+            .first { it.skillRole == SkillRole.OFFERED && it.name == "Inglés" }
+
+        val session1Hugo = sessionRepository.save(
+            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 1,
+                title = "Inglés: Fundamentos del idioma",
+                description = "Pronunciación, alfabeto y frases esenciales.",
+                status = SessionStatus.COMPLETED,
+                scheduledAt = Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L),
+                completedAt = Date(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L),
+                createdAt = Date(System.currentTimeMillis() - 8 * 24 * 60 * 60 * 1000L))
+        )
+
+        sessionRepository.saveAll(listOf(
+            Session(match = matchHugo, skill = pianoAna, sessionNumber = 2,
+                title = "Piano: Postura y notas básicas",
+                description = "Aprendemos la postura correcta y las notas en el teclado.",
+                status = SessionStatus.SCHEDULED, scheduledAt = lun1, createdAt = Date()),
+            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 3,
+                title = "Inglés: Presente simple y vocabulario",
+                description = "Conjugación del presente simple con vocabulario cotidiano.",
+                status = SessionStatus.SCHEDULED, scheduledAt = mie1, createdAt = Date()),
+            Session(match = matchHugo, skill = pianoAna, sessionNumber = 4,
+                title = "Piano: Do mayor y primeras melodías",
+                description = "Escala de Do mayor y melodías simples con la mano derecha.",
+                status = SessionStatus.SCHEDULED, scheduledAt = vie1, createdAt = Date()),
+            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 5,
+                title = "Inglés: Pasado simple y narración",
+                description = "Contamos historias usando el pasado simple.",
+                status = SessionStatus.SCHEDULED, scheduledAt = lun2, createdAt = Date()),
+            Session(match = matchHugo, skill = pianoAna, sessionNumber = 6,
+                title = "Piano: Ambas manos — primera pieza completa",
+                description = "Coordinamos ambas manos para tocar una pieza sencilla.",
+                status = SessionStatus.SCHEDULED, scheduledAt = mie2, createdAt = Date()),
+        ))
+
+        // Actualizar totalSessions de los participantes del match Hugo (sesión 1 completada)
+        adminUser.totalSessions = (adminUser.totalSessions ?: 0) + 1
+        hugoUser.totalSessions = (hugoUser.totalSessions ?: 0) + 1
+        userRepository.save(adminUser)
+        userRepository.save(hugoUser)
+
+        // Review: Ana califica a Hugo con 5 estrellas (primera review de Hugo)
+        reviewRepository.save(Review(
+            reviewer = adminUser, reviewee = hugoUser, session = session1Hugo,
+            rating = 5,
+            comment = "Excelente primera clase de inglés, muy dinámico y claro.",
+            createdAt = Date(),
+        ))
+        // Actualizar rating de Hugo: primera review = 5.0
+        hugoUser.rating = 5.0
+        userRepository.save(hugoUser)
+
         println(
-            "Seeded: ${privilegeRepository.count()} privileges, ${roleRepository.count()} roles, " +
-            "${userRepository.count()} users, ${skillRepository.count()} skills, " +
-            "${availabilityRepository.count()} availability entries, " +
-            "${matchRepository.count()} matches, ${sessionRepository.count()} sessions, " +
-            "${reviewRepository.count()} reviews"
+            "=== SEED COMPLETADO ===" +
+            "\n${userRepository.count()} usuarios (TU1-TU8 + TU9 admin + 6 fondo)" +
+            "\n${skillRepository.count()} skills" +
+            "\n${availabilityRepository.count()} availability entries" +
+            "\n${matchRepository.count()} matches (2 PENDING, 2 ACCEPTED)" +
+            "\n${sessionRepository.count()} sessions (6+6=12 total, 1 COMPLETED)" +
+            "\n${reviewRepository.count()} reviews" +
+            "\n\nScores esperados desde admin@dexter.app:" +
+            "\n  Bruno   (user@dexter.app)     = 100.0%" +
+            "\n  Elena   (elena@dexter.app)    =  76.7%" +
+            "\n  Carla   (carla@dexter.app)    =  70.0%" +
+            "\n  Gabriela(gabriela@dexter.app) =  55.0%" +
+            "\n  David   (david@dexter.app)    =  30.0%  ← NO sugerencia" +
+            "\n  Felipe  (felipe@dexter.app)   =   0.0%  ← NO sugerencia"
         )
     }
 }

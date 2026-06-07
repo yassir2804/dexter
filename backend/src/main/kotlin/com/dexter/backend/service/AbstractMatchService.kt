@@ -217,9 +217,7 @@ class AbstractMatchService(
             .distinct()
             .sorted()
 
-        val sessionsCompleted = sessionRepository
-            .findByMatchIdOrderBySessionNumberAsc(matchId)
-            .count { it.status == SessionStatus.COMPLETED }
+        val sessionsCompleted = other?.totalSessions ?: 0
 
         val viewerOffered = skillRepository.findByUserIdAndSkillRole(viewerUserId, SkillRole.OFFERED)
             .map { it.name.lowercase() }.toSet()
