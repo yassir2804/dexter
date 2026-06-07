@@ -444,6 +444,21 @@
     <string name="home_no_pending">No tienes solicitudes recibidas</string>
     <string name="home_suggestions_title">Matches sugeridos</string>
     <string name="home_connect">Conectar</string>
+    <string name="nav_admin">Admin</string>
+
+    <!-- ══ Admin Dashboard ═══════════════════════════════════ -->
+    <string name="admin_title">Administración</string>
+    <string name="admin_total_users">Total</string>
+    <string name="admin_active_users">Activos</string>
+    <string name="admin_admins">Admins</string>
+    <string name="admin_user_list">Usuarios del sistema</string>
+    <string name="admin_role_admin">ADMIN</string>
+    <string name="admin_role_user">USUARIO</string>
+    <string name="admin_enabled">Habilitado</string>
+    <string name="admin_disabled">Deshabilitado</string>
+    <string name="admin_make_admin">Hacer Admin</string>
+    <string name="admin_make_user">Hacer Usuario</string>
+
     <string name="matches_title">Mis Matches</string>
     <string name="matches_pending_title">Solicitudes pendientes</string>
     <string name="matches_no_matches">Aún no tienes matches activos</string>

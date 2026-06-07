@@ -48,8 +48,18 @@ interface SessionApiService {
         @Path("id") sessionId: Long
     ): Response<SessionDto>
 
+    @GET("sessions/{id}/suggest-schedule")
+    suspend fun suggestSchedule(
+        @Path("id") sessionId: Long
+    ): Response<List<ScheduleSlotDto>>
+
     @DELETE("sessions/{id}")
     suspend fun deleteSession(
         @Path("id") sessionId: Long
     ): Response<Unit>
 }
+
+data class ScheduleSlotDto(
+    val day: String? = null,
+    val time: String? = null
+)

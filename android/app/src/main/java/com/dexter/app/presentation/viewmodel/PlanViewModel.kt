@@ -60,11 +60,15 @@ class PlanViewModel @Inject constructor(
     }
 
     fun completePlan(onDone: () -> Unit = {}) {
+        if (currentMatchId == 0L) {
+            showActionError("No se pudo determinar el match")
+            return
+        }
         viewModelScope.launch {
             matchRepository.completeMatch(currentMatchId).onSuccess {
                 onDone()
             }.onFailure { e ->
-                Log.e(TAG, "Error completing match $currentMatchId", e)
+                Log.e(TAG, "Error completing match $currentMatchId: ${e.message}", e)
                 showActionError(e.message ?: "Error al finalizar plan")
             }
         }

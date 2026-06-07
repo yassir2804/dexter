@@ -28,13 +28,21 @@ class UserRemoteDataSource @Inject constructor(
                 val token = response.headers()["Authorization"]?.removePrefix("Bearer ")
                 val body = response.body()
                 if (!token.isNullOrBlank()) {
-                    tokenStore.saveSession(token, body?.id, body?.email)
+                    val role = body?.roles?.firstOrNull()
+                    tokenStore.saveSession(token, body?.id, body?.email, role)
                 }
                 body?.let { Result.success(it) }
                     ?: Result.failure(Exception("Login response body is null"))
             } else {
+                val errorBody = response.errorBody()?.string().orEmpty()
                 val message = when (response.code()) {
-                    401, 403 -> "Credenciales inválidas"
+                    401, 403 -> {
+                        if (errorBody.contains("USER_DISABLED")) {
+                            "Tu cuenta está desactivada. Contacta al administrador"
+                        } else {
+                            "Credenciales inválidas"
+                        }
+                    }
                     429 -> "Demasiados intentos. Intenta más tarde"
                     in 500..599 -> "Error del servidor. Intenta más tarde"
                     else -> "Ocurrió un error. Intenta nuevamente"

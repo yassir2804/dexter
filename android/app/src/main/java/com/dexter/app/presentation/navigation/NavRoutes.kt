@@ -48,6 +48,14 @@ sealed class NavRoutes {
         const val ROUTE = "profile"
     }
 
+    data object AdminDashboard : NavRoutes() {
+        const val ROUTE = "adminDashboard"
+    }
+
+    data object AdminSettings : NavRoutes() {
+        const val ROUTE = "adminSettings"
+    }
+
     // ── Detail screens (no bottom bar, accessed from main) ──────────
 
     data object MatchDetail : NavRoutes() {

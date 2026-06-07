@@ -31,6 +31,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -83,6 +84,7 @@ fun EditSessionScreen(
         onDateChange = viewModel::onDateChange,
         onTimeChange = viewModel::onTimeChange,
         onDurationChange = viewModel::onDurationChange,
+        onSlotSelected = viewModel::onSlotSelected,
         onSave = viewModel::onSave,
         onRequestDelete = viewModel::onRequestDelete,
         onConfirmDelete = viewModel::onConfirmDelete,
@@ -101,6 +103,7 @@ private fun EditSessionContent(
     onDateChange: (String) -> Unit,
     onTimeChange: (String) -> Unit,
     onDurationChange: (String) -> Unit,
+    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit = {},
     onSave: () -> Unit,
     onRequestDelete: () -> Unit,
     onConfirmDelete: () -> Unit,
@@ -142,6 +145,7 @@ private fun EditSessionContent(
                     onDateChange = onDateChange,
                     onTimeChange = onTimeChange,
                     onDurationChange = onDurationChange,
+                    onSlotSelected = onSlotSelected,
                     onSave = onSave,
                     onRequestDelete = onRequestDelete,
                     modifier = Modifier
@@ -177,6 +181,7 @@ private fun EditSessionForm(
     onDateChange: (String) -> Unit,
     onTimeChange: (String) -> Unit,
     onDurationChange: (String) -> Unit,
+    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit = {},
     onSave: () -> Unit,
     onRequestDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -232,7 +237,11 @@ private fun EditSessionForm(
             }
         }
 
-        AiSuggestionCard()
+        AiSuggestionCard(
+            slots = state.scheduleSlots,
+            loading = state.loadingSlots,
+            onSlotSelected = onSlotSelected
+        )
 
         Spacer(Modifier.height(8.dp))
 
@@ -270,13 +279,19 @@ private fun EditSessionForm(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AiSuggestionCard() {
-    Card(
+private fun AiSuggestionCard(
+    slots: List<com.dexter.app.domain.model.ScheduleSlot>,
+    loading: Boolean,
+    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit
+) {
+    Surface(
         shape = RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(Modifier.padding(12.dp)) {
+        Column(Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.AutoAwesome,
@@ -288,15 +303,50 @@ private fun AiSuggestionCard() {
                     text = stringResource(R.string.edit_session_ai_suggestion),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
             Spacer(Modifier.size(4.dp))
             Text(
                 text = stringResource(R.string.edit_session_ai_description),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
+            Spacer(Modifier.size(12.dp))
+            if (loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterHorizontally),
+                    strokeWidth = 2.dp,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            } else if (slots.isEmpty()) {
+                Text(
+                    text = "No se pudieron generar sugerencias",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            } else {
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    slots.forEach { slot ->
+                        Surface(
+                            onClick = { onSlotSelected(slot) },
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = "${slot.day} • ${slot.time}",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }

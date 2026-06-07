@@ -22,8 +22,15 @@ class NotificationRemoteDataSource @Inject constructor(
         notificationApiService.getNotifications(userId)
     }
 
-    suspend fun markAsRead(notificationId: Long): Result<Unit> =
-        safeApiCall { notificationApiService.markAsRead(notificationId) }.map { Unit }
+    suspend fun markAsRead(notificationId: Long): Result<Unit> = try {
+        val response = withTimeout(API_TIMEOUT_MS) {
+            notificationApiService.markAsRead(notificationId)
+        }
+        if (response.isSuccessful) Result.success(Unit)
+        else Result.failure(Exception("API error ${response.code()}"))
+    } catch (e: Exception) {
+        Result.failure(e)
+    }
 
     private suspend fun <T> safeApiCall(
         apiCall: suspend () -> Response<T>

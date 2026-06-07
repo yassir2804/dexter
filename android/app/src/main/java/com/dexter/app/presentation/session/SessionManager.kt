@@ -18,8 +18,9 @@ class SessionManager @Inject constructor() {
 
     companion object { private const val TAG = "SessionManager" }
 
-    fun login(userId: Long) {
+    fun login(userId: Long, role: String? = null) {
         CurrentUserSession.userId = userId
+        CurrentUserSession.userRole = role
     }
 
     fun logout() {

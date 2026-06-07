@@ -198,8 +198,8 @@ private fun NextBadge() {
 }
 
 private fun formatDate(date: Date?): String {
-    if (date == null) return ""
-    val fmt = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    if (date == null) return "Sin programar"
+    val fmt = SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault())
     return fmt.format(date)
 }
 

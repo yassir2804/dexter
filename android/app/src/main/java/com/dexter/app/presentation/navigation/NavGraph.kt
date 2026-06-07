@@ -20,12 +20,10 @@ import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.layout.MainLayout
 import com.dexter.app.presentation.ui.screens.ActiveSessionScreen
 import com.dexter.app.presentation.ui.screens.EditSessionScreen
-import com.dexter.app.presentation.ui.screens.NotificationRoute
 import com.dexter.app.presentation.ui.screens.NotificationsScreen
 import com.dexter.app.presentation.ui.screens.RateScreen
 import com.dexter.app.presentation.ui.screens.SessionInviteScreen
 import com.dexter.app.presentation.ui.screens.UserProfileScreen
-import com.dexter.app.presentation.ui.screens.resolveNotificationRoute
 import com.dexter.app.presentation.ui.screens.ForgotPasswordScreen
 import com.dexter.app.presentation.ui.screens.LoginScreen
 import com.dexter.app.presentation.ui.screens.HomeScreen
@@ -48,7 +46,10 @@ import com.dexter.app.presentation.viewmodel.MatchDetailViewModel
 import com.dexter.app.presentation.viewmodel.PlanViewModel
 import com.dexter.app.presentation.viewmodel.ProfileViewModel
 import com.dexter.app.presentation.viewmodel.ProfileState
+import com.dexter.app.presentation.viewmodel.AdminViewModel
 import com.dexter.app.presentation.viewmodel.RegisterViewModel
+import com.dexter.app.presentation.ui.screens.AdminDashboardScreen
+import com.dexter.app.presentation.ui.screens.AdminSettingsScreen
 import com.dexter.app.presentation.ui.screens.SettingsScreen
 import com.dexter.app.presentation.session.ThemePreference
 import androidx.compose.runtime.collectAsState
@@ -78,9 +79,11 @@ fun NavGraph(
     homeViewModel: HomeViewModel,
     profileViewModel: ProfileViewModel,
     searchViewModel: SearchViewModel,
+    notificationsViewModel: NotificationsViewModel,
     paddingValues: PaddingValues,
     userName: String = ""
 ) {
+    val unreadCount by notificationsViewModel.unreadCount.collectAsState()
     NavHost(
         navController = navController,
         startDestination = "auth_graph",
@@ -101,8 +104,13 @@ fun NavGraph(
                         val state = loginViewModel.loginState.value
                         if (state is LoginState.Success) {
                             CurrentUserSession.userId = state.user.id
+                            CurrentUserSession.userRole = state.user.roles.firstOrNull()
+                            notificationsViewModel.loadNotifications(state.user.id)
                         }
-                        navController.navigate(NavRoutes.Home.ROUTE) {
+                        val isAdmin = CurrentUserSession.isAdmin()
+                        val startRoute = if (isAdmin) NavRoutes.AdminDashboard.ROUTE
+                            else NavRoutes.Home.ROUTE
+                        navController.navigate(startRoute) {
                             popUpTo("auth_graph") { inclusive = true }
                         }
                     },
@@ -174,6 +182,7 @@ fun NavGraph(
                 paddingValues = paddingValues,
                 currentRoute = NavRoutes.Home.ROUTE,
                 userName = userName,
+                notificationCount = unreadCount,
                 onNotificationsClick = {
                     navController.navigate(NavRoutes.Notifications.ROUTE)
                 },
@@ -280,7 +289,48 @@ fun NavGraph(
             }
         }
 
-        // ── Detail screens (placeholders) ───────────────────────────
+        // ── Admin Dashboard (only visible for ROLE_ADMIN) ────────────
+        composable(NavRoutes.AdminDashboard.ROUTE) {
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.AdminDashboard.ROUTE,
+                userName = userName,
+                onNotificationsClick = {
+                    navController.navigate(NavRoutes.Notifications.ROUTE)
+                },
+                onSettingsClick = {
+                    navController.navigate(NavRoutes.Settings.ROUTE)
+                }
+            ) {
+                val adminViewModel: AdminViewModel = hiltViewModel()
+                AdminDashboardScreen(viewModel = adminViewModel)
+            }
+        }
+
+        // ── Admin Settings (bottom tab for admin) ────────────────────
+        composable(NavRoutes.AdminSettings.ROUTE) {
+            MainLayout(
+                paddingValues = paddingValues,
+                currentRoute = NavRoutes.AdminSettings.ROUTE,
+                userName = userName,
+                onNotificationsClick = {},
+                onSettingsClick = {}
+            ) {
+                val isDarkMode by ThemePreference.isDarkMode.collectAsState()
+                AdminSettingsScreen(
+                    isDarkMode = isDarkMode ?: false,
+                    onDarkModeToggle = { ThemePreference.toggle(it) },
+                    onLoggedOut = {
+                        loginViewModel.resetState()
+                        navController.navigate(NavRoutes.Login.ROUTE) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                        }
+                    }
+                )
+            }
+        }
+
+        // ── Detail screens ─────────────────────────────────────────
         composable(NavRoutes.Settings.ROUTE) {
             val profileState by profileViewModel.profileState.collectAsState()
             val profile = (profileState as? ProfileState.Success)?.profile
@@ -394,6 +444,11 @@ fun NavGraph(
                 },
                 onRateSession = { sessionId ->
                     navController.navigate(NavRoutes.Rate.createRoute(sessionId))
+                },
+                onPlanFinished = {
+                    navController.navigate(NavRoutes.Home.ROUTE) {
+                        popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                    }
                 }
             )
         }
@@ -440,24 +495,12 @@ fun NavGraph(
 
         // ── Notifications ───────────────────────────────────────────
         composable(NavRoutes.Notifications.ROUTE) {
-            val viewModel: NotificationsViewModel = hiltViewModel()
             NotificationsScreen(
-                viewModel = viewModel,
+                viewModel = notificationsViewModel,
                 onBackClick = { navController.navigateUp() },
                 onNotifClick = { notif ->
-                    resolveNotificationRoute(notif)?.let { route ->
-                        when (route) {
-                            is NotificationRoute.MatchDetail ->
-                                navController.navigate(NavRoutes.MatchDetail.createRoute(route.matchId))
-                            is NotificationRoute.ActiveSession ->
-                                navController.navigate(NavRoutes.ActiveSession.createRoute(route.sessionId))
-                            is NotificationRoute.UserProfile ->
-                                navController.navigate(NavRoutes.UserProfile.createRoute(route.userId))
-                            NotificationRoute.Home ->
-                                navController.navigate(NavRoutes.Home.ROUTE) {
-                                    popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
-                                }
-                        }
+                    if (!notif.isRead) {
+                        notificationsViewModel.markAsRead(notif.id)
                     }
                 }
             )

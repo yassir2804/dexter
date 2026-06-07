@@ -15,6 +15,7 @@ private val Context.dataStore by preferencesDataStore(name = "dexter_auth")
 private val TOKEN_KEY = stringPreferencesKey("jwt_token")
 private val USER_ID_KEY = longPreferencesKey("user_id")
 private val USER_EMAIL_KEY = stringPreferencesKey("user_email")
+private val USER_ROLE_KEY = stringPreferencesKey("user_role")
 
 /**
  * Persiste la sesion del usuario autenticado usando DataStore Preferences.
@@ -41,15 +42,20 @@ class TokenStore @Inject constructor(
         context.dataStore.data.first()[USER_EMAIL_KEY]
     }
 
+    fun getUserRole(): String? = runBlocking {
+        context.dataStore.data.first()[USER_ROLE_KEY]
+    }
+
     suspend fun saveToken(token: String) {
         context.dataStore.edit { it[TOKEN_KEY] = token }
     }
 
-    suspend fun saveSession(token: String, userId: Long?, email: String?) {
+    suspend fun saveSession(token: String, userId: Long?, email: String?, role: String? = null) {
         context.dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token
             if (userId != null) prefs[USER_ID_KEY] = userId
             if (!email.isNullOrBlank()) prefs[USER_EMAIL_KEY] = email
+            if (!role.isNullOrBlank()) prefs[USER_ROLE_KEY] = role
         }
     }
 
@@ -58,6 +64,7 @@ class TokenStore @Inject constructor(
             it.remove(TOKEN_KEY)
             it.remove(USER_ID_KEY)
             it.remove(USER_EMAIL_KEY)
+            it.remove(USER_ROLE_KEY)
         }
     }
 }

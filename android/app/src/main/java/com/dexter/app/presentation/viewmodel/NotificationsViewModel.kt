@@ -31,6 +31,9 @@ class NotificationsViewModel @Inject constructor(
     private val _state = MutableStateFlow<NotificationsState>(NotificationsState.Loading)
     val state = _state.asStateFlow()
 
+    private val _unreadCount = MutableStateFlow(0)
+    val unreadCount = _unreadCount.asStateFlow()
+
     fun loadNotifications(userId: Long) {
         viewModelScope.launch {
             _state.value = NotificationsState.Loading
@@ -40,6 +43,7 @@ class NotificationsViewModel @Inject constructor(
                         _state.value = NotificationsState.Empty
                     } else {
                         val (unread, read) = notifs.partition { !it.isRead }
+                        _unreadCount.value = unread.size
                         _state.value = NotificationsState.Success(
                             unread = unread.sortedByDescending { it.createdAt },
                             read = read.sortedByDescending { it.createdAt }
@@ -55,6 +59,21 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
+    fun markAsRead(notificationId: Long) {
+        viewModelScope.launch {
+            repository.markAsRead(notificationId)
+                .onSuccess {
+                    val current = _state.value as? NotificationsState.Success ?: return@onSuccess
+                    val newUnread = current.unread.map {
+                        if (it.id == notificationId) it.copy(isRead = true) else it
+                    }
+                    _unreadCount.value = newUnread.count { !it.isRead }
+                    _state.value = current.copy(unread = newUnread)
+                }
+                .onFailure { Log.e(TAG, "Error marking notification as read", it) }
+        }
+    }
+
     fun onMarkAllRead(userId: Long) {
         viewModelScope.launch {
             repository.markAllAsRead(userId)
@@ -63,6 +82,7 @@ class NotificationsViewModel @Inject constructor(
                     val merged = (current.unread + current.read)
                         .map { it.copy(isRead = true) }
                         .sortedByDescending { it.createdAt }
+                    _unreadCount.value = 0
                     _state.value = NotificationsState.Success(
                         unread = emptyList(),
                         read = merged
