@@ -65,6 +65,10 @@ class AbstractProfileService(
         dto.avatarUrl?.let { user.avatarUrl = it }
         dto.profileVisible?.let { user.profileVisible = it }
         dto.phone?.let { user.phone = it }
+        dto.updateFirstName?.let { user.firstName = it }
+        dto.updateLastName?.let { user.lastName = it }
+        dto.updateTotalSessions?.let { user.totalSessions = it }
+        dto.updateRating?.let { user.rating = it }
         user.updatedAt = Date()
         userRepository.save(user)
         return findByUserId(userId)
