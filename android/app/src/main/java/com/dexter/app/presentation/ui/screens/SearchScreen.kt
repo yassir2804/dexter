@@ -142,7 +142,7 @@ private fun SkillListView(
         SearchBar(
             query = query,
             onQueryChanged = onQueryChange,
-            onFilterClick = {}
+            showFilter = false
         )
 
         Spacer(modifier = Modifier.height(8.dp))
