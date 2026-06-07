@@ -49,6 +49,7 @@ class AbstractProfileService(
             totalSessions = user.totalSessions,
             totalMatches = user.totalMatches,
             profileVisible = user.profileVisible,
+            phone = user.phone,
             skillsOffered = offered,
             skillsSought = sought,
             reviews = reviews,
@@ -63,6 +64,7 @@ class AbstractProfileService(
         dto.country?.let { user.country = it }
         dto.avatarUrl?.let { user.avatarUrl = it }
         dto.profileVisible?.let { user.profileVisible = it }
+        dto.phone?.let { user.phone = it }
         user.updatedAt = Date()
         userRepository.save(user)
         return findByUserId(userId)

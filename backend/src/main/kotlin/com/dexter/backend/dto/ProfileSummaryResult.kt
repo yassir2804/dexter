@@ -18,6 +18,7 @@ data class ProfileSummaryResult(
     var totalSessions: Int? = null,
     var totalMatches: Int? = null,
     var profileVisible: Boolean? = null,
+    var phone: String? = null,
     /** nombres de Skill donde skillRole = OFFERED */
     var skillsOffered: List<String>? = null,
     /** nombres de Skill donde skillRole = SOUGHT */
