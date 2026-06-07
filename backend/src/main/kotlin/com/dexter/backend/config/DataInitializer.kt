@@ -62,6 +62,7 @@ class DataInitializer(
                 totalMatches = 0,
                 createDate = Date(),
                 updatedAt = Date(),
+                phone = "+506 8888-0000",
                 roleList = setOf(roleAdmin),
             ))
         } else {

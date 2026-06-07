@@ -27,4 +27,6 @@ data class MatchDetailResult(
     val isReceiver: Boolean,
     /** Intersection of other's offered skills and viewer's sought skills — used by frontend picker. */
     val canLearnFromOther: List<String>,
+    /** Phone number of the other user — only exposed when match is ACCEPTED. */
+    val otherUserPhone: String?,
 )

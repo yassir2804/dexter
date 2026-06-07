@@ -34,6 +34,7 @@ data class User(
     var createDate: Date? = null,
     @Column(name = "updated_at")
     var updatedAt: Date? = null,
+    var phone: String? = null,
     @ManyToMany
     @JoinTable(
         name = "user_role",

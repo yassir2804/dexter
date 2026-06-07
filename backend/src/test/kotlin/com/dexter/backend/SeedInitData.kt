@@ -87,7 +87,7 @@ class SeedInitData {
             bio = "Músico profesional con 10 años de experiencia en guitarra y piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.8, totalSessions = 12, totalMatches = 5,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(adminRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0001", roleList = setOf(adminRole),
         ))
 
         // regularUser → admin: PENDING (admin receiver → Home)
@@ -98,7 +98,7 @@ class SeedInitData {
             bio = "Profesora de inglés y fotógrafa aficionada.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.5, totalSessions = 8, totalMatches = 3,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0002", roleList = setOf(userRole),
         ))
 
         // mariaUser → admin: PENDING (admin receiver → Home)
@@ -109,7 +109,7 @@ class SeedInitData {
             bio = "Pianista y aficionada a la cocina. Busco aprender fotografía.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.7, totalSessions = 15, totalMatches = 4,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0003", roleList = setOf(userRole),
         ))
 
         // juanUser ↔ admin: ACCEPTED (Matches tab)
@@ -120,7 +120,7 @@ class SeedInitData {
             bio = "Diseñador gráfico especializado en branding. Quiero aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.2, totalSessions = 6, totalMatches = 2,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0004", roleList = setOf(userRole),
         ))
 
         // anaUser ↔ admin: ACCEPTED (Matches tab)
@@ -131,7 +131,7 @@ class SeedInitData {
             bio = "Instructora de yoga y meditación. Interesada en aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.9, totalSessions = 20, totalMatches = 7,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0005", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — Search + baja compatibilidad
@@ -142,7 +142,7 @@ class SeedInitData {
             bio = "Desarrollador Python especializado en Machine Learning.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.3, totalSessions = 5, totalMatches = 1,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0006", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — ofrece Guitarra para Search
@@ -153,7 +153,7 @@ class SeedInitData {
             bio = "Guitarrista autodidacta con 5 años de práctica. Busco aprender inglés.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.6, totalSessions = 10, totalMatches = 2,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0007", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — ofrece Inglés+Francés (suggestion ~70%)
@@ -164,7 +164,7 @@ class SeedInitData {
             bio = "Traductora bilingüe inglés-español. Me interesa aprender guitarra.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.4, totalSessions = 7, totalMatches = 3,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0008", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — ofrece Piano para Search
@@ -175,7 +175,7 @@ class SeedInitData {
             bio = "Pianista clásico. Busco aprender fotografía y diseño.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.8, totalSessions = 18, totalMatches = 6,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0009", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — suggestion ~90% (ofrece Inglés+Francés, busca Guitarra, días solapan)
@@ -186,7 +186,7 @@ class SeedInitData {
             bio = "Profesor de idiomas con certificación Cambridge. Quiero aprender guitarra.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.7, totalSessions = 14, totalMatches = 5,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0010", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — suggestion ~72% (ofrece Inglés, busca Piano+Guitarra, días solapan)
@@ -197,7 +197,7 @@ class SeedInitData {
             bio = "Docente de inglés universitaria. Me encantaría aprender piano y guitarra.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.5, totalSessions = 9, totalMatches = 3,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0011", roleList = setOf(userRole),
         ))
 
         // Sin match con admin — suggestion ~90% (ofrece Inglés+Francés, busca Piano, días solapan)
@@ -208,7 +208,7 @@ class SeedInitData {
             bio = "Bilingüe francés-español. Siempre quise aprender piano.",
             country = "CR", enabled = true, tokenExpired = false,
             rating = 4.6, totalSessions = 11, totalMatches = 4,
-            createDate = Date(), updatedAt = Date(), roleList = setOf(userRole),
+            createDate = Date(), updatedAt = Date(), phone = "+506 8888-0012", roleList = setOf(userRole),
         ))
 
         // ── Skills ──────────────────────────────────────────────────────

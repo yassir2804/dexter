@@ -263,6 +263,7 @@ class AbstractMatchService(
             receiverSkill = match.receiverSkill,
             isReceiver = match.receiver?.id == viewerUserId,
             canLearnFromOther = offered.filter { it.lowercase() in canLearn },
+            otherUserPhone = if (match.status == MatchStatus.ACCEPTED) other?.phone else null,
         )
     }
 
