@@ -419,7 +419,11 @@ fun NavGraph(
                 onConnectClick = { id ->
                     navController.navigate(NavRoutes.Plan.createRoute(id))
                 },
-                onRejectDone = { navController.navigateUp() }
+                onRejectDone = {
+                    navController.navigate(NavRoutes.Home.ROUTE) {
+                        popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
+                    }
+                }
             )
         }
 

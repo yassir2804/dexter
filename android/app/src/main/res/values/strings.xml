@@ -484,6 +484,8 @@
 
     <string name="matches_title">Mis Matches</string>
     <string name="matches_pending_title">Solicitudes pendientes</string>
+    <string name="matches_active_title">Matches activos</string>
+    <string name="matches_completed_title">Matches completados</string>
     <string name="matches_no_matches">Aún no tienes matches activos</string>
     <string name="match_label">Match #%1$d</string>
     <string name="match_compatibility_percent">Compatibilidad: %1$d%%</string>
