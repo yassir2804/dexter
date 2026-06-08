@@ -49,9 +49,14 @@ class SessionRemoteDataSource @Inject constructor(
     ): Result<T> = try {
         val response = withTimeout(API_TIMEOUT_MS) { apiCall() }
         if (response.isSuccessful) {
-            response.body()?.let {
-                Result.success(it)
-            } ?: Result.failure(Exception("Response body is null"))
+            val body = response.body()
+            if (body != null) {
+                Result.success(body)
+            } else {
+                // 204 No Content es éxito válido (ej. DELETE)
+                @Suppress("UNCHECKED_CAST")
+                Result.success(Unit as T)
+            }
         } else {
             val errorBody = response.errorBody()?.string()
             Result.failure(Exception("API error ${response.code()}: $errorBody"))
