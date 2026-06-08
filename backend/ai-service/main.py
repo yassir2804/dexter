@@ -8,9 +8,10 @@ import re
 from datetime import date, timedelta
 from typing import Optional
 
-load_dotenv()
+load_dotenv(override=True)
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = genai.Client(api_key=GEMINI_API_KEY)
 
 app = FastAPI(title="Dexter AI Service")
 
