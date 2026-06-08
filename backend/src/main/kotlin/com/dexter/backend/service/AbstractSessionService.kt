@@ -38,6 +38,7 @@ class AbstractSessionService(
             NoSuchElementException("Session with id $id not found")
         })
 
+    @Transactional
     override fun create(request: SessionInput): SessionDetails {
         val matchId = request.matchId ?: throw IllegalArgumentException("matchId is required")
         val skillId = request.skillId ?: throw IllegalArgumentException("skillId is required")
@@ -67,7 +68,21 @@ class AbstractSessionService(
                 createdAt = Date(),
             )
         )
-        return toDetails(saved)
+
+        // Reordenar todas las sesiones del match por fecha para numeración consistente
+        if (saved.scheduledAt != null) {
+            val allSessions = sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId)
+                .filter { it.status != SessionStatus.CANCELLED }
+                .sortedWith(compareBy({ it.scheduledAt ?: Date(Long.MAX_VALUE) }, { it.sessionNumber }))
+            allSessions.forEachIndexed { index, s ->
+                if (s.sessionNumber != index + 1) {
+                    s.sessionNumber = index + 1
+                    sessionRepository.save(s)
+                }
+            }
+        }
+
+        return toDetails(sessionRepository.findById(saved.id ?: 0L).orElse(saved))
     }
 
     @Transactional
