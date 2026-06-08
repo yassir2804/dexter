@@ -52,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
 import com.dexter.app.presentation.session.LocalePreference
+import com.dexter.app.presentation.session.NotificationPreference
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.theme.AppTheme
 
@@ -132,9 +133,9 @@ private fun SettingsContent(
     onLogoutClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var matchesNotif by remember { mutableStateOf(true) }
-    var remindersNotif by remember { mutableStateOf(true) }
-    var ratingsNotif by remember { mutableStateOf(false) }
+    val matchesNotif by NotificationPreference.showMatches.collectAsState()
+    val remindersNotif by NotificationPreference.showReminders.collectAsState()
+    val ratingsNotif by NotificationPreference.showRatings.collectAsState()
     var shareAvailability by remember { mutableStateOf(true) }
 
     val context = LocalContext.current
@@ -207,11 +208,11 @@ private fun SettingsContent(
             SectionLabel(label = R.string.settings_section_notifications)
             OutlinedCard(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Column {
-                    SettingsToggleItem(label = R.string.settings_notif_matches, checked = matchesNotif, onCheckedChange = { matchesNotif = it })
+                    SettingsToggleItem(label = R.string.settings_notif_matches, checked = matchesNotif, onCheckedChange = { NotificationPreference.setShowMatches(it) })
                     SettingsDivider()
-                    SettingsToggleItem(label = R.string.settings_notif_reminders, checked = remindersNotif, onCheckedChange = { remindersNotif = it })
+                    SettingsToggleItem(label = R.string.settings_notif_reminders, checked = remindersNotif, onCheckedChange = { NotificationPreference.setShowReminders(it) })
                     SettingsDivider()
-                    SettingsToggleItem(label = R.string.settings_notif_ratings, checked = ratingsNotif, onCheckedChange = { ratingsNotif = it })
+                    SettingsToggleItem(label = R.string.settings_notif_ratings, checked = ratingsNotif, onCheckedChange = { NotificationPreference.setShowRatings(it) })
                 }
             }
 

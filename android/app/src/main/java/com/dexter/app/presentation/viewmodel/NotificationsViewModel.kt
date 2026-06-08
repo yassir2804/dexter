@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.Notification
+import com.dexter.app.domain.model.NotificationType
 import com.dexter.app.domain.repository.NotificationRepository
+import com.dexter.app.presentation.session.NotificationPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,33 +31,57 @@ class NotificationsViewModel @Inject constructor(
 
     companion object { private const val TAG = "NotificationsViewModel" }
 
+    // Todas las notificaciones sin filtrar
+    private val _allNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _loadError = MutableStateFlow<String?>(null)
+
     private val _state = MutableStateFlow<NotificationsState>(NotificationsState.Loading)
     val state = _state.asStateFlow()
 
     private val _unreadCount = MutableStateFlow(0)
     val unreadCount = _unreadCount.asStateFlow()
 
+    init {
+        // Reactivo: si cambia cualquier preferencia, recalcula el estado
+        viewModelScope.launch {
+            combine(
+                _allNotifications,
+                _loadError,
+                NotificationPreference.showMatches,
+                NotificationPreference.showReminders,
+                NotificationPreference.showRatings
+            ) { all, error, showMatches, showReminders, showRatings ->
+                if (error != null) return@combine NotificationsState.Error(error)
+                val filtered = all.filter { notif ->
+                    when (notif.notificationType) {
+                        NotificationType.NEW_MATCH -> showMatches
+                        NotificationType.SESSION_REMINDER -> showReminders
+                        NotificationType.NEW_REVIEW -> showRatings
+                        NotificationType.AI_SUGGESTION -> true
+                    }
+                }
+                if (filtered.isEmpty()) return@combine NotificationsState.Empty
+                val (unread, read) = filtered.partition { !it.isRead }
+                _unreadCount.value = all.count { !it.isRead } // badge cuenta todas
+                NotificationsState.Success(
+                    unread = unread.sortedByDescending { it.createdAt },
+                    read = read.sortedByDescending { it.createdAt }
+                )
+            }.collect { _state.value = it }
+        }
+    }
+
     fun loadNotifications(userId: Long) {
         viewModelScope.launch {
             _state.value = NotificationsState.Loading
             repository.getNotificationsForUser(userId)
                 .onSuccess { notifs ->
-                    if (notifs.isEmpty()) {
-                        _state.value = NotificationsState.Empty
-                    } else {
-                        val (unread, read) = notifs.partition { !it.isRead }
-                        _unreadCount.value = unread.size
-                        _state.value = NotificationsState.Success(
-                            unread = unread.sortedByDescending { it.createdAt },
-                            read = read.sortedByDescending { it.createdAt }
-                        )
-                    }
+                    _loadError.value = null
+                    _allNotifications.value = notifs
                 }
                 .onFailure { exception ->
                     Log.e(TAG, "Error loading notifications", exception)
-                    _state.value = NotificationsState.Error(
-                        exception.message ?: "Error desconocido"
-                    )
+                    _loadError.value = exception.message ?: "Error desconocido"
                 }
         }
     }
@@ -63,12 +90,9 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.markAsRead(notificationId)
                 .onSuccess {
-                    val current = _state.value as? NotificationsState.Success ?: return@onSuccess
-                    val newUnread = current.unread.map {
+                    _allNotifications.value = _allNotifications.value.map {
                         if (it.id == notificationId) it.copy(isRead = true) else it
                     }
-                    _unreadCount.value = newUnread.count { !it.isRead }
-                    _state.value = current.copy(unread = newUnread)
                 }
                 .onFailure { Log.e(TAG, "Error marking notification as read", it) }
         }
@@ -78,15 +102,7 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.markAllAsRead(userId)
                 .onSuccess {
-                    val current = _state.value as? NotificationsState.Success ?: return@onSuccess
-                    val merged = (current.unread + current.read)
-                        .map { it.copy(isRead = true) }
-                        .sortedByDescending { it.createdAt }
-                    _unreadCount.value = 0
-                    _state.value = NotificationsState.Success(
-                        unread = emptyList(),
-                        read = merged
-                    )
+                    _allNotifications.value = _allNotifications.value.map { it.copy(isRead = true) }
                 }
                 .onFailure { Log.e(TAG, "Error marking all as read", it) }
         }
