@@ -96,6 +96,18 @@ class RegisterViewModel @Inject constructor(
                 _state.value = RegisterState.Error(R.string.error_password_short)
                 false
             }
+            !passwordVal.any { it.isUpperCase() } -> {
+                _state.value = RegisterState.Error(R.string.error_password_no_uppercase)
+                false
+            }
+            !passwordVal.any { it.isLowerCase() } -> {
+                _state.value = RegisterState.Error(R.string.error_password_no_lowercase)
+                false
+            }
+            !passwordVal.any { it.isDigit() } -> {
+                _state.value = RegisterState.Error(R.string.error_password_no_digit)
+                false
+            }
             passwordVal != confirmVal -> {
                 _state.value = RegisterState.Error(R.string.error_password_mismatch)
                 false
@@ -135,12 +147,16 @@ class RegisterViewModel @Inject constructor(
     private val _phone = MutableStateFlow("")
     val phone = _phone.asStateFlow()
 
+    private val _avatarBase64 = MutableStateFlow<String?>(null)
+    val avatarBase64 = _avatarBase64.asStateFlow()
+
     private val _availabilityDays = MutableStateFlow<Set<Int>>(emptySet())
     val availabilityDays = _availabilityDays.asStateFlow()
 
     fun onNameChange(value: String) { _name.value = InputFilters.filterName(value) }
     fun onCountryChange(value: String) { _country.value = InputFilters.filterName(value) }
     fun onPhoneChange(value: String) { _phone.value = InputFilters.filterPhone(value) }
+    fun onAvatarBase64Change(base64: String?) { _avatarBase64.value = base64 }
 
     fun toggleSkillToTeach(skill: String) {
         _skillsToTeach.value = if (skill in _skillsToTeach.value) {
@@ -188,9 +204,21 @@ class RegisterViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Loads popular skills from the backend to populate the skill picker.
-     */
+    fun searchSkills(query: String) {
+        viewModelScope.launch {
+            try {
+                searchRepository.searchSkills(query)
+                    .onSuccess { skills ->
+                        val names = skills.map { it.name }.distinct()
+                        _availableSkillsToTeach.value = (names + _availableSkillsToTeach.value).distinct()
+                        _availableSkillsToLearn.value = (names + _availableSkillsToLearn.value).distinct()
+                    }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error searching skills", e)
+            }
+        }
+    }
+
     fun loadAvailableSkills() {
         viewModelScope.launch {
             try {
@@ -259,7 +287,7 @@ class RegisterViewModel @Inject constructor(
                 lastName = lastName,
                 username = email.substringBefore("@"),
                 bio = null,
-                avatarUrl = null,
+                avatarUrl = _avatarBase64.value,
                 country = _country.value.trim().ifBlank { null },
                 enabled = true,
                 tokenExpired = false,

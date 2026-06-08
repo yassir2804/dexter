@@ -17,6 +17,7 @@ data class ProfileSummaryDto(
     val updateLastName: String? = null,
     val skillsOffered: List<String>? = null,
     val skillsSought: List<String>? = null,
+    val availabilityDays: List<Int>? = null,
     val reviews: List<ProfileReviewItemDto>? = null
 )
 

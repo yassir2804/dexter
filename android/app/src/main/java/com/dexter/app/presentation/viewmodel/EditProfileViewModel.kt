@@ -59,6 +59,12 @@ class EditProfileViewModel @Inject constructor(
     private val _availableSkills = MutableStateFlow<List<String>>(emptyList())
     val availableSkills = _availableSkills.asStateFlow()
 
+    private val _availabilityDays = MutableStateFlow<Set<Int>>(emptySet())
+    val availabilityDays = _availabilityDays.asStateFlow()
+
+    private val _avatarBase64 = MutableStateFlow<String?>(null)
+    val avatarBase64 = _avatarBase64.asStateFlow()
+
     // Non-editable fields kept for building the ProfileSummary
     private var initials = ""
     private var firstName = ""
@@ -73,6 +79,15 @@ class EditProfileViewModel @Inject constructor(
     fun onBioChange(value: String) { _bio.value = InputFilters.filterSafeText(value) }
     fun onCountryChange(value: String) { _country.value = InputFilters.filterName(value) }
     fun onPhoneChange(value: String) { _phone.value = InputFilters.filterPhone(value) }
+    fun onAvatarBase64Change(base64: String?) { _avatarBase64.value = base64 }
+
+    fun toggleAvailabilityDay(dayOfWeek: Int) {
+        _availabilityDays.value = if (dayOfWeek in _availabilityDays.value) {
+            _availabilityDays.value - dayOfWeek
+        } else {
+            _availabilityDays.value + dayOfWeek
+        }
+    }
 
     fun toggleSkillOffered(skill: String) {
         _skillsOffered.value = if (skill in _skillsOffered.value) {
@@ -114,6 +129,7 @@ class EditProfileViewModel @Inject constructor(
         _phone.value = profile.phone ?: ""
         _skillsOffered.value = profile.skillsOffered
         _skillsSought.value = profile.skillsSought
+        _availabilityDays.value = profile.availabilityDays.toSet()
 
         initials = profile.initials
         firstName = profile.firstName
@@ -167,7 +183,7 @@ class EditProfileViewModel @Inject constructor(
                 initials = newInitials,
                 firstName = newFirstName,
                 lastName = newLastName,
-                avatarUrl = avatarUrl,
+                avatarUrl = _avatarBase64.value ?: avatarUrl,
                 bio = _bio.value.trim(),
                 country = _country.value.trim().ifBlank { null },
                 phone = _phone.value.trim().ifBlank { null },
@@ -176,6 +192,7 @@ class EditProfileViewModel @Inject constructor(
                 totalMatches = totalMatches,
                 skillsOffered = _skillsOffered.value,
                 skillsSought = _skillsSought.value,
+                availabilityDays = _availabilityDays.value.toList().sorted(),
                 reviews = reviews
             )
 

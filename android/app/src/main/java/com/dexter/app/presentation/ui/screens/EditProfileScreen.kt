@@ -1,5 +1,10 @@
 package com.dexter.app.presentation.ui.screens
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -52,6 +57,7 @@ import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.SkillChip
 import com.dexter.app.presentation.ui.components.SkillPickerBottomSheet
 import com.dexter.app.presentation.ui.theme.AppTheme
+import com.dexter.app.presentation.util.ImageUtils
 import com.dexter.app.presentation.viewmodel.EditProfileState
 import com.dexter.app.presentation.viewmodel.EditProfileViewModel
 
@@ -75,6 +81,20 @@ fun EditProfileScreen(
     val skillsSought by viewModel.skillsSought.collectAsState()
     val customSkills by viewModel.customSkills.collectAsState()
     val availableSkills by viewModel.availableSkills.collectAsState()
+    val availabilityDays by viewModel.availabilityDays.collectAsState()
+    val avatarBase64 by viewModel.avatarBase64.collectAsState()
+    val context = LocalContext.current
+
+    val photoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        Log.d("EditProfileScreen", "Photo picker returned uri=$uri")
+        if (uri != null) {
+            val base64 = ImageUtils.uriToBase64(context, uri)
+            Log.d("EditProfileScreen", "Base64 result: ${if (base64 != null) "${base64.length} chars" else "null"}")
+            viewModel.onAvatarBase64Change(base64)
+        }
+    }
 
     val isSaving = state is EditProfileState.Loading
     val errorMessage = (state as? EditProfileState.Error)?.message
@@ -128,6 +148,7 @@ fun EditProfileScreen(
             skillsOffered = skillsOffered,
             skillsSought = skillsSought,
             avatarUrl = profile.avatarUrl,
+            avatarBase64 = avatarBase64,
             initials = profile.initials,
             isSaving = isSaving,
             errorMessage = errorMessage,
@@ -139,6 +160,12 @@ fun EditProfileScreen(
             onToggleSought = viewModel::toggleSkillSought,
             onAddOfferedClick = { pickerMode = EditPickerMode.OFFERED },
             onAddSoughtClick = { pickerMode = EditPickerMode.SOUGHT },
+            availabilityDays = availabilityDays,
+            onToggleAvailability = viewModel::toggleAvailabilityDay,
+            onPickPhoto = {
+                Log.d("EditProfileScreen", "Launching photo picker")
+                photoPickerLauncher.launch("image/*")
+            },
             onSaveClick = { viewModel.saveProfile(onSaved = onSaved) },
             modifier = Modifier.padding(innerPadding)
         )
@@ -181,6 +208,7 @@ private fun EditProfileForm(
     skillsOffered: List<String>,
     skillsSought: List<String>,
     avatarUrl: String?,
+    avatarBase64: String?,
     initials: String,
     isSaving: Boolean,
     errorMessage: String?,
@@ -192,6 +220,9 @@ private fun EditProfileForm(
     onToggleSought: (String) -> Unit,
     onAddOfferedClick: () -> Unit,
     onAddSoughtClick: () -> Unit,
+    availabilityDays: Set<Int>,
+    onToggleAvailability: (Int) -> Unit,
+    onPickPhoto: () -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -204,11 +235,18 @@ private fun EditProfileForm(
     ) {
         Spacer(modifier = Modifier.height(16.dp))
 
-        AvatarCircle(
-            initials = initials,
-            imageUrl = avatarUrl,
-            size = 96.dp
-        )
+        val displayUrl = avatarBase64 ?: avatarUrl
+        Box(
+            modifier = Modifier
+                .size(96.dp)
+                .clickable(onClick = onPickPhoto)
+        ) {
+            AvatarCircle(
+                initials = initials,
+                imageUrl = displayUrl,
+                size = 96.dp
+            )
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -285,6 +323,21 @@ private fun EditProfileForm(
             isError = true,
             onChipClick = onToggleSought,
             onAddClick = onAddSoughtClick
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Text(
+            text = stringResource(R.string.onboard_availability),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        EditAvailabilityChips(
+            selectedDays = availabilityDays,
+            onToggleDay = onToggleAvailability
         )
 
         if (errorMessage != null) {
@@ -370,6 +423,34 @@ private fun SkillsEditableSection(
 }
 
 @Composable
+private fun EditAvailabilityChips(
+    selectedDays: Set<Int>,
+    onToggleDay: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val dayLabels = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sab", "Dom")
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        dayLabels.chunked(4).forEach { rowItems ->
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                rowItems.forEach { label ->
+                    val dayOfWeek = dayLabels.indexOf(label) + 1
+                    val isSelected = dayOfWeek in selectedDays
+                    SkillChip(
+                        label = label,
+                        selected = isSelected,
+                        isError = false,
+                        onClick = { onToggleDay(dayOfWeek) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun AddSkillChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -411,6 +492,7 @@ private fun EditProfilePreview() {
             skillsOffered = listOf("Inglés", "Guitarra", "Marketing"),
             skillsSought = listOf("Fotografía", "Piano"),
             avatarUrl = null,
+            avatarBase64 = null,
             initials = "AG",
             isSaving = false,
             errorMessage = null,
@@ -422,6 +504,9 @@ private fun EditProfilePreview() {
             onToggleSought = {},
             onAddOfferedClick = {},
             onAddSoughtClick = {},
+            availabilityDays = setOf(1, 3, 5),
+            onToggleAvailability = {},
+            onPickPhoto = {},
             onSaveClick = {}
         )
     }

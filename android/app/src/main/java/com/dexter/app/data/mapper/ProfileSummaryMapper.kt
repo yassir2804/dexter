@@ -23,6 +23,7 @@ class ProfileSummaryMapper @Inject constructor() {
         profileVisible = dto.profileVisible ?: true,
         skillsOffered = dto.skillsOffered ?: emptyList(),
         skillsSought = dto.skillsSought ?: emptyList(),
+        availabilityDays = dto.availabilityDays ?: emptyList(),
         reviews = dto.reviews?.map { mapReviewToDomain(it) } ?: emptyList()
     )
 
@@ -49,6 +50,7 @@ class ProfileSummaryMapper @Inject constructor() {
         updateLastName = domain.lastName,
         skillsOffered = domain.skillsOffered,
         skillsSought = domain.skillsSought,
+        availabilityDays = domain.availabilityDays,
         reviews = domain.reviews.map { mapReviewToDto(it) }
     )
 

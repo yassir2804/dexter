@@ -58,11 +58,27 @@
     <string name="onboard_skills_teach">Quais habilidades você pode ensinar?</string>
     <string name="onboard_skills_learn">O que você gostaria de aprender?</string>
     <string name="onboard_add_skill">Adicionar</string>
+    <string name="onboard_phone_label">Número de telefone</string>
+    <string name="onboard_phone_placeholder">+55 11 9876 5432</string>
+    <string name="onboard_availability">Sua disponibilidade (dias da semana)</string>
+    <string name="onboard_next">Próximo</string>
     <string name="onboard_finish">Finalizar</string>
+    <string name="onboard_availability_title">Sua disponibilidade</string>
+    <string name="onboard_availability_subtitle">Selecione os dias da semana em que pode aprender ou ensinar</string>
+    <string name="day_monday">Segunda-feira</string>
+    <string name="day_tuesday">Terça-feira</string>
+    <string name="day_wednesday">Quarta-feira</string>
+    <string name="day_thursday">Quinta-feira</string>
+    <string name="day_friday">Sexta-feira</string>
+    <string name="day_saturday">Sábado</string>
+    <string name="day_sunday">Domingo</string>
 
     <!-- Validation errors -->
     <string name="error_invalid_email">Digite um e-mail válido</string>
-    <string name="error_password_short">A senha deve ter pelo menos %1$d caracteres</string>
+    <string name="error_password_short">A senha deve ter pelo menos 6 caracteres</string>
+    <string name="error_password_no_uppercase">A senha deve ter pelo menos uma letra maiúscula</string>
+    <string name="error_password_no_lowercase">A senha deve ter pelo menos uma letra minúscula</string>
+    <string name="error_password_no_digit">A senha deve ter pelo menos um número</string>
     <string name="error_password_mismatch">As senhas não coincidem</string>
     <string name="error_name_required">Digite seu nome</string>
 

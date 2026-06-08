@@ -14,6 +14,7 @@ data class RegisterRequestDto(
     val lastName: String,
     val country: String,
     val phone: String?,
+    val avatarUrl: String?,
     val skillsToTeach: List<String>,
     val skillsToLearn: List<String>,
     val availabilityDays: List<Int>

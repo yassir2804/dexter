@@ -61,11 +61,24 @@
     <string name="onboard_phone_label">Número de teléfono</string>
     <string name="onboard_phone_placeholder">+506 1234 5678</string>
     <string name="onboard_availability">Tu disponibilidad (días de la semana)</string>
+    <string name="onboard_next">Siguiente</string>
     <string name="onboard_finish">Finalizar</string>
+    <string name="onboard_availability_title">Tu disponibilidad</string>
+    <string name="onboard_availability_subtitle">Selecciona los días de la semana en los que puedes aprender o enseñar</string>
+    <string name="day_monday">Lunes</string>
+    <string name="day_tuesday">Martes</string>
+    <string name="day_wednesday">Miércoles</string>
+    <string name="day_thursday">Jueves</string>
+    <string name="day_friday">Viernes</string>
+    <string name="day_saturday">Sábado</string>
+    <string name="day_sunday">Domingo</string>
 
     <!-- Validation errors -->
     <string name="error_invalid_email">Ingresa un correo válido</string>
     <string name="error_password_short">La contraseña debe tener al menos 6 caracteres</string>
+    <string name="error_password_no_uppercase">La contraseña debe tener al menos una letra mayúscula</string>
+    <string name="error_password_no_lowercase">La contraseña debe tener al menos una letra minúscula</string>
+    <string name="error_password_no_digit">La contraseña debe tener al menos un número</string>
     <string name="error_password_mismatch">Las contraseñas no coinciden</string>
     <string name="error_name_required">Ingresa tu nombre (mínimo 2 caracteres)</string>
     <string name="error_invalid_phone">Número de teléfono inválido (7–15 dígitos)</string>

@@ -110,7 +110,7 @@ class MatchRepositoryImpl @Inject constructor(
     }
 
     override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?, timezone: String?): Result<MatchSummary> = try {
-        val dto = dataSource.acceptMatch(matchId, viewerUserId, initiatorSkill, timezone)
+        val dto = dataSource.acceptMatch(matchId, viewerUserId, initiatorSkill)
         Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
         Log.e(TAG, "Failed to accept match $matchId", e)

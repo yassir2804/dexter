@@ -74,6 +74,7 @@ class UserRepositoryImpl @Inject constructor(
             lastName = user.lastName,
             country = user.country ?: "",
             phone = user.phone,
+            avatarUrl = user.avatarUrl,
             skillsToTeach = user.skillsToTeach,
             skillsToLearn = user.skillsToLearn,
             availabilityDays = user.availabilityDays,

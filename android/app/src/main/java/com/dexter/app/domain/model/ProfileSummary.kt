@@ -20,6 +20,7 @@ data class ProfileSummary(
     val profileVisible: Boolean = true,
     val skillsOffered: List<String>,
     val skillsSought: List<String>,
+    val availabilityDays: List<Int> = emptyList(),
     val reviews: List<ProfileReviewItem>
 )
 

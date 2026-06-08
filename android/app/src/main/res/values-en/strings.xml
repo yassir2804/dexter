@@ -58,11 +58,27 @@
     <string name="onboard_skills_teach">What skills can you teach?</string>
     <string name="onboard_skills_learn">What would you like to learn?</string>
     <string name="onboard_add_skill">Add</string>
+    <string name="onboard_phone_label">Phone number</string>
+    <string name="onboard_phone_placeholder">+1 234 567 8901</string>
+    <string name="onboard_availability">Your availability (days of the week)</string>
+    <string name="onboard_next">Next</string>
     <string name="onboard_finish">Finish</string>
+    <string name="onboard_availability_title">Your availability</string>
+    <string name="onboard_availability_subtitle">Select the days of the week you can learn or teach</string>
+    <string name="day_monday">Monday</string>
+    <string name="day_tuesday">Tuesday</string>
+    <string name="day_wednesday">Wednesday</string>
+    <string name="day_thursday">Thursday</string>
+    <string name="day_friday">Friday</string>
+    <string name="day_saturday">Saturday</string>
+    <string name="day_sunday">Sunday</string>
 
     <!-- Validation errors -->
     <string name="error_invalid_email">Enter a valid email</string>
-    <string name="error_password_short">Password must be at least %1$d characters</string>
+    <string name="error_password_short">Password must be at least 6 characters</string>
+    <string name="error_password_no_uppercase">Password must contain at least one uppercase letter</string>
+    <string name="error_password_no_lowercase">Password must contain at least one lowercase letter</string>
+    <string name="error_password_no_digit">Password must contain at least one number</string>
     <string name="error_password_mismatch">Passwords do not match</string>
     <string name="error_name_required">Enter your name</string>
 

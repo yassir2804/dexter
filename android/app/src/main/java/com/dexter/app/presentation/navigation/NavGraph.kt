@@ -356,7 +356,6 @@ fun NavGraph(
         }
 
         composable(NavRoutes.EditProfile.ROUTE) {
-            // Get current profile from ProfileViewModel (shared via activity scope)
             val profileState by profileViewModel.profileState.collectAsState()
             val profile = (profileState as? ProfileState.Success)?.profile
 
@@ -365,8 +364,10 @@ fun NavGraph(
                     profile = profile,
                     onBackClick = { navController.navigateUp() },
                     onSaved = {
-                        // Reload profile with fresh data after PUT, then go back
-                        CurrentUserSession.userId?.let { profileViewModel.loadProfile(it) }
+                        CurrentUserSession.userId?.let { userId ->
+                            profileViewModel.loadProfile(userId)
+                            homeViewModel.loadMatches(userId)
+                        }
                         navController.navigateUp()
                     }
                 )
