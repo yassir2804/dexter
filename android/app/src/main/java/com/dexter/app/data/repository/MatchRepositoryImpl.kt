@@ -109,8 +109,8 @@ class MatchRepositoryImpl @Inject constructor(
         Result.failure(DomainError.UnknownError("Unknown error creating match", e))
     }
 
-    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?): Result<MatchSummary> = try {
-        val dto = dataSource.acceptMatch(matchId, viewerUserId, initiatorSkill)
+    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?, timezone: String?): Result<MatchSummary> = try {
+        val dto = dataSource.acceptMatch(matchId, viewerUserId, initiatorSkill, timezone)
         Result.success(matchSummaryMapper.mapToDomain(dto))
     } catch (e: IOException) {
         Log.e(TAG, "Failed to accept match $matchId", e)

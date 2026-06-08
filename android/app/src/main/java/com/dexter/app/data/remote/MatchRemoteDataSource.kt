@@ -33,8 +33,8 @@ class MatchRemoteDataSource @Inject constructor(
         matchApiService.createMatch(MatchRequestDto(initiatorId, receiverId, initiatorSkill, receiverSkill))
     }
 
-    suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String? = null): Result<MatchSummaryDto> = safeApiCall {
-        matchApiService.acceptMatch(matchId, viewerUserId, initiatorSkill)
+    suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String? = null, timezone: String? = null): Result<MatchSummaryDto> = safeApiCall {
+        matchApiService.acceptMatch(matchId, viewerUserId, initiatorSkill, timezone)
     }
 
     suspend fun rejectMatch(matchId: Long): Result<Unit> = safeApiCall {

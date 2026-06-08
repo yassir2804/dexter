@@ -110,7 +110,8 @@ class MatchDetailViewModel @Inject constructor(
     private fun doAccept(matchId: Long, viewerUserId: Long, initiatorSkill: String?) {
         viewModelScope.launch {
             _actionState.value = MatchActionState.Loading
-            repository.acceptMatch(matchId, viewerUserId, initiatorSkill)
+            val tz = runCatching { java.util.TimeZone.getDefault().id }.getOrNull()
+            repository.acceptMatch(matchId, viewerUserId, initiatorSkill, tz)
                 .onSuccess { _actionState.value = MatchActionState.AcceptDone }
                 .onFailure { e ->
                     Log.e(TAG, "Error accepting match $matchId: ${e.message}")
