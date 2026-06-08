@@ -77,9 +77,9 @@ private fun MatchesContent(
         }
 
         is HomeState.Success -> {
-            val pending = homeState.pendingMatches
             val accepted = homeState.acceptedMatches
-            if (pending.isEmpty() && accepted.isEmpty()) {
+            val completed = homeState.completedMatches
+            if (accepted.isEmpty() && completed.isEmpty()) {
                 Box(
                     modifier = modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -92,10 +92,10 @@ private fun MatchesContent(
                 }
             } else {
                 LazyColumn(modifier = modifier.fillMaxSize()) {
-                    if (pending.isNotEmpty()) {
+                    if (accepted.isNotEmpty()) {
                         item {
                             Text(
-                                text = stringResource(R.string.matches_pending_title),
+                                text = stringResource(R.string.matches_active_title),
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
@@ -103,22 +103,22 @@ private fun MatchesContent(
                                     .padding(bottom = 12.dp)
                             )
                         }
-                        items(pending) { match ->
+                        items(accepted) { match ->
                             MatchCard(match = match, onClick = { onMatchClick(match) })
                         }
                     }
-                    if (accepted.isNotEmpty()) {
+                    if (completed.isNotEmpty()) {
                         item {
                             Text(
-                                text = stringResource(R.string.matches_title),
+                                text = stringResource(R.string.matches_completed_title),
                                 style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = if (pending.isNotEmpty()) 16.dp else 0.dp, bottom = 12.dp)
+                                    .padding(top = if (accepted.isNotEmpty()) 16.dp else 0.dp, bottom = 12.dp)
                             )
                         }
-                        items(accepted) { match ->
+                        items(completed) { match ->
                             MatchCard(match = match, onClick = { onMatchClick(match) })
                         }
                     }

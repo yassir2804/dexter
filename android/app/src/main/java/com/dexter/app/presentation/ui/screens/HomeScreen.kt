@@ -121,8 +121,7 @@ private fun HomeSuccessContent(
         item {
             SearchBar(
                 query = searchQuery,
-                onQueryChanged = onSearchQueryChange,
-                showFilter = false
+                onQueryChanged = onSearchQueryChange
             )
         }
 
