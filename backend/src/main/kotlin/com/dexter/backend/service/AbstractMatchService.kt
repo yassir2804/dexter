@@ -147,12 +147,12 @@ class AbstractMatchService(
         }
         if (match.status != MatchStatus.ACCEPTED)
             throw IllegalArgumentException("Match $id is not in ACCEPTED state (current: ${match.status})")
-        match.status = MatchStatus.COMPLETED
         val sessions = sessionRepository.findByMatchIdOrderBySessionNumberAsc(id)
-        sessions.filter { it.status != SessionStatus.COMPLETED }.forEach { s ->
-            s.status = SessionStatus.COMPLETED
-            sessionRepository.save(s)
-        }
+        val activeSessions = sessions.filter { it.status != SessionStatus.CANCELLED }
+        val pending = activeSessions.filter { it.status != SessionStatus.COMPLETED }
+        if (pending.isNotEmpty())
+            throw IllegalArgumentException("No se puede finalizar el match: quedan ${pending.size} sesiones sin completar")
+        match.status = MatchStatus.COMPLETED
         val saved = matchRepository.save(match)
         saved.initiator?.let { notifyMatchCompleted(saved, it) }
         saved.receiver?.let { notifyMatchCompleted(saved, it) }
