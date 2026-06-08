@@ -17,7 +17,7 @@ data class User(
     var lastName: String? = null,
     var username: String? = null,
     var bio: String? = null,
-    @Column(name = "avatar_url")
+    @Column(name = "avatar_url", columnDefinition = "TEXT")
     var avatarUrl: String? = null,
     var country: String? = null,
     var enabled: Boolean = true,
