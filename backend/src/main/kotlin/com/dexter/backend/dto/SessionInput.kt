@@ -11,4 +11,5 @@ data class SessionInput(
     var status: String? = null,
     var scheduledAt: Date? = null,
     var completedAt: Date? = null,
+    var duration: Int? = null,
 )

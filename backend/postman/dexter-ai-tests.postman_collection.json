@@ -1,0 +1,407 @@
+{
+  "info": {
+    "name": "Dexter AI Service Tests",
+    "description": "Tests de integración para el microservicio de IA (Python + Gemini) y su integración con el backend Spring Boot.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "a1b2c3d4-dext-ai00-0001-000000000001"
+  },
+  "variable": [
+    { "key": "aiServiceUrl", "value": "https://dexter-ai-service-3f9f7dbf1888.herokuapp.com", "type": "string" },
+    { "key": "backendUrl", "value": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "userId", "value": "", "type": "string" },
+    { "key": "newMatchId", "value": "", "type": "string" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const token = pm.collectionVariables.get('token');",
+          "const path = pm.request.url.path ? pm.request.url.path.join('/') : pm.request.url.toString();",
+          "const isAiDirect = path.includes('health') || path.includes('generate-plan');",
+          "const isLogin = path.includes('users/login');",
+          "",
+          "if (!token && !isAiDirect && !isLogin) {",
+          "    const base = pm.collectionVariables.get('backendUrl');",
+          "    pm.sendRequest({",
+          "        url: base + '/users/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ username: 'admin@dexter.app', password: 'admin123' }) },",
+          "    }, (err, res) => {",
+          "        if (err) { console.log('Auto-login failed:', err); return; }",
+          "        const auth = res.headers.get('Authorization');",
+          "        if (auth) {",
+          "            const t = auth.replace(/^Bearer\\s+/i, '').trim();",
+          "            pm.collectionVariables.set('token', t);",
+          "            try {",
+          "                const body = res.json();",
+          "                if (body && body.id) pm.collectionVariables.set('userId', String(body.id));",
+          "            } catch (e) {}",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "1. AI Microservice — Directo",
+      "description": "Tests directos al microservicio Python (sin pasar por el backend Spring)",
+      "item": [
+        {
+          "name": "1.1 Health check del AI service",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Respuesta tiene status ok', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body.status).to.equal('ok');",
+                  "});",
+                  "",
+                  "pm.test('Modelo es gemini-2.5-flash-lite', () => {",
+                  "    pm.expect(pm.response.json().model).to.equal('gemini-2.5-flash-lite');",
+                  "});",
+                  "",
+                  "pm.test('Tiempo de respuesta < 2000ms', () => {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{aiServiceUrl}}/health", "host": ["{{aiServiceUrl}}"], "path": ["health"] }
+          }
+        },
+        {
+          "name": "1.2 Generar plan de 6 sesiones",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Respuesta es array de 6 sesiones', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array').with.lengthOf(6);",
+                  "});",
+                  "",
+                  "pm.test('Cada sesión tiene sessionNumber, title, description, skill', () => {",
+                  "    const body = pm.response.json();",
+                  "    body.forEach((s, i) => {",
+                  "        pm.expect(s).to.have.property('sessionNumber', i + 1);",
+                  "        pm.expect(s.title).to.be.a('string').and.not.empty;",
+                  "        pm.expect(s.description).to.be.a('string').and.not.empty;",
+                  "        pm.expect(s.skill).to.be.a('string').and.not.empty;",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Skills asignados son de los enviados en el request', () => {",
+                  "    const body = pm.response.json();",
+                  "    const sent = JSON.parse(pm.request.body.raw);",
+                  "    const allSkills = [...sent.userAOffers, ...sent.userBOffers].map(s => s.toLowerCase());",
+                  "    body.forEach(s => {",
+                  "        pm.expect(allSkills).to.include(s.skill.toLowerCase());",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('sessionNumber va de 1 a 6 sin repetir', () => {",
+                  "    const nums = pm.response.json().map(s => s.sessionNumber).sort();",
+                  "    pm.expect(nums).to.deep.equal([1, 2, 3, 4, 5, 6]);",
+                  "});",
+                  "",
+                  "pm.test('Tiempo de respuesta < 30s (Gemini puede tardar)', () => {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(30000);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userAName\": \"Carlos\",\n  \"userAOffers\": [\"Guitarra\", \"Fotografía\"],\n  \"userBName\": \"María\",\n  \"userBOffers\": [\"Inglés\", \"Yoga\"],\n  \"availableDays\": [\"Lunes\", \"Miércoles\", \"Viernes\"]\n}"
+            },
+            "url": { "raw": "{{aiServiceUrl}}/generate-plan", "host": ["{{aiServiceUrl}}"], "path": ["generate-plan"] }
+          }
+        },
+        {
+          "name": "1.3 Generar plan — una sola habilidad por lado",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('6 sesiones generadas', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array').with.lengthOf(6);",
+                  "});",
+                  "",
+                  "pm.test('Skills son exactamente los enviados', () => {",
+                  "    const body = pm.response.json();",
+                  "    body.forEach(s => {",
+                  "        pm.expect(['piano', 'cocina']).to.include(s.skill.toLowerCase());",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userAName\": \"Ana\",\n  \"userAOffers\": [\"Piano\"],\n  \"userBName\": \"Luis\",\n  \"userBOffers\": [\"Cocina\"],\n  \"availableDays\": [\"Sábado\"]\n}"
+            },
+            "url": { "raw": "{{aiServiceUrl}}/generate-plan", "host": ["{{aiServiceUrl}}"], "path": ["generate-plan"] }
+          }
+        },
+        {
+          "name": "1.4 Error — body vacío",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422 (Unprocessable Entity)', () => {",
+                  "    pm.expect(pm.response.code).to.equal(422);",
+                  "});",
+                  "",
+                  "pm.test('Respuesta contiene detalle del error', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('detail');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{}" },
+            "url": { "raw": "{{aiServiceUrl}}/generate-plan", "host": ["{{aiServiceUrl}}"], "path": ["generate-plan"] }
+          }
+        },
+        {
+          "name": "1.5 Error — endpoint inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{aiServiceUrl}}/no-existe", "host": ["{{aiServiceUrl}}"], "path": ["no-existe"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. AI via Backend — Integración",
+      "description": "Tests que verifican la integración IA ↔ Backend. Al aceptar un match, el backend llama al AI service para generar el plan de sesiones.",
+      "item": [
+        {
+          "name": "2.1 Login (obtener token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "const authHeader = pm.response.headers.get('Authorization');",
+                  "if (authHeader) pm.collectionVariables.set('token', authHeader.replace(/^Bearer\\s+/i, '').trim());",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body && body.id) pm.collectionVariables.set('userId', String(body.id));",
+                  "",
+                  "pm.test('Token recibido en header', () => {",
+                  "    pm.expect(authHeader).to.include('Bearer');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin@dexter.app\",\n  \"password\": \"admin123\"\n}" },
+            "url": { "raw": "{{backendUrl}}/users/login", "host": ["{{backendUrl}}"], "path": ["users", "login"] }
+          }
+        },
+        {
+          "name": "2.2 GET match detail — tiene aiAnalysis",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('aiAnalysis es string no vacío', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('aiAnalysis');",
+                  "    pm.expect(body.aiAnalysis).to.be.a('string').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('aiAnalysis menciona compatibilidad', () => {",
+                  "    const analysis = pm.response.json().aiAnalysis;",
+                  "    pm.expect(analysis).to.match(/compatibilidad|%/);",
+                  "});",
+                  "",
+                  "pm.test('MatchDetailResult tiene campos de IA', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.have.property('compatibilityScore');",
+                  "    pm.expect(body.compatibilityScore).to.be.a('number');",
+                  "    pm.expect(body).to.have.property('offeredSkills').that.is.an('array');",
+                  "    pm.expect(body).to.have.property('soughtSkills').that.is.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{backendUrl}}/matches/1/detail?viewerUserId={{userId}}",
+              "host": ["{{backendUrl}}"],
+              "path": ["matches", "1", "detail"],
+              "query": [{ "key": "viewerUserId", "value": "{{userId}}" }]
+            }
+          }
+        },
+        {
+          "name": "2.3 GET sesiones del match — generadas por IA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Sesiones existen para el match', () => {",
+                  "    const body = pm.response.json();",
+                  "    pm.expect(body).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Cada sesión tiene título y descripción', () => {",
+                  "    pm.response.json().forEach(s => {",
+                  "        pm.expect(s).to.have.property('title').that.is.a('string').and.not.empty;",
+                  "        pm.expect(s).to.have.property('sessionNumber').that.is.a('number');",
+                  "        pm.expect(s).to.have.property('status');",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Sesiones están ordenadas por sessionNumber', () => {",
+                  "    const nums = pm.response.json().map(s => s.sessionNumber);",
+                  "    for (let i = 1; i < nums.length; i++) {",
+                  "        pm.expect(nums[i]).to.be.at.least(nums[i-1]);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{backendUrl}}/sessions?matchId=1",
+              "host": ["{{backendUrl}}"],
+              "path": ["sessions"],
+              "query": [{ "key": "matchId", "value": "1" }]
+            }
+          }
+        },
+        {
+          "name": "2.4 GET suggestions — compatibilidad calculada por IA",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "",
+                  "pm.test('Suggestions es un array', () => {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Cada suggestion tiene compatibilityScore', () => {",
+                  "    pm.response.json().forEach(s => {",
+                  "        pm.expect(s).to.have.property('compatibilityScore');",
+                  "        pm.expect(s.compatibilityScore).to.be.a('number');",
+                  "        pm.expect(s.compatibilityScore).to.be.at.least(0);",
+                  "        pm.expect(s.compatibilityScore).to.be.at.most(100);",
+                  "    });",
+                  "});",
+                  "",
+                  "pm.test('Suggestions están ordenadas por score descendente', () => {",
+                  "    const scores = pm.response.json().map(s => s.compatibilityScore);",
+                  "    for (let i = 1; i < scores.length; i++) {",
+                  "        pm.expect(scores[i]).to.be.at.most(scores[i-1]);",
+                  "    }",
+                  "});",
+                  "",
+                  "pm.test('Cada suggestion tiene status SUGGESTION', () => {",
+                  "    pm.response.json().forEach(s => {",
+                  "        pm.expect(s.status).to.equal('SUGGESTION');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+            "url": {
+              "raw": "{{backendUrl}}/matches/suggestions?userId={{userId}}",
+              "host": ["{{backendUrl}}"],
+              "path": ["matches", "suggestions"],
+              "query": [{ "key": "userId", "value": "{{userId}}" }]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

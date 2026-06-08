@@ -26,6 +26,7 @@ data class Session(
     var scheduledAt: Date? = null,
     @Column(name = "completed_at")
     var completedAt: Date? = null,
+    var duration: Int? = null,
     @Column(name = "created_at")
     var createdAt: Date? = null,
 ) {
