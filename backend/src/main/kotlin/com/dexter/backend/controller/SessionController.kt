@@ -1,6 +1,5 @@
 package com.dexter.backend.controller
 
-import com.dexter.backend.client.AiScheduleSlot
 import com.dexter.backend.dto.SessionDetails
 import com.dexter.backend.dto.SessionInput
 import com.dexter.backend.service.SessionService
@@ -42,10 +41,6 @@ class SessionController(
     @PatchMapping("/{id}/complete", produces = [MediaType.APPLICATION_JSON_VALUE])
     fun complete(@PathVariable id: Long): SessionDetails =
         sessionService.complete(id)
-
-    @GetMapping("/{id}/suggest-schedule", produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun suggestSchedule(@PathVariable id: Long): List<AiScheduleSlot> =
-        sessionService.suggestSchedule(id)
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
