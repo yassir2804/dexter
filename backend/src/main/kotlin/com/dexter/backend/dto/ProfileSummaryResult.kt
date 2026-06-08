@@ -28,4 +28,5 @@ data class ProfileSummaryResult(
     /** nombres de Skill donde skillRole = SOUGHT */
     var skillsSought: List<String>? = null,
     var reviews: List<ProfileReviewItemDetails>? = null,
+    var availabilityDays: List<Int>? = null,
 )

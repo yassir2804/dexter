@@ -5,6 +5,8 @@ import com.dexter.backend.dto.ProfileSummaryResult
 import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
+import com.dexter.backend.entity.Availability
+import com.dexter.backend.repository.AvailabilityRepository
 import com.dexter.backend.repository.ReviewRepository
 import com.dexter.backend.repository.SessionRepository
 import com.dexter.backend.repository.SkillRepository
@@ -12,6 +14,7 @@ import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalTime
 import java.util.Date
 
 @Service
@@ -20,6 +23,7 @@ class AbstractProfileService(
     @Autowired val skillRepository: SkillRepository,
     @Autowired val reviewRepository: ReviewRepository,
     @Autowired val sessionRepository: SessionRepository,
+    @Autowired val availabilityRepository: AvailabilityRepository,
 ) : ProfileService {
 
     override fun findByUserId(userId: Long): ProfileSummaryResult {
@@ -43,6 +47,11 @@ class AbstractProfileService(
                 )
             }
 
+        val availabilityDays = availabilityRepository.findByUserId(userId)
+            .map { it.dayOfWeek }
+            .distinct()
+            .sorted()
+
         return ProfileSummaryResult(
             initials = initialsFrom(user.firstName, user.lastName),
             firstName = user.firstName,
@@ -58,6 +67,7 @@ class AbstractProfileService(
             skillsOffered = offered,
             skillsSought = sought,
             reviews = reviews,
+            availabilityDays = availabilityDays,
         )
     }
 
@@ -83,6 +93,10 @@ class AbstractProfileService(
             syncSkills(user, SkillRole.SOUGHT, dto.skillsSought ?: emptyList())
         }
 
+        if (dto.availabilityDays != null) {
+            syncAvailability(user, dto.availabilityDays!!)
+        }
+
         return findByUserId(userId)
     }
 
@@ -106,6 +120,27 @@ class AbstractProfileService(
                     name = name,
                     skillRole = role,
                     skillLevel = SkillLevel.BEGINNER
+                )
+            )
+        }
+    }
+
+    private fun syncAvailability(user: com.dexter.backend.entity.User, newDays: List<Int>) {
+        val existing = availabilityRepository.findByUserId(user.id!!)
+        val existingDays = existing.map { it.dayOfWeek }.toSet()
+        val newDaysSet = newDays.filter { it in 1..7 }.toSet()
+
+        val toRemove = existing.filter { it.dayOfWeek !in newDaysSet }
+        val toAdd = newDaysSet.filter { it !in existingDays }
+
+        toRemove.forEach { availabilityRepository.delete(it) }
+        toAdd.forEach { day ->
+            availabilityRepository.save(
+                Availability(
+                    user = user,
+                    dayOfWeek = day,
+                    startTime = LocalTime.of(9, 0),
+                    endTime = LocalTime.of(17, 0),
                 )
             )
         }
