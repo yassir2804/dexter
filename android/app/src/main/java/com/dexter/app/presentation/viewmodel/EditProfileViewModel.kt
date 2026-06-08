@@ -5,31 +5,23 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.repository.UserRepository
+import com.dexter.app.data.remote.SearchRemoteDataSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * UI state for the Edit Profile screen.
- * Follows the same Loading / Success / Empty / Error pattern as [HomeState].
- */
 sealed class EditProfileState {
     data object Loading : EditProfileState()
     data object Saved : EditProfileState()
     data class Error(val message: String) : EditProfileState()
 }
 
-/**
- * ViewModel for the Edit Profile screen.
- *
- * Exposes editable fields as [MutableStateFlow]s that the UI binds to.
- * [saveProfile] sends a PUT /profile-summary via the repository.
- */
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val searchRemoteDataSource: SearchRemoteDataSource
 ) : ViewModel() {
 
     companion object {
@@ -50,15 +42,21 @@ class EditProfileViewModel @Inject constructor(
     private val _country = MutableStateFlow("")
     val country = _country.asStateFlow()
 
+    private val _phone = MutableStateFlow("")
+    val phone = _phone.asStateFlow()
+
     private val _skillsOffered = MutableStateFlow<List<String>>(emptyList())
     val skillsOffered = _skillsOffered.asStateFlow()
 
     private val _skillsSought = MutableStateFlow<List<String>>(emptyList())
     val skillsSought = _skillsSought.asStateFlow()
 
-    // Custom skills added by the user in this session (not in predefined list)
     private val _customSkills = MutableStateFlow<List<String>>(emptyList())
     val customSkills = _customSkills.asStateFlow()
+
+    private var baseSkills = emptyList<String>()
+    private val _availableSkills = MutableStateFlow<List<String>>(emptyList())
+    val availableSkills = _availableSkills.asStateFlow()
 
     // Non-editable fields kept for building the ProfileSummary
     private var initials = ""
@@ -73,6 +71,7 @@ class EditProfileViewModel @Inject constructor(
     fun onFullNameChange(value: String) { _fullName.value = value }
     fun onBioChange(value: String) { _bio.value = value }
     fun onCountryChange(value: String) { _country.value = value }
+    fun onPhoneChange(value: String) { _phone.value = value }
 
     fun toggleSkillOffered(skill: String) {
         _skillsOffered.value = if (skill in _skillsOffered.value) {
@@ -90,10 +89,6 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Adds a custom (user-created) skill and selects it for the target list.
-     * @param isOffered true to add to offered list, false for sought list.
-     */
     fun addCustomSkill(skill: String, isOffered: Boolean) {
         val trimmed = skill.trim()
         if (trimmed.isBlank()) return
@@ -111,18 +106,14 @@ class EditProfileViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Loads the current profile data into the editable fields.
-     * Called once from LaunchedEffect when the screen opens.
-     */
     fun loadFromProfile(profile: ProfileSummary) {
         _fullName.value = "${profile.firstName} ${profile.lastName}".trim()
         _bio.value = profile.bio
         _country.value = profile.country ?: ""
+        _phone.value = profile.phone ?: ""
         _skillsOffered.value = profile.skillsOffered
         _skillsSought.value = profile.skillsSought
 
-        // Store non-editable fields for rebuilding the ProfileSummary
         initials = profile.initials
         firstName = profile.firstName
         lastName = profile.lastName
@@ -131,12 +122,37 @@ class EditProfileViewModel @Inject constructor(
         totalSessions = profile.totalSessions
         totalMatches = profile.totalMatches
         reviews = profile.reviews
+
+        loadAvailableSkills()
     }
 
-    /**
-     * Sends PUT /profile-summary with the edited data.
-     * On success calls [onSaved] to navigate back.
-     */
+    fun searchSkills(query: String) {
+        viewModelScope.launch {
+            searchRemoteDataSource.searchSkills(query)
+                .onSuccess { dtos ->
+                    val names = dtos.mapNotNull { it.name }
+                    _availableSkills.value = (baseSkills + names).distinct()
+                }
+                .onFailure {
+                    Log.e(TAG, "Error searching skills", it)
+                }
+        }
+    }
+
+    private fun loadAvailableSkills() {
+        viewModelScope.launch {
+            searchRemoteDataSource.getPopularSkills()
+                .onSuccess { dtos ->
+                    val names = dtos.mapNotNull { it.name }
+                    baseSkills = names
+                    _availableSkills.value = names
+                }
+                .onFailure {
+                    Log.e(TAG, "Error loading available skills", it)
+                }
+        }
+    }
+
     fun saveProfile(onSaved: () -> Unit) {
         viewModelScope.launch {
             _state.value = EditProfileState.Loading
@@ -153,6 +169,7 @@ class EditProfileViewModel @Inject constructor(
                 avatarUrl = avatarUrl,
                 bio = _bio.value.trim(),
                 country = _country.value.trim().ifBlank { null },
+                phone = _phone.value.trim().ifBlank { null },
                 rating = rating,
                 totalSessions = totalSessions,
                 totalMatches = totalMatches,

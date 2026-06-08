@@ -282,6 +282,8 @@
     <string name="edit_profile_email_label">Email</string>
     <string name="edit_profile_city_label">City</string>
     <string name="edit_profile_about_label">About me</string>
+    <string name="edit_profile_phone_label">Phone</string>
+    <string name="edit_profile_phone_placeholder">+506 8888-1234</string>
     <string name="edit_profile_skills_section">Skills you offer</string>
     <string name="edit_profile_save_button">Save changes</string>
 

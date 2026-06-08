@@ -73,8 +73,10 @@ class UserRepositoryImpl @Inject constructor(
             firstName = user.firstName,
             lastName = user.lastName,
             country = user.country ?: "",
+            phone = user.phone,
             skillsToTeach = user.skillsToTeach,
             skillsToLearn = user.skillsToLearn,
+            availabilityDays = user.availabilityDays,
         )
 
         // Call the API via DataSource

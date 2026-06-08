@@ -288,6 +288,8 @@
     <string name="edit_profile_email_label">Correo electrónico</string>
     <string name="edit_profile_city_label">Ciudad</string>
     <string name="edit_profile_about_label">Sobre mí</string>
+    <string name="edit_profile_phone_label">Teléfono</string>
+    <string name="edit_profile_phone_placeholder">+506 8888-1234</string>
     <string name="edit_profile_skills_section">Habilidades que ofreces</string>
     <string name="edit_profile_save_button">Guardar cambios</string>
 

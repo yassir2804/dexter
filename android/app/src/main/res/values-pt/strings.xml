@@ -282,6 +282,8 @@
     <string name="edit_profile_email_label">E-mail</string>
     <string name="edit_profile_city_label">Cidade</string>
     <string name="edit_profile_about_label">Sobre mim</string>
+    <string name="edit_profile_phone_label">Telefone</string>
+    <string name="edit_profile_phone_placeholder">+506 8888-1234</string>
     <string name="edit_profile_skills_section">Habilidades que você oferece</string>
     <string name="edit_profile_save_button">Salvar alterações</string>
 

@@ -13,6 +13,7 @@ data class ProfileSummary(
     val avatarUrl: String?,
     val bio: String,
     val country: String?,
+    val phone: String?,
     val rating: Double,
     val totalSessions: Int,
     val totalMatches: Int,
