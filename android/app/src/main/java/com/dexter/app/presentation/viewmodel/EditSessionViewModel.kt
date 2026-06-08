@@ -3,7 +3,6 @@ package com.dexter.app.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.dexter.app.domain.model.ScheduleSlot
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.repository.SessionRepository
 import com.dexter.app.presentation.ui.utils.InputFilters
@@ -28,8 +27,7 @@ sealed class EditSessionState {
         val showDeleteConfirm: Boolean,
         val saving: Boolean,
         val deleting: Boolean,
-        val scheduleSlots: List<ScheduleSlot> = emptyList(),
-        val loadingSlots: Boolean = false
+        val durationError: String? = null,
     ) : EditSessionState()
     data object Saved : EditSessionState()
     data object Cancelled : EditSessionState()
@@ -71,9 +69,7 @@ class EditSessionViewModel @Inject constructor(
                         showDeleteConfirm = false,
                         saving = false,
                         deleting = false,
-                        loadingSlots = true
                     )
-                    loadScheduleSuggestions(sessionId)
                 }
                 .onFailure { exception ->
                     Log.e(TAG, "Error loading session", exception)
@@ -81,28 +77,6 @@ class EditSessionViewModel @Inject constructor(
                         exception.message ?: "Error desconocido"
                     )
                 }
-        }
-    }
-
-    private fun loadScheduleSuggestions(sessionId: Long) {
-        viewModelScope.launch {
-            repository.suggestSchedule(sessionId)
-                .onSuccess { slots ->
-                    currentEditing()?.let { _state.value = it.copy(scheduleSlots = slots, loadingSlots = false) }
-                }
-                .onFailure { e ->
-                    Log.w(TAG, "Could not load schedule suggestions", e)
-                    currentEditing()?.let { _state.value = it.copy(loadingSlots = false) }
-                }
-        }
-    }
-
-    fun onSlotSelected(slot: ScheduleSlot) {
-        currentEditing()?.let {
-            _state.value = it.copy(
-                date = slot.day,
-                time = slot.time.split(" - ").firstOrNull() ?: slot.time
-            )
         }
     }
 
@@ -127,7 +101,17 @@ class EditSessionViewModel @Inject constructor(
 
     fun onDurationChange(value: String) {
         val filtered = InputFilters.filterDigits(value)
-        currentEditing()?.let { _state.value = it.copy(duration = filtered) }
+        currentEditing()?.let { _state.value = it.copy(duration = filtered, durationError = null) }
+    }
+
+    fun onDateSelected(year: Int, month: Int, day: Int) {
+        val d = String.format("%02d/%02d/%04d", day, month + 1, year)
+        currentEditing()?.let { _state.value = it.copy(date = d) }
+    }
+
+    fun onTimeSelected(hour: Int, minute: Int) {
+        val t = String.format("%02d:%02d", hour, minute)
+        currentEditing()?.let { _state.value = it.copy(time = t) }
     }
 
     fun onRequestDelete() {
@@ -140,13 +124,35 @@ class EditSessionViewModel @Inject constructor(
 
     fun onSave() {
         val editing = currentEditing() ?: return
+
+        // Validar duración
+        val dur = editing.duration.toIntOrNull()
+        if (dur == null || dur < 15 || dur > 480) {
+            _state.value = editing.copy(durationError = "Entre 15 y 480 minutos")
+            return
+        }
+
+        // Validar fecha futura
+        val scheduledAt = parseScheduledAt(editing.date, editing.time)
+        if (editing.date.isNotBlank() && scheduledAt != null) {
+            val today = java.util.Calendar.getInstance().apply {
+                set(java.util.Calendar.HOUR_OF_DAY, 0)
+                set(java.util.Calendar.MINUTE, 0)
+                set(java.util.Calendar.SECOND, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.time
+            if (scheduledAt.before(today)) {
+                _state.value = editing.copy(durationError = "La fecha no puede ser anterior a hoy")
+                return
+            }
+        }
+
         viewModelScope.launch {
             _state.value = editing.copy(saving = true)
-            val scheduledAt = parseScheduledAt(editing.date, editing.time)
             val updated = editing.session.copy(
                 title = editing.title,
                 description = editing.description,
-                scheduledAt = scheduledAt ?: editing.session.scheduledAt
+                scheduledAt = if (editing.date.isNotBlank()) scheduledAt else editing.session.scheduledAt
             )
             repository.updateSession(updated)
                 .onSuccess { _state.value = EditSessionState.Saved }

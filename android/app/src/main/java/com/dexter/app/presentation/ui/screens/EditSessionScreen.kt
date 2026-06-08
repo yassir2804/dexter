@@ -1,6 +1,7 @@
 package com.dexter.app.presentation.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Schedule
@@ -25,19 +25,27 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +54,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.dexter.app.R
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.model.SessionStatus
@@ -81,10 +90,9 @@ fun EditSessionScreen(
         onBackClick = onBackClick,
         onTitleChange = viewModel::onTitleChange,
         onDescriptionChange = viewModel::onDescriptionChange,
-        onDateChange = viewModel::onDateChange,
-        onTimeChange = viewModel::onTimeChange,
+        onDateSelected = viewModel::onDateSelected,
+        onTimeSelected = viewModel::onTimeSelected,
         onDurationChange = viewModel::onDurationChange,
-        onSlotSelected = viewModel::onSlotSelected,
         onSave = viewModel::onSave,
         onRequestDelete = viewModel::onRequestDelete,
         onConfirmDelete = viewModel::onConfirmDelete,
@@ -100,10 +108,9 @@ private fun EditSessionContent(
     onBackClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onDateChange: (String) -> Unit,
-    onTimeChange: (String) -> Unit,
+    onDateSelected: (Int, Int, Int) -> Unit,
+    onTimeSelected: (Int, Int) -> Unit,
     onDurationChange: (String) -> Unit,
-    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit = {},
     onSave: () -> Unit,
     onRequestDelete: () -> Unit,
     onConfirmDelete: () -> Unit,
@@ -142,10 +149,9 @@ private fun EditSessionContent(
                     state = state,
                     onTitleChange = onTitleChange,
                     onDescriptionChange = onDescriptionChange,
-                    onDateChange = onDateChange,
-                    onTimeChange = onTimeChange,
+                    onDateSelected = onDateSelected,
+                    onTimeSelected = onTimeSelected,
                     onDurationChange = onDurationChange,
-                    onSlotSelected = onSlotSelected,
                     onSave = onSave,
                     onRequestDelete = onRequestDelete,
                     modifier = Modifier
@@ -173,31 +179,123 @@ private fun EditSessionContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditSessionForm(
     state: EditSessionState.Editing,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
-    onDateChange: (String) -> Unit,
-    onTimeChange: (String) -> Unit,
+    onDateSelected: (Int, Int, Int) -> Unit,
+    onTimeSelected: (Int, Int) -> Unit,
     onDurationChange: (String) -> Unit,
-    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit = {},
     onSave: () -> Unit,
     onRequestDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    // Pre-parse fecha y hora actuales para el picker
+    val currentDate = remember(state.date) {
+        runCatching {
+            val parts = state.date.split("/")
+            Triple(parts[2].toInt(), parts[1].toInt() - 1, parts[0].toInt())
+        }.getOrNull()
+    }
+    val currentTime = remember(state.time) {
+        runCatching {
+            val parts = state.time.split(":")
+            Pair(parts[0].toInt(), parts[1].toInt())
+        }.getOrNull()
+    }
+
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = if (currentDate != null) {
+            java.util.Calendar.getInstance().apply {
+                set(currentDate.first, currentDate.second, currentDate.third, 0, 0, 0)
+                set(java.util.Calendar.MILLISECOND, 0)
+            }.timeInMillis
+        } else null
+    )
+
+    val timePickerState = rememberTimePickerState(
+        initialHour = currentTime?.first ?: 9,
+        initialMinute = currentTime?.second ?: 0,
+        is24Hour = true
+    )
+
+    // DatePickerDialog
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { millis ->
+                        val cal = java.util.Calendar.getInstance().apply { timeInMillis = millis }
+                        onDateSelected(
+                            cal.get(java.util.Calendar.YEAR),
+                            cal.get(java.util.Calendar.MONTH),
+                            cal.get(java.util.Calendar.DAY_OF_MONTH)
+                        )
+                    }
+                    showDatePicker = false
+                }) { Text("OK") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // TimePickerDialog
+    if (showTimePicker) {
+        Dialog(onDismissRequest = { showTimePicker = false }) {
+            androidx.compose.material3.Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surface
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = stringResource(R.string.edit_session_field_time),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                    TimePicker(state = timePickerState)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { showTimePicker = false }) { Text("Cancelar") }
+                        TextButton(onClick = {
+                            onTimeSelected(timePickerState.hour, timePickerState.minute)
+                            showTimePicker = false
+                        }) { Text("OK") }
+                    }
+                }
+            }
+        }
+    }
+
     Column(
         modifier = modifier
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        // Título — singleLine=false para poder mover el cursor al final
         DexterTextField(
             value = state.title,
             onValueChange = onTitleChange,
             label = stringResource(R.string.edit_session_field_title),
             placeholder = stringResource(R.string.edit_session_field_title_placeholder),
             leadingIcon = Icons.Default.Title,
+            singleLine = false,
+            minLines = 1,
             maxLength = 100,
             contentDescriptionLabel = stringResource(R.string.edit_session_field_title)
         )
@@ -211,25 +309,58 @@ private fun EditSessionForm(
             maxLength = 500,
             contentDescriptionLabel = stringResource(R.string.edit_session_field_description)
         )
-        DexterTextField(
-            value = state.date,
-            onValueChange = onDateChange,
-            label = stringResource(R.string.edit_session_field_date),
-            leadingIcon = Icons.Default.CalendarToday,
-            maxLength = 10,
-            contentDescriptionLabel = stringResource(R.string.edit_session_field_date)
+
+        // Fecha — readonly, abre DatePicker al tocar
+        OutlinedTextField(
+            value = state.date.ifBlank { "" },
+            onValueChange = {},
+            readOnly = true,
+            label = { Text(stringResource(R.string.edit_session_field_date)) },
+            placeholder = { Text("DD/MM/YYYY") },
+            leadingIcon = {
+                Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(20.dp))
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { showDatePicker = true },
+            enabled = false,
+            colors = OutlinedTextFieldDefaults.colors(
+                disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                disabledBorderColor = MaterialTheme.colorScheme.outline,
+                disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            ),
+            shape = RoundedCornerShape(4.dp)
         )
+
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            // Hora — readonly, abre TimePicker al tocar
             Box(Modifier.weight(1f)) {
-                DexterTextField(
-                    value = state.time,
-                    onValueChange = onTimeChange,
-                    label = stringResource(R.string.edit_session_field_time),
-                    leadingIcon = Icons.Default.Schedule,
-                    maxLength = 5,
-                    contentDescriptionLabel = stringResource(R.string.edit_session_field_time)
+                OutlinedTextField(
+                    value = state.time.ifBlank { "" },
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.edit_session_field_time)) },
+                    placeholder = { Text("HH:MM") },
+                    leadingIcon = {
+                        Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(20.dp))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { showTimePicker = true },
+                    enabled = false,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+                        disabledBorderColor = MaterialTheme.colorScheme.outline,
+                        disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    shape = RoundedCornerShape(4.dp)
                 )
             }
+            // Duración — libre pero solo números
             Box(Modifier.weight(1f)) {
                 DexterTextField(
                     value = state.duration,
@@ -237,122 +368,36 @@ private fun EditSessionForm(
                     label = stringResource(R.string.edit_session_field_duration),
                     keyboardType = KeyboardType.Number,
                     maxLength = 3,
+                    isError = state.durationError != null,
+                    supportingText = state.durationError,
                     contentDescriptionLabel = stringResource(R.string.edit_session_field_duration)
                 )
             }
         }
-
-        AiSuggestionCard(
-            slots = state.scheduleSlots,
-            loading = state.loadingSlots,
-            onSlotSelected = onSlotSelected
-        )
 
         Spacer(Modifier.height(8.dp))
 
         Button(
             onClick = onSave,
             enabled = !state.saving,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+            modifier = Modifier.fillMaxWidth().height(48.dp),
             shape = RoundedCornerShape(50)
         ) {
             if (state.saving) {
-                CircularProgressIndicator(
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(20.dp)
-                )
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
             } else {
-                Text(
-                    text = stringResource(R.string.edit_session_save),
-                    fontWeight = FontWeight.SemiBold
-                )
+                Text(text = stringResource(R.string.edit_session_save), fontWeight = FontWeight.SemiBold)
             }
         }
         OutlinedButton(
-            onClick = { /* back = cancel */ onRequestDelete() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
+            onClick = onRequestDelete,
+            modifier = Modifier.fillMaxWidth().height(48.dp),
             shape = RoundedCornerShape(50)
         ) {
             Text(stringResource(R.string.edit_session_delete))
         }
 
         Spacer(Modifier.height(24.dp))
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun AiSuggestionCard(
-    slots: List<com.dexter.app.domain.model.ScheduleSlot>,
-    loading: Boolean,
-    onSlotSelected: (com.dexter.app.domain.model.ScheduleSlot) -> Unit
-) {
-    Surface(
-        shape = RoundedCornerShape(12.dp),
-        color = MaterialTheme.colorScheme.primaryContainer,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(Modifier.padding(16.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.AutoAwesome,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = stringResource(R.string.edit_session_ai_suggestion),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            }
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = stringResource(R.string.edit_session_ai_description),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-            Spacer(Modifier.size(12.dp))
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(20.dp)
-                        .align(Alignment.CenterHorizontally),
-                    strokeWidth = 2.dp,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            } else if (slots.isEmpty()) {
-                Text(
-                    text = "No se pudieron generar sugerencias",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                )
-            } else {
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    slots.forEach { slot ->
-                        Surface(
-                            onClick = { onSlotSelected(slot) },
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.12f),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = "${slot.day} • ${slot.time}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp)
-                            )
-                        }
-                    }
-                }
-            }
-        }
     }
 }
 
@@ -441,8 +486,8 @@ private fun EditSessionSuccessPreview() {
             onBackClick = {},
             onTitleChange = {},
             onDescriptionChange = {},
-            onDateChange = {},
-            onTimeChange = {},
+            onDateSelected = { _, _, _ -> },
+            onTimeSelected = { _, _ -> },
             onDurationChange = {},
             onSave = {},
             onRequestDelete = {},
