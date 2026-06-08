@@ -183,13 +183,30 @@ class AbstractMatchService(
         val viewer = userRepository.findById(userId)
             .orElseThrow { NoSuchElementException("User $userId not found") }
 
-        val activeMatchedIds = matchRepository.findByInitiatorIdOrReceiverId(userId, userId)
+        val allMyMatches = matchRepository.findByInitiatorIdOrReceiverId(userId, userId)
+
+        // Solo excluir usuarios con match PENDING o ACCEPTED activo (no COMPLETED ni REJECTED)
+        val activeMatchedIds = allMyMatches
             .filter { it.status == MatchStatus.PENDING || it.status == MatchStatus.ACCEPTED }
             .flatMap { listOfNotNull(it.initiator?.id, it.receiver?.id) }
             .toSet()
 
+        // Usuarios con los que hay un match REJECTED (bloqueados permanentemente para sugerencias)
+        val rejectedMatchedIds = allMyMatches
+            .filter { it.status == MatchStatus.REJECTED }
+            .flatMap { listOfNotNull(it.initiator?.id, it.receiver?.id) }
+            .toSet()
+
         return userRepository.findAll()
-            .filter { it.id != userId && it.id !in activeMatchedIds }
+            .filter { other ->
+                val otherId = other.id ?: return@filter false
+                if (otherId == userId) return@filter false
+                if (otherId in activeMatchedIds) return@filter false
+                if (otherId in rejectedMatchedIds) return@filter false
+                // Respetar profileVisible: si está oculto, no aparece en sugerencias
+                if (other.profileVisible == false) return@filter false
+                true
+            }
             .map { other -> Pair(other, calculateCompatibility(viewer, other)) }
             .filter { (_, score) -> score > 50.0 }
             .sortedByDescending { (_, score) -> score }
