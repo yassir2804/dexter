@@ -1,17 +1,38 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from google import genai
-from google.genai import types
 from dotenv import load_dotenv
 import os
 import json
 import re
+from datetime import date, timedelta
+from typing import Optional
 
 load_dotenv()
 
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI(title="Dexter AI Service")
+
+DAY_NAMES_ES = {1: "Lunes", 2: "Martes", 3: "Miércoles", 4: "Jueves", 5: "Viernes", 6: "Sábado", 7: "Domingo"}
+DAY_SHORT_ES = {1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 7: "Dom"}
+MONTH_SHORT_ES = {1:"ene",2:"feb",3:"mar",4:"abr",5:"may",6:"jun",7:"jul",8:"ago",9:"sep",10:"oct",11:"nov",12:"dic"}
+
+
+def next_dates_for_days(day_numbers: list[int], count: int) -> list[str]:
+    """Devuelve las próximas `count` fechas que caigan en alguno de los días ISO dados (1=Lun..7=Dom)."""
+    if not day_numbers:
+        return []
+    results = []
+    today = date.today()
+    cursor = today + timedelta(days=1)
+    while len(results) < count:
+        iso_wd = cursor.isoweekday()
+        if iso_wd in day_numbers:
+            short = f"{DAY_SHORT_ES.get(iso_wd, '')} {cursor.day} {MONTH_SHORT_ES.get(cursor.month, '')}"
+            results.append(short)
+        cursor += timedelta(days=1)
+    return results
 
 
 # ── Request / Response models ─────────────────────────────────────────────────
@@ -21,7 +42,9 @@ class PlanRequest(BaseModel):
     userAOffers: list[str]
     userBName: str
     userBOffers: list[str]
-    availableDays: list[str]
+    availableDays: list[str]          # nombres de días ("Lunes", etc.) — legacy
+    overlapDayNumbers: list[int] = [] # días ISO (1-7) en que ambos coinciden
+    timezone: Optional[str] = None    # ej. "America/Costa_Rica"
 
 
 class SessionPlan(BaseModel):
@@ -29,6 +52,7 @@ class SessionPlan(BaseModel):
     title: str
     description: str
     skill: str
+    scheduledDate: Optional[str] = None  # ej. "Lun 9 jun"
 
 
 class ScheduleSlot(BaseModel):
@@ -65,12 +89,14 @@ def health():
 
 @app.post("/generate-plan", response_model=list[SessionPlan])
 def generate_plan(req: PlanRequest):
-    days_text = ", ".join(req.availableDays) if req.availableDays else "horario flexible"
-
     all_a_skills = req.userAOffers
     all_b_skills = req.userBOffers
 
-    # Assign skills round-robin for each session
+    # Calcular fechas sugeridas basadas en días de solapamiento
+    suggested_dates = next_dates_for_days(req.overlapDayNumbers, 6) if req.overlapDayNumbers else []
+    has_dates = len(suggested_dates) == 6
+
+    # Asignación de skills por sesión
     session_skill_hints = []
     for i in range(1, 7):
         if i % 2 == 1:  # odd → B teaches
@@ -79,32 +105,50 @@ def generate_plan(req: PlanRequest):
         else:  # even → A teaches
             skill = all_a_skills[(i // 2 - 1) % len(all_a_skills)] if all_a_skills else (all_b_skills[0] if all_b_skills else "habilidad")
             teacher = req.userAName
-        session_skill_hints.append(f"Sesión {i}: {teacher} enseña «{skill}» — skill debe ser exactamente \"{skill}\"")
+        date_hint = f", fecha sugerida: \"{suggested_dates[i-1]}\"" if has_dates else ""
+        session_skill_hints.append(f"Sesión {i}: {teacher} enseña «{skill}» — skill=\"{skill}\"{date_hint}")
 
     hints_text = "\n".join(session_skill_hints)
+    days_text = ", ".join(req.availableDays) if req.availableDays else ("días de solapamiento: " + ", ".join(DAY_NAMES_ES.get(d, str(d)) for d in req.overlapDayNumbers) if req.overlapDayNumbers else "horario flexible")
+    tz_text = f"Zona horaria: {req.timezone}" if req.timezone else ""
+    today_text = f"Fecha de hoy: {date.today().strftime('%d/%m/%Y')}"
 
-    prompt = f"""Eres un generador de planes de aprendizaje para una app de intercambio de habilidades.
+    scheduled_field = '"scheduledDate": "fecha sugerida exactamente como aparece arriba",' if has_dates else '"scheduledDate": null,'
 
-HABILIDADES DISPONIBLES (usa EXACTAMENTE estos nombres en el campo "skill"):
-- {req.userAName} puede enseñar: {", ".join(f'"{s}"' for s in req.userAOffers)}
-- {req.userBName} puede enseñar: {", ".join(f'"{s}"' for s in req.userBOffers)}
-Días disponibles: {days_text}
+    # Detectar idioma dominante a partir de los nombres de habilidades
+    all_skill_names = req.userAOffers + req.userBOffers + [req.userAName, req.userBName]
+    lang_hint = "Responde en el mismo idioma que los nombres de habilidades proporcionados. Si las habilidades están en inglés, responde en inglés; si están en español, responde en español; si están en portugués, responde en portugués."
 
-ASIGNACIÓN OBLIGATORIA (NO cambies el skill asignado a cada sesión):
+    prompt = f"""You are a learning plan generator for a skill-exchange app.
+{lang_hint}
+
+{today_text}
+{tz_text}
+Available days for both users: {days_text}
+
+SKILLS (use EXACTLY these strings in the "skill" field — do NOT translate them):
+- {req.userAName} teaches: {", ".join(f'"{s}"' for s in req.userAOffers)}
+- {req.userBName} teaches: {", ".join(f'"{s}"' for s in req.userBOffers)}
+
+MANDATORY SESSION ASSIGNMENT:
 {hints_text}
 
-REGLAS:
-- El campo "skill" de cada sesión DEBE ser exactamente el string indicado arriba, sin traducir ni modificar.
-- El título debe ser específico, motivador y relacionado con esa habilidad concreta.
-- La descripción explica qué se practicará (1-2 oraciones).
+RULES:
+- "skill" MUST be exactly the string shown above, unchanged.
+- "scheduledDate": use the suggested date if provided; otherwise null.
+- "title": specific, motivating, related to that skill.
+- "description": what will be practiced (1-2 sentences).
+- Do NOT include time or duration (users set those later).
+- Respond in the same language as the skill names.
 
-Responde ÚNICAMENTE con un JSON array válido, sin texto ni markdown adicional:
+Respond ONLY with a valid JSON array:
 [
   {{
     "sessionNumber": 1,
-    "title": "título concreto",
-    "description": "descripción de la sesión",
-    "skill": "nombre exacto tal como aparece arriba"
+    "title": "specific title",
+    "description": "session description",
+    "skill": "exact name as shown above",
+    {scheduled_field}
   }}
 ]"""
 
@@ -119,10 +163,7 @@ Responde ÚNICAMENTE con un JSON array válido, sin texto ni markdown adicional:
         return plans
 
     except json.JSONDecodeError as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Gemini devolvió JSON inválido: {e}"
-        )
+        raise HTTPException(status_code=500, detail=f"Gemini devolvió JSON inválido: {e}")
     except ValueError as e:
         raise HTTPException(status_code=500, detail=str(e))
     except Exception as e:

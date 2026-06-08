@@ -10,14 +10,17 @@ data class AiPlanRequest(
     val userAOffers: List<String>,
     val userBName: String,
     val userBOffers: List<String>,
-    val availableDays: List<String>
+    val availableDays: List<String>,
+    val overlapDayNumbers: List<Int> = emptyList(),
+    val timezone: String? = null
 )
 
 data class AiSessionPlan(
     val sessionNumber: Int,
     val title: String,
     val description: String,
-    val skill: String
+    val skill: String,
+    val scheduledDate: String? = null
 )
 
 data class AiScheduleRequest(

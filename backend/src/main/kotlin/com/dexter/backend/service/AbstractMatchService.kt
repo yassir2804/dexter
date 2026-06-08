@@ -90,7 +90,7 @@ class AbstractMatchService(
     }
 
     @Transactional
-    override fun accept(id: Long, viewerUserId: Long, initiatorSkill: String?): MatchSummaryResult {
+    override fun accept(id: Long, viewerUserId: Long, initiatorSkill: String?, timezone: String?): MatchSummaryResult {
         val match = matchRepository.findById(id)
             .orElseThrow { NoSuchElementException("Match $id not found") }
 
@@ -99,12 +99,10 @@ class AbstractMatchService(
 
         match.status = MatchStatus.ACCEPTED
         if (initiatorSkill != null) match.initiatorSkill = initiatorSkill
-        // Garantiza que ambos lados del intercambio queden definidos para que el
-        // plan use exactamente dos skills (y no todas las del usuario).
         ensureExchangeSkills(match)
         val saved = matchRepository.save(match)
 
-        generateSessions(saved)
+        generateSessions(saved, timezone)
 
         // Contar el match en el historial de ambos participantes.
         listOfNotNull(match.initiator, match.receiver).forEach { u ->
@@ -175,7 +173,7 @@ class AbstractMatchService(
             .orElseThrow { NoSuchElementException("Match $matchId not found") }
         val existing = sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId)
         if (existing.isEmpty() && match.status == MatchStatus.ACCEPTED) {
-            generateSessions(match)
+            generateSessions(match, null)
         }
     }
 
@@ -319,7 +317,7 @@ class AbstractMatchService(
         return (0.7 * skillScore + 0.3 * availScore) * 100.0
     }
 
-    private fun generateSessions(match: Match) {
+    private fun generateSessions(match: Match, timezone: String?) {
         val initiator = match.initiator ?: return
         val receiver = match.receiver ?: return
         val initiatorId = initiator.id ?: return
@@ -347,34 +345,33 @@ class AbstractMatchService(
         // Días en que ambos coinciden (ISO 1=Lun … 7=Dom). Si no hay, queda vacío
         // y las sesiones se crean sin fecha (scheduledAt = null), editables luego.
         val overlapDays = computeOverlapDays(initiatorId, receiverId)
-        val scheduledDates = computeScheduledDates(overlapDays, 6)
 
-        val availableDays = (
-            if (overlapDays.isNotEmpty()) overlapDays
+        val effectiveDays = if (overlapDays.isNotEmpty()) overlapDays
             else availabilityRepository.findByUserId(initiatorId).map { it.dayOfWeek }.distinct().sorted()
-        ).map { dayName(it) }
 
-        // Intentar generar plan con IA
+        val availableDays = effectiveDays.map { dayName(it) }
+
         val aiPlans = aiServiceClient.generatePlan(
             AiPlanRequest(
                 userAName = initiator.firstName ?: "Usuario A",
                 userAOffers = initiatorSkills.map { it.name },
                 userBName = receiver.firstName ?: "Usuario B",
                 userBOffers = receiverSkills.map { it.name },
-                availableDays = availableDays
+                availableDays = availableDays,
+                overlapDayNumbers = effectiveDays,
+                timezone = timezone
             )
         )
 
         if (aiPlans != null) {
-            // Plan generado por Gemini
             aiPlans.forEach { plan ->
-                // Odd sessions (1,3,5) = receiver teaches, even sessions (2,4,6) = initiator teaches
                 val correctPool = if (plan.sessionNumber % 2 == 1) receiverSkills else initiatorSkills
                 val skill = allSkills.firstOrNull {
                     it.name.lowercase() == plan.skill.lowercase()
-                } ?: correctPool.firstOrNull()
-                ?: allSkills.firstOrNull()
-                ?: return@forEach
+                } ?: correctPool.firstOrNull() ?: allSkills.firstOrNull() ?: return@forEach
+
+                // Usar fecha sugerida por la IA si viene; sino null (el usuario la pone luego)
+                val scheduledAt = plan.scheduledDate?.let { parseAiDate(it) }
 
                 sessionRepository.save(Session(
                     match = match,
@@ -383,19 +380,15 @@ class AbstractMatchService(
                     title = plan.title,
                     description = plan.description,
                     status = SessionStatus.SCHEDULED,
-                    scheduledAt = scheduledDates.getOrNull(plan.sessionNumber - 1),
+                    scheduledAt = scheduledAt,
                     createdAt = Date(),
                 ))
             }
         } else {
-            // Fallback: títulos genéricos si el microservicio no está disponible
+            // Fallback sin fecha — el usuario la define luego
             val fallbackTitles = listOf(
-                "Sesión introductoria",
-                "Práctica básica",
-                "Ejercicios intermedios",
-                "Sesión avanzada",
-                "Técnicas aplicadas",
-                "Revisión final",
+                "Sesión introductoria", "Práctica básica", "Ejercicios intermedios",
+                "Sesión avanzada", "Técnicas aplicadas", "Revisión final",
             )
             fallbackTitles.forEachIndexed { index, title ->
                 val skill = if (index % 2 == 0)
@@ -410,12 +403,29 @@ class AbstractMatchService(
                     sessionNumber = index + 1,
                     title = title,
                     status = SessionStatus.SCHEDULED,
-                    scheduledAt = scheduledDates.getOrNull(index),
+                    scheduledAt = null,
                     createdAt = Date(),
                 ))
             }
         }
     }
+
+    private fun parseAiDate(dateStr: String): Date? = try {
+        // Formato esperado: "Lun 9 jun" — parsear a Date
+        val months = mapOf(
+            "ene" to 1, "feb" to 2, "mar" to 3, "abr" to 4, "may" to 5, "jun" to 6,
+            "jul" to 7, "ago" to 8, "sep" to 9, "oct" to 10, "nov" to 11, "dic" to 12
+        )
+        val parts = dateStr.trim().split("\\s+".toRegex())
+        if (parts.size >= 3) {
+            val day = parts[1].toInt()
+            val month = months[parts[2].lowercase()] ?: return null
+            val cal = java.util.Calendar.getInstance()
+            cal.set(cal.get(java.util.Calendar.YEAR), month - 1, day, 9, 0, 0)
+            cal.set(java.util.Calendar.MILLISECOND, 0)
+            cal.time
+        } else null
+    } catch (_: Exception) { null }
 
     private fun dayName(dayOfWeek: Int): String = listOf(
         "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"
