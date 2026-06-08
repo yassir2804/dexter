@@ -89,14 +89,12 @@
             "    const u = pm.response.json();",
             "    pm.expect(u).to.have.property('id').that.is.a('number');",
             "    pm.expect(u).to.have.property('email').that.is.a('string');",
-            "    pm.expect(u).to.have.property('password').that.is.a('string');",
-            "    pm.expect(u.password).to.match(/^\\$2[ab]\\$/);",
             "    pm.expect(u).to.have.property('firstName', 'Newman');",
             "    pm.expect(u).to.have.property('enabled', true);",
             "});",
             "pm.test('UserResult tiene todos los campos', () => {",
             "    const u = pm.response.json();",
-            "    ['id','email','password','firstName','lastName','username','country','enabled','tokenExpired','rating','totalSessions','totalMatches','createDate','updatedAt'].forEach(k => {",
+            "    ['id','email','firstName','lastName','username','country','enabled','profileVisible','tokenExpired','rating','totalSessions','totalMatches','createDate','updatedAt'].forEach(k => {",
             "        pm.expect(u).to.have.property(k);",
             "    });",
             "});",
@@ -104,7 +102,7 @@
             "    const sent = JSON.parse(pm.request.body.raw).email;",
             "    pm.expect(pm.response.json().email).to.equal(sent);",
             "});",
-            "pm.test('Contraseña hasheada con BCrypt', () => pm.expect(pm.response.json().password).to.not.equal('test1234'));",
+            "pm.test('Password no se expone en la respuesta', () => pm.expect(pm.response.json()).to.not.have.property('password'));",
             "pm.test('Rating inicia en 0', () => pm.expect(pm.response.json().rating).to.equal(0.0));",
             "pm.test('totalSessions inicia en 0', () => pm.expect(pm.response.json().totalSessions).to.equal(0));",
             "pm.test('totalMatches inicia en 0', () => pm.expect(pm.response.json().totalMatches).to.equal(0));",
@@ -325,7 +323,7 @@
             "pm.test('skillsSought es array', () => pm.expect(pm.response.json()[0].skillsSought).to.be.an('array'));",
             "pm.test('compatibilityScore es numérico', () => pm.expect(pm.response.json()[0].compatibilityScore).to.be.a('number'));",
             "pm.test('Status es un enum válido', () => {",
-            "    const valid = ['PENDING','ACCEPTED','REJECTED','CANCELLED'];",
+            "    const valid = ['PENDING','ACCEPTED','REJECTED','CANCELLED','COMPLETED'];",
             "    pm.response.json().forEach(m => pm.expect(valid).to.include(m.status));",
             "});",
             "pm.test('isReceiver es boolean', () => pm.expect(pm.response.json()[0].isReceiver).to.be.a('boolean'));",
@@ -686,9 +684,12 @@
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
             "pm.test('Status 200', () => pm.response.to.have.status(200));",
             "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
-            "pm.test('Todos los reviews son de sessionId=1', () => pm.response.json().forEach(r => pm.expect(r.sessionId).to.equal(1)));"
+            "pm.test('Todos los reviews son del sessionId consultado', () => {",
+            "    const sid = Number(pm.collectionVariables.get('sessionId'));",
+            "    pm.response.json().forEach(r => pm.expect(r.sessionId).to.equal(sid));",
+            "});"
           ]}}],
-          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews?sessionId=1", "host": ["{{baseUrl}}"], "path": ["reviews"], "query": [{ "key": "sessionId", "value": "1" }] } }
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews?sessionId={{sessionId}}", "host": ["{{baseUrl}}"], "path": ["reviews"], "query": [{ "key": "sessionId", "value": "{{sessionId}}" }] } }
         },
         {
           "name": "POST reviews (crear)",
@@ -699,10 +700,11 @@
             "pm.test('Comment coincide', () => pm.expect(pm.response.json().comment).to.equal('Buen profesor, recomendado'));",
             "pm.test('reviewerId es 1', () => pm.expect(pm.response.json().reviewerId).to.equal(1));",
             "pm.test('revieweeId es 4', () => pm.expect(pm.response.json().revieweeId).to.equal(4));",
+            "pm.test('tags es array no vacío', () => pm.expect(pm.response.json().tags).to.be.an('array').and.not.empty);",
             "",
             "pm.collectionVariables.set('newReviewId', String(pm.response.json().id));"
           ]}}],
-          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reviewerId\": 1,\n  \"revieweeId\": 4,\n  \"sessionId\": 1,\n  \"rating\": 4,\n  \"comment\": \"Buen profesor, recomendado\"\n}" }, "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] } }
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reviewerId\": 1,\n  \"revieweeId\": 4,\n  \"sessionId\": {{sessionId}},\n  \"rating\": 4,\n  \"comment\": \"Buen profesor, recomendado\",\n  \"tags\": [\"Puntual\", \"Paciente\"]\n}" }, "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] } }
         },
         {
           "name": "GET reviews/9999 → 404",
