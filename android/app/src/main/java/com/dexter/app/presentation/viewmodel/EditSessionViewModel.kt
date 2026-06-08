@@ -29,8 +29,13 @@ sealed class EditSessionState {
         val saving: Boolean,
         val deleting: Boolean,
         val durationError: String? = null,
+        val generalError: String? = null,
         val isCreateMode: Boolean = false,
         val totalSessions: Int = 0,
+        // skillIds de sesiones restantes por skill — para validar balance al borrar
+        val skillCountBySkillId: Map<Long, Int> = emptyMap(),
+        // fechas de otras sesiones para validar orden
+        val otherSessionDates: List<Pair<Int, Date>> = emptyList(), // sessionNumber to date
     ) : EditSessionState()
     data object Saved : EditSessionState()
     data object Cancelled : EditSessionState()
@@ -62,9 +67,13 @@ class EditSessionViewModel @Inject constructor(
             _state.value = EditSessionState.Loading
             repository.getSessionById(sessionId)
                 .onSuccess { session ->
-                    val totalSessions = repository.getSessionsByMatch(session.matchId)
+                    val allSessions = repository.getSessionsByMatch(session.matchId)
                         .getOrElse { emptyList() }
-                        .count { it.status != SessionStatus.CANCELLED }
+                        .filter { it.status != SessionStatus.CANCELLED }
+                    val skillCount = allSessions.groupBy { it.skillId }.mapValues { it.value.size }
+                    val otherDates = allSessions
+                        .filter { it.id != session.id && it.scheduledAt != null }
+                        .map { it.sessionNumber to it.scheduledAt!! }
                     _state.value = EditSessionState.Editing(
                         session = session,
                         title = session.title,
@@ -75,7 +84,9 @@ class EditSessionViewModel @Inject constructor(
                         showDeleteConfirm = false,
                         saving = false,
                         deleting = false,
-                        totalSessions = totalSessions,
+                        totalSessions = allSessions.size,
+                        skillCountBySkillId = skillCount,
+                        otherSessionDates = otherDates,
                     )
                 }
                 .onFailure { exception ->
@@ -175,7 +186,7 @@ class EditSessionViewModel @Inject constructor(
             return
         }
 
-        // Validar fecha futura
+        // Validar fecha
         val scheduledAt = parseScheduledAt(editing.date, editing.time)
         if (editing.date.isNotBlank() && scheduledAt != null) {
             val today = java.util.Calendar.getInstance().apply {
@@ -185,7 +196,15 @@ class EditSessionViewModel @Inject constructor(
                 set(java.util.Calendar.MILLISECOND, 0)
             }.time
             if (scheduledAt.before(today)) {
-                _state.value = editing.copy(durationError = "La fecha no puede ser anterior a hoy")
+                _state.value = editing.copy(generalError = "La fecha no puede ser anterior a hoy")
+                return
+            }
+            // Solo validar que no haya dos sesiones en la misma fecha exacta
+            val sameDate = editing.otherSessionDates.any { (_, d) ->
+                d.year == scheduledAt.year && d.month == scheduledAt.month && d.date == scheduledAt.date
+            }
+            if (sameDate) {
+                _state.value = editing.copy(generalError = "Ya existe una sesión en esa fecha")
                 return
             }
         }
@@ -240,13 +259,28 @@ class EditSessionViewModel @Inject constructor(
 
     fun onConfirmDelete() {
         val editing = currentEditing() ?: return
+
+        // Mínimo 2 sesiones totales
         if (editing.totalSessions <= 2) {
             _state.value = editing.copy(
                 showDeleteConfirm = false,
-                durationError = "Debe haber al menos 2 sesiones"
+                generalError = "Debe quedar mínimo 1 sesión de cada habilidad"
             )
             return
         }
+
+        // Validar balance: al borrar esta sesión, el skill de esta sesión
+        // debe seguir teniendo al menos 1 sesión restante
+        val mySkillId = editing.session.skillId
+        val countOfMySkill = editing.skillCountBySkillId[mySkillId] ?: 1
+        if (countOfMySkill <= 1) {
+            _state.value = editing.copy(
+                showDeleteConfirm = false,
+                generalError = "Debe quedar al menos 1 sesión de cada habilidad"
+            )
+            return
+        }
+
         viewModelScope.launch {
             _state.value = editing.copy(deleting = true)
             repository.cancelSession(editing.session.id)
