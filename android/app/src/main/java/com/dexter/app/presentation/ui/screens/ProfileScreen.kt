@@ -37,6 +37,7 @@ import com.dexter.app.domain.model.ProfileReviewItem
 import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.presentation.session.CurrentUserSession
 import com.dexter.app.presentation.ui.components.AvatarCircle
+import com.dexter.app.presentation.ui.components.PreviewSafeFlowRow
 import com.dexter.app.presentation.ui.components.ReviewCard
 import com.dexter.app.presentation.ui.components.SkillChip
 import com.dexter.app.presentation.ui.components.StatCard
@@ -265,6 +266,29 @@ private fun ProfileSuccessContent(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
+        // ── Availability ────────────────────────────────────────────
+        if (profile.availabilityDays.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.profile_availability),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            val dayLabels = listOf(
+                R.string.day_mon, R.string.day_tue, R.string.day_wed,
+                R.string.day_thu, R.string.day_fri, R.string.day_sat, R.string.day_sun
+            )
+            PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                dayLabels.forEachIndexed { index, resId ->
+                    SkillChip(
+                        label = stringResource(resId),
+                        selected = profile.availabilityDays.contains(index + 1),
+                        onClick = {}
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         // ── Reviews ─────────────────────────────────────────────────
         if (profile.reviews.isNotEmpty()) {
             Text(
@@ -326,7 +350,8 @@ private fun ProfileScreenPreview() {
                     reviews = listOf(
                         ProfileReviewItem("Bob Smith", null, 5, "Excelente profesora de guitarra."),
                         ProfileReviewItem("Bob Smith", null, 4, "Buenas sesiones de inglés.")
-                    )
+                    ),
+                    availabilityDays = listOf(1, 3, 5)
                 )
             ),
             onEditProfileClick = {}

@@ -319,7 +319,7 @@ private fun MatchDetailBody(
             dayLabels.forEachIndexed { index, resId ->
                 SkillChip(
                     label = stringResource(resId),
-                    selected = match.availability.contains(index),
+                    selected = match.availability.contains(index + 1),
                     onClick = {}
                 )
             }

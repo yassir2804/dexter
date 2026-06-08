@@ -291,6 +291,7 @@
     <string name="profile_skills_offered">Habilidades que ofrezco</string>
     <string name="profile_skills_wanted">Habilidades que busco</string>
     <string name="profile_reviews">Reseñas recientes</string>
+    <string name="profile_availability">Mi disponibilidad</string>
     <string name="profile_edit">Editar perfil</string>
 
     <!-- ══ User Profile Screen (otro usuario) ═════════════════ -->
