@@ -10,8 +10,26 @@ from typing import Optional
 
 load_dotenv(override=True)
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Múltiples keys — se prueban en orden hasta que uno funcione
+_RAW_KEYS = [
+    os.getenv("GEMINI_API_KEY"),
+    os.getenv("GEMINI_API_KEY_2"),
+    os.getenv("GEMINI_API_KEY_3"),
+]
+API_KEYS = [k for k in _RAW_KEYS if k and k.startswith("AIza")]
+
+def generate_with_fallback(prompt: str) -> str:
+    """Intenta generar contenido con cada key disponible hasta que una funcione."""
+    last_error = None
+    for key in API_KEYS:
+        try:
+            c = genai.Client(api_key=key)
+            response = c.models.generate_content(model=MODEL, contents=prompt)
+            return response.text
+        except Exception as e:
+            last_error = e
+            continue
+    raise last_error or Exception("No hay API keys disponibles")
 
 app = FastAPI(title="Dexter AI Service")
 
@@ -154,8 +172,7 @@ Respond ONLY with a valid JSON array:
 ]"""
 
     try:
-        response = client.models.generate_content(model=MODEL, contents=prompt)
-        raw = extract_json(response.text)
+        raw = extract_json(generate_with_fallback(prompt))
         plans = json.loads(raw)
 
         if not isinstance(plans, list) or len(plans) != 6:
@@ -208,8 +225,7 @@ Responde ÚNICAMENTE con un JSON array válido:
 ]"""
 
     try:
-        response = client.models.generate_content(model=MODEL, contents=prompt)
-        raw = extract_json(response.text)
+        raw = extract_json(generate_with_fallback(prompt))
         slots = json.loads(raw)
 
         if not isinstance(slots, list) or len(slots) == 0:
