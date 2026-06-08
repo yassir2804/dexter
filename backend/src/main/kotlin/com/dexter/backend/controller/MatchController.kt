@@ -52,7 +52,8 @@ class MatchController(private val matchService: MatchService) {
         @PathVariable id: Long,
         @RequestParam viewerUserId: Long,
         @RequestParam(required = false) initiatorSkill: String? = null,
-    ): MatchSummaryResult = matchService.accept(id, viewerUserId, initiatorSkill)
+        @RequestParam(required = false) timezone: String? = null,
+    ): MatchSummaryResult = matchService.accept(id, viewerUserId, initiatorSkill, timezone)
 
     @PatchMapping("/{id}/reject")
     @ResponseStatus(HttpStatus.NO_CONTENT)
