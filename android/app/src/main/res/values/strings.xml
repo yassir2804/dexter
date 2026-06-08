@@ -58,6 +58,9 @@
     <string name="onboard_skills_teach">¿Qué habilidades puedes enseñar?</string>
     <string name="onboard_skills_learn">¿Qué te gustaría aprender?</string>
     <string name="onboard_add_skill">Agregar</string>
+    <string name="onboard_phone_label">Número de teléfono</string>
+    <string name="onboard_phone_placeholder">+506 1234 5678</string>
+    <string name="onboard_availability">Tu disponibilidad (días de la semana)</string>
     <string name="onboard_finish">Finalizar</string>
 
     <!-- Validation errors -->

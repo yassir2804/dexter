@@ -25,12 +25,22 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import com.dexter.app.R
 import com.dexter.app.presentation.ui.components.DexterTextField
 import com.dexter.app.presentation.ui.components.SkillChip
+import com.dexter.app.presentation.ui.components.SkillPickerBottomSheet
 import com.dexter.app.presentation.ui.components.StepDots
 import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.RegisterState
@@ -54,6 +65,7 @@ import com.dexter.app.presentation.viewmodel.RegisterViewModel
  *
  * Shares RegisterViewModel with WelcomeScreen via auth_graph scope.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
     registerViewModel: RegisterViewModel,
@@ -66,19 +78,38 @@ fun OnboardingScreen(
     val state by registerViewModel.state.collectAsState()
     val name by registerViewModel.name.collectAsState()
     val country by registerViewModel.country.collectAsState()
+    val phone by registerViewModel.phone.collectAsState()
     val skillsToTeach by registerViewModel.skillsToTeach.collectAsState()
     val skillsToLearn by registerViewModel.skillsToLearn.collectAsState()
+    val availableSkillsToTeach by registerViewModel.availableSkillsToTeach.collectAsState()
+    val availableSkillsToLearn by registerViewModel.availableSkillsToLearn.collectAsState()
+    val customSkills by registerViewModel.customSkills.collectAsState()
+    val availabilityDays by registerViewModel.availabilityDays.collectAsState()
+
+    // Load available skills on first composition
+    LaunchedEffect(Unit) {
+        registerViewModel.loadAvailableSkills()
+    }
 
     OnboardingContent(
         state = state,
         name = name,
         country = country,
+        phone = phone,
         skillsToTeach = skillsToTeach,
         skillsToLearn = skillsToLearn,
+        availableSkillsToTeach = availableSkillsToTeach,
+        availableSkillsToLearn = availableSkillsToLearn,
+        customSkills = customSkills,
+        availabilityDays = availabilityDays,
         onNameChange = registerViewModel::onNameChange,
         onCountryChange = registerViewModel::onCountryChange,
+        onPhoneChange = registerViewModel::onPhoneChange,
         onToggleTeach = registerViewModel::toggleSkillToTeach,
         onToggleLearn = registerViewModel::toggleSkillToLearn,
+        onAddCustomTeach = { registerViewModel.addCustomSkill(it, isTeach = true) },
+        onAddCustomLearn = { registerViewModel.addCustomSkill(it, isTeach = false) },
+        onToggleAvailability = registerViewModel::toggleAvailabilityDay,
         onFinishClick = {
             registerViewModel.register(
                 email = email,
@@ -99,12 +130,21 @@ private fun OnboardingContent(
     state: RegisterState,
     name: String,
     country: String,
+    phone: String,
     skillsToTeach: List<String>,
     skillsToLearn: List<String>,
+    availableSkillsToTeach: List<String>,
+    availableSkillsToLearn: List<String>,
+    customSkills: List<String>,
+    availabilityDays: Set<Int>,
     onNameChange: (String) -> Unit,
     onCountryChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
     onToggleTeach: (String) -> Unit,
     onToggleLearn: (String) -> Unit,
+    onAddCustomTeach: (String) -> Unit,
+    onAddCustomLearn: (String) -> Unit,
+    onToggleAvailability: (Int) -> Unit,
     onFinishClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -116,26 +156,12 @@ private fun OnboardingContent(
         else -> null
     }
 
-    val teachOptions = listOf(
-        stringResource(R.string.skill_programming),
-        stringResource(R.string.skill_graphic_design),
-        stringResource(R.string.skill_marketing),
-        stringResource(R.string.skill_photography),
-        stringResource(R.string.skill_music),
-        stringResource(R.string.skill_languages),
-        stringResource(R.string.skill_cooking),
-        stringResource(R.string.skill_fitness)
-    )
-    val learnOptions = listOf(
-        stringResource(R.string.skill_yoga),
-        stringResource(R.string.skill_painting),
-        stringResource(R.string.skill_writing),
-        stringResource(R.string.skill_videogames),
-        stringResource(R.string.skill_gardening),
-        stringResource(R.string.skill_dance),
-        stringResource(R.string.skill_cinema),
-        stringResource(R.string.skill_meditation)
-    )
+    // Picker state
+    var pickerMode by remember { mutableStateOf<PickerMode?>(null) }
+
+    // Build available skills list (backend + custom)
+    val availableTeachForPicker = (availableSkillsToTeach + customSkills).distinct()
+    val availableLearnForPicker = (availableSkillsToLearn + customSkills).distinct()
 
     Column(
         modifier = modifier
@@ -222,6 +248,19 @@ private fun OnboardingContent(
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // ── Phone field ──────────────────────────────────
+            DexterTextField(
+                value = phone,
+                onValueChange = onPhoneChange,
+                label = stringResource(R.string.onboard_phone_label),
+                placeholder = stringResource(R.string.onboard_phone_placeholder),
+                contentDescriptionLabel = stringResource(R.string.onboard_phone_label),
+                keyboardType = KeyboardType.Phone,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             // ── Country field ───────────────────────────────
             DexterTextField(
                 value = country,
@@ -244,12 +283,48 @@ private fun OnboardingContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            ChipWrap(
-                options = teachOptions,
-                selectedOptions = skillsToTeach,
-                onToggle = onToggleTeach,
-                isError = false
-            )
+            // Show selected skills + "+" button
+            if (skillsToTeach.isEmpty()) {
+                TextButton(
+                    onClick = { pickerMode = PickerMode.TEACH },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.onboard_add_skill),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    skillsToTeach.forEach { skill ->
+                        SkillChip(
+                            label = skill,
+                            selected = true,
+                            onClick = { onToggleTeach(skill) }
+                        )
+                    }
+                    IconButton(
+                        onClick = { pickerMode = PickerMode.TEACH },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_add_skill),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -263,11 +338,69 @@ private fun OnboardingContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            ChipWrap(
-                options = learnOptions,
-                selectedOptions = skillsToLearn,
-                onToggle = onToggleLearn,
-                isError = true
+            // Show selected skills + "+" button
+            if (skillsToLearn.isEmpty()) {
+                TextButton(
+                    onClick = { pickerMode = PickerMode.LEARN },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = stringResource(R.string.onboard_add_skill),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    skillsToLearn.forEach { skill ->
+                        SkillChip(
+                            label = skill,
+                            selected = true,
+                            onClick = { onToggleLearn(skill) }
+                        )
+                    }
+                    IconButton(
+                        onClick = { pickerMode = PickerMode.LEARN },
+                        modifier = Modifier.size(36.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = stringResource(R.string.cd_add_skill),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // ── Availability (weekdays) ─────────────────────
+            Text(
+                text = stringResource(R.string.onboard_availability),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            val dayLabels = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sab", "Dom")
+            AvailabilityChipWrap(
+                dayLabels = dayLabels,
+                selectedDays = availabilityDays,
+                onToggleDay = { label ->
+                    val dayOfWeek = dayLabels.indexOf(label) + 1
+                    onToggleAvailability(dayOfWeek)
+                }
             )
 
             // ── Error message ───────────────────────────────
@@ -310,7 +443,34 @@ private fun OnboardingContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+
+    // ── Bottom sheet (open when pickerMode != null) ──
+    if (pickerMode != null) {
+        val isTeach = pickerMode == PickerMode.TEACH
+        val title = stringResource(
+            if (isTeach) R.string.skill_search_add_title
+            else R.string.skill_search_add_interest_title
+        )
+        val available = if (isTeach) availableTeachForPicker else availableLearnForPicker
+        val selected = if (isTeach) skillsToTeach else skillsToLearn
+
+        SkillPickerBottomSheet(
+            title = title,
+            availableSkills = available,
+            selectedSkills = selected,
+            onSkillSelected = { skill ->
+                if (isTeach) onToggleTeach(skill) else onToggleLearn(skill)
+            },
+            onCustomSkillAdded = { skill ->
+                if (isTeach) onAddCustomTeach(skill) else onAddCustomLearn(skill)
+            },
+            onDismiss = { pickerMode = null }
+        )
+    }
 }
+
+// Which picker is currently open
+private enum class PickerMode { TEACH, LEARN }
 
 /**
  * Simple chip wrap layout that avoids FlowRow (crashes with Compose BOM 2024.09.00).
@@ -346,6 +506,40 @@ private fun ChipWrap(
     }
 }
 
+/**
+ * Availability chip wrap for weekday selection (Mon–Sun).
+ * Maps day labels to 1–7 (ISO-8601) internally.
+ */
+@Composable
+private fun AvailabilityChipWrap(
+    dayLabels: List<String>,
+    selectedDays: Set<Int>,
+    onToggleDay: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = modifier.fillMaxWidth()
+    ) {
+        dayLabels.chunked(4).forEach { rowItems ->
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                rowItems.forEachIndexed { index, label ->
+                    val dayOfWeek = dayLabels.indexOf(label) + 1
+                    val isSelected = dayOfWeek in selectedDays
+                    SkillChip(
+                        label = label,
+                        selected = isSelected,
+                        isError = false,
+                        onClick = { onToggleDay(label) }
+                    )
+                }
+            }
+        }
+    }
+}
+
 // ── Previews ────────────────────────────────────────────────────
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -356,12 +550,21 @@ private fun OnboardingPreview() {
             state = RegisterState.Idle,
             name = "",
             country = "",
+            phone = "",
             skillsToTeach = emptyList(),
             skillsToLearn = emptyList(),
+            availableSkillsToTeach = listOf("Guitarra", "Piano", "Inglés"),
+            availableSkillsToLearn = listOf("Yoga", "Pintura", "Programación"),
+            customSkills = emptyList(),
+            availabilityDays = emptySet(),
             onNameChange = {},
             onCountryChange = {},
+            onPhoneChange = {},
             onToggleTeach = {},
             onToggleLearn = {},
+            onAddCustomTeach = {},
+            onAddCustomLearn = {},
+            onToggleAvailability = {},
             onFinishClick = {},
             onBackClick = {}
         )
@@ -376,12 +579,21 @@ private fun OnboardingWithSelectionsPreview() {
             state = RegisterState.Idle,
             name = "Carlos Méndez",
             country = "Costa Rica",
+            phone = "+506 8765 4321",
             skillsToTeach = listOf("Programación", "Música"),
             skillsToLearn = listOf("Yoga", "Pintura"),
+            availableSkillsToTeach = listOf("Guitarra", "Piano", "Inglés", "Programación", "Música"),
+            availableSkillsToLearn = listOf("Yoga", "Pintura", "Programación", "Fotografía", "Cocina"),
+            customSkills = emptyList(),
+            availabilityDays = setOf(1, 2, 3, 4, 5),
             onNameChange = {},
             onCountryChange = {},
+            onPhoneChange = {},
             onToggleTeach = {},
             onToggleLearn = {},
+            onAddCustomTeach = {},
+            onAddCustomLearn = {},
+            onToggleAvailability = {},
             onFinishClick = {},
             onBackClick = {}
         )

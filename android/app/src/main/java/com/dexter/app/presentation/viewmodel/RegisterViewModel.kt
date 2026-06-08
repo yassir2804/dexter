@@ -42,7 +42,8 @@ sealed class RegisterState {
  */
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val repository: UserRepository
+    private val repository: UserRepository,
+    private val searchRepository: com.dexter.app.domain.repository.SearchRepository
 ) : ViewModel() {
 
     companion object {
@@ -119,8 +120,26 @@ class RegisterViewModel @Inject constructor(
     private val _skillsToLearn = MutableStateFlow<List<String>>(emptyList())
     val skillsToLearn = _skillsToLearn.asStateFlow()
 
+    // Available skills loaded from backend
+    private val _availableSkillsToTeach = MutableStateFlow<List<String>>(emptyList())
+    val availableSkillsToTeach = _availableSkillsToTeach.asStateFlow()
+
+    private val _availableSkillsToLearn = MutableStateFlow<List<String>>(emptyList())
+    val availableSkillsToLearn = _availableSkillsToLearn.asStateFlow()
+
+    // Custom skills added by user during registration
+    private val _customSkills = MutableStateFlow<List<String>>(emptyList())
+    val customSkills = _customSkills.asStateFlow()
+
+    private val _phone = MutableStateFlow("")
+    val phone = _phone.asStateFlow()
+
+    private val _availabilityDays = MutableStateFlow<Set<Int>>(emptySet())
+    val availabilityDays = _availabilityDays.asStateFlow()
+
     fun onNameChange(value: String) { _name.value = value }
     fun onCountryChange(value: String) { _country.value = value }
+    fun onPhoneChange(value: String) { _phone.value = value }
 
     fun toggleSkillToTeach(skill: String) {
         _skillsToTeach.value = if (skill in _skillsToTeach.value) {
@@ -135,6 +154,59 @@ class RegisterViewModel @Inject constructor(
             _skillsToLearn.value - skill
         } else {
             _skillsToLearn.value + skill
+        }
+    }
+
+    fun toggleAvailabilityDay(dayOfWeek: Int) {
+        _availabilityDays.value = if (dayOfWeek in _availabilityDays.value) {
+            _availabilityDays.value - dayOfWeek
+        } else {
+            _availabilityDays.value + dayOfWeek
+        }
+    }
+
+    /**
+     * Adds a custom (user-created) skill and selects it for the target list.
+     * @param skill The skill name to add.
+     * @param isTeach true to add to teach list, false for learn list.
+     */
+    fun addCustomSkill(skill: String, isTeach: Boolean) {
+        val trimmed = skill.trim()
+        if (trimmed.isBlank()) return
+        if (trimmed !in _customSkills.value) {
+            _customSkills.value = _customSkills.value + trimmed
+        }
+        if (isTeach) {
+            if (trimmed !in _skillsToTeach.value) {
+                _skillsToTeach.value = _skillsToTeach.value + trimmed
+            }
+        } else {
+            if (trimmed !in _skillsToLearn.value) {
+                _skillsToLearn.value = _skillsToLearn.value + trimmed
+            }
+        }
+    }
+
+    /**
+     * Loads popular skills from the backend to populate the skill picker.
+     */
+    fun loadAvailableSkills() {
+        viewModelScope.launch {
+            try {
+                val result = searchRepository.getPopularSkills()
+                result.onSuccess { skills ->
+                    val skillNames = skills.map { it.name }.distinct()
+                    // For now, use same list for both teach and learn
+                    // In a real app, might want to fetch different categories
+                    _availableSkillsToTeach.value = skillNames
+                    _availableSkillsToLearn.value = skillNames
+                }.onFailure { e ->
+                    Log.e(TAG, "Failed to load available skills", e)
+                    // Fallback to empty — picker will only show custom skills
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Unknown error loading available skills", e)
+            }
         }
     }
 
@@ -177,8 +249,10 @@ class RegisterViewModel @Inject constructor(
                 totalMatches = 0,
                 createDate = Date(),
                 updatedAt = Date(),
+                phone = _phone.value.trim().ifBlank { null },
                 skillsToTeach = _skillsToTeach.value,
                 skillsToLearn = _skillsToLearn.value,
+                availabilityDays = _availabilityDays.value.toList().sorted(),
             )
 
             repository.saveUser(user)

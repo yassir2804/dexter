@@ -40,7 +40,9 @@ data class User(
     val totalMatches: Int,
     val createDate: Date,
     val updatedAt: Date,
+    val phone: String? = null,
     val skillsToTeach: List<String> = emptyList(),
     val skillsToLearn: List<String> = emptyList(),
+    val availabilityDays: List<Int> = emptyList(),  // ISO-8601: 1=Mon, 7=Sun
     val roles: List<String> = emptyList(),
 )
