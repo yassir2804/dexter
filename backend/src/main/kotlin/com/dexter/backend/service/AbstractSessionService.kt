@@ -69,6 +69,7 @@ class AbstractSessionService(
         return toDetails(saved)
     }
 
+    @Transactional
     override fun update(id: Long, request: SessionInput): SessionDetails {
         val session = sessionRepository.findById(id).orElseThrow {
             NoSuchElementException("Session with id $id not found")
@@ -84,7 +85,23 @@ class AbstractSessionService(
                 NoSuchElementException("Skill with id $skillId not found")
             }
         }
-        return toDetails(sessionRepository.save(session))
+        val saved = sessionRepository.save(session)
+
+        // Reordenar todas las sesiones del match por fecha para que los números sean consistentes
+        val matchId = saved.match?.id
+        if (matchId != null && saved.scheduledAt != null) {
+            val allSessions = sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId)
+                .filter { it.status != SessionStatus.CANCELLED }
+                .sortedWith(compareBy({ it.scheduledAt ?: Date(Long.MAX_VALUE) }, { it.sessionNumber }))
+            allSessions.forEachIndexed { index, s ->
+                if (s.sessionNumber != index + 1) {
+                    s.sessionNumber = index + 1
+                    sessionRepository.save(s)
+                }
+            }
+        }
+
+        return toDetails(sessionRepository.findById(id).orElse(saved))
     }
 
     @Transactional
@@ -179,11 +196,26 @@ class AbstractSessionService(
         }
     }
 
+    @Transactional
     override fun delete(id: Long) {
-        if (!sessionRepository.existsById(id)) {
-            throw NoSuchElementException("Session with id $id not found")
+        val session = sessionRepository.findById(id).orElseThrow {
+            NoSuchElementException("Session with id $id not found")
+        }
+        val matchId = session.match?.id ?: run {
+            sessionRepository.deleteById(id)
+            return
         }
         sessionRepository.deleteById(id)
+        // Renumerar las sesiones restantes en orden cronológico
+        val remaining = sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId)
+            .filter { it.status != SessionStatus.CANCELLED }
+            .sortedWith(compareBy({ it.scheduledAt ?: Date(Long.MAX_VALUE) }, { it.sessionNumber }))
+        remaining.forEachIndexed { index, s ->
+            if (s.sessionNumber != index + 1) {
+                s.sessionNumber = index + 1
+                sessionRepository.save(s)
+            }
+        }
     }
 
     private fun parseStatus(s: String?): SessionStatus? = s?.let {
