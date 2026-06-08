@@ -64,7 +64,7 @@ class AbstractSearchService(
                 name = "${u.firstName ?: ""} ${u.lastName ?: ""}".trim(),
                 avatarUrl = u.avatarUrl,
                 initials = "${u.firstName?.firstOrNull() ?: ""}${u.lastName?.firstOrNull() ?: ""}".uppercase(),
-                skillDescription = "${s.name} — nivel ${s.skillLevel.name.lowercase()}",
+                skillDescription = s.name,
                 rating = u.rating ?: 0.0,
                 sessionCount = u.totalSessions ?: 0,
                 availability = "Disponible",
