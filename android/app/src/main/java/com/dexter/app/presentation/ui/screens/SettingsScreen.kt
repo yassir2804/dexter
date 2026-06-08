@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -36,15 +37,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.activity.compose.LocalActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dexter.app.presentation.viewmodel.SettingsViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.dexter.app.R
+import com.dexter.app.presentation.session.LocalePreference
 import com.dexter.app.presentation.ui.components.AvatarCircle
 import com.dexter.app.presentation.ui.theme.AppTheme
 
@@ -130,6 +134,25 @@ private fun SettingsContent(
     var ratingsNotif by remember { mutableStateOf(false) }
     var shareAvailability by remember { mutableStateOf(true) }
 
+    val context = LocalContext.current
+    val activity = LocalActivity.current
+    var showLanguageDialog by remember { mutableStateOf(false) }
+
+    if (showLanguageDialog) {
+        LanguageSelectorDialog(
+            currentTag = LocalePreference.getLanguageTag(context),
+            onDismiss = { showLanguageDialog = false },
+            onSelect = { tag ->
+                showLanguageDialog = false
+                if (tag != LocalePreference.getLanguageTag(context)) {
+                    LocalePreference.setLanguageTag(context, tag)
+                    // Recrea la Activity para re-resolver los recursos values-xx/
+                    activity?.recreate()
+                }
+            }
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -207,7 +230,7 @@ private fun SettingsContent(
                 Column {
                     SettingsClickableItem(label = R.string.settings_change_password, onClick = { })
                     SettingsDivider()
-                    SettingsClickableItem(label = R.string.settings_language, onClick = { })
+                    SettingsClickableItem(label = R.string.settings_language, onClick = { showLanguageDialog = true })
                     SettingsDivider()
                     SettingsClickableItem(R.string.settings_logout, isDanger = true, onClick = onLogoutClick)
                 }
@@ -216,6 +239,56 @@ private fun SettingsContent(
             Spacer(modifier = Modifier.height(24.dp))
         }
     }
+}
+
+/** Diálogo de selección de idioma (Español / English / Português). */
+@Composable
+private fun LanguageSelectorDialog(
+    currentTag: String,
+    onDismiss: () -> Unit,
+    onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val options = listOf(
+        LocalePreference.SPANISH to R.string.language_es,
+        LocalePreference.ENGLISH to R.string.language_en,
+        LocalePreference.PORTUGUESE to R.string.language_pt
+    )
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.settings_language_dialog_title)) },
+        text = {
+            Column {
+                options.forEach { (tag, labelRes) ->
+                    val selected = tag == currentTag
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSelect(tag) }
+                            .padding(vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = selected,
+                            onClick = { onSelect(tag) }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = stringResource(labelRes),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {},
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.settings_language_dialog_cancel))
+            }
+        },
+        modifier = modifier
+    )
 }
 
 @Composable

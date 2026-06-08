@@ -27,9 +27,11 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.dexter.app.R
 import com.dexter.app.domain.model.Notification
 import com.dexter.app.domain.model.NotificationType
 import com.dexter.app.presentation.ui.theme.AppTheme
@@ -129,17 +131,22 @@ private fun containerFor(type: NotificationType): Color = when (type) {
     NotificationType.AI_SUGGESTION -> MaterialTheme.colorScheme.primaryContainer
 }
 
+@Composable
 private fun formatRelative(date: Date): String {
     val diffMs = System.currentTimeMillis() - date.time
     val minutes = diffMs / 60_000L
     val hours = minutes / 60L
     val days = hours / 24L
     return when {
-        minutes < 1 -> "hace instantes"
-        minutes < 60 -> "hace $minutes min"
-        hours < 24 -> "hace $hours h"
-        days == 1L -> "ayer"
-        else -> "hace $days días"
+        minutes < 1 -> stringResource(R.string.time_just_now)
+        minutes < 60 -> stringResource(R.string.time_minutes_ago, minutes.toInt())
+        hours < 24 -> if (hours == 1L) {
+            stringResource(R.string.time_hours_ago, 1)
+        } else {
+            stringResource(R.string.time_hours_ago_plural, hours.toInt())
+        }
+        days == 1L -> stringResource(R.string.time_yesterday)
+        else -> stringResource(R.string.time_days_ago, days.toInt())
     }
 }
 

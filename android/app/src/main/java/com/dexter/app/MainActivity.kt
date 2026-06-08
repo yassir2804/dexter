@@ -1,5 +1,6 @@
 package com.dexter.app
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -31,6 +32,7 @@ import com.dexter.app.presentation.viewmodel.ProfileViewModel
 import com.dexter.app.presentation.viewmodel.SearchViewModel
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.collectAsState
+import com.dexter.app.presentation.session.LocalePreference
 import com.dexter.app.presentation.session.ThemePreference
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -43,6 +45,10 @@ class MainActivity : ComponentActivity() {
     private val searchViewModel: SearchViewModel by viewModels()
     private val notificationsViewModel: NotificationsViewModel by viewModels()
 
+    /** Aplica el idioma persistido (per-app locale) a toda la jerarquia de recursos. */
+    override fun attachBaseContext(newBase: Context) {
+        super.attachBaseContext(LocalePreference.wrap(newBase))
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
