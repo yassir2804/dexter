@@ -6,6 +6,7 @@ import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.repository.ReviewRepository
+import com.dexter.backend.repository.SessionRepository
 import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +19,7 @@ class AbstractProfileService(
     @Autowired val userRepository: UserRepository,
     @Autowired val skillRepository: SkillRepository,
     @Autowired val reviewRepository: ReviewRepository,
+    @Autowired val sessionRepository: SessionRepository,
 ) : ProfileService {
 
     override fun findByUserId(userId: Long): ProfileSummaryResult {
@@ -77,30 +79,36 @@ class AbstractProfileService(
         userRepository.save(user)
 
         if (dto.skillsOffered != null || dto.skillsSought != null) {
-            skillRepository.deleteByUserId(userId)
-            dto.skillsOffered?.forEach { name ->
-                skillRepository.save(
-                    Skill(
-                        user = user,
-                        name = name,
-                        skillRole = SkillRole.OFFERED,
-                        skillLevel = SkillLevel.BEGINNER
-                    )
-                )
-            }
-            dto.skillsSought?.forEach { name ->
-                skillRepository.save(
-                    Skill(
-                        user = user,
-                        name = name,
-                        skillRole = SkillRole.SOUGHT,
-                        skillLevel = SkillLevel.BEGINNER
-                    )
-                )
-            }
+            syncSkills(user, SkillRole.OFFERED, dto.skillsOffered ?: emptyList())
+            syncSkills(user, SkillRole.SOUGHT, dto.skillsSought ?: emptyList())
         }
 
         return findByUserId(userId)
+    }
+
+    private fun syncSkills(user: com.dexter.backend.entity.User, role: SkillRole, newNames: List<String>) {
+        val existing = skillRepository.findByUserIdAndSkillRole(user.id!!, role)
+        val existingByName = existing.associateBy { it.name }
+        val toRemove = existing.filter { it.name !in newNames }
+        val toAdd = newNames.filter { it !in existingByName }
+
+        for (skill in toRemove) {
+            val sessions = sessionRepository.findBySkillId(skill.id!!)
+            if (sessions.isEmpty()) {
+                skillRepository.delete(skill)
+            }
+        }
+
+        for (name in toAdd) {
+            skillRepository.save(
+                Skill(
+                    user = user,
+                    name = name,
+                    skillRole = role,
+                    skillLevel = SkillLevel.BEGINNER
+                )
+            )
+        }
     }
 
     private fun initialsFrom(first: String?, last: String?): String {

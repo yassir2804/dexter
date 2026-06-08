@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface SessionRepository : JpaRepository<Session, Long> {
     fun findByMatchIdOrderBySessionNumberAsc(matchId: Long): List<Session>
+    fun findBySkillId(skillId: Long): List<Session>
 }
