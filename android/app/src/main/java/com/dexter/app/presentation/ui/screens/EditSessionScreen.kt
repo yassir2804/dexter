@@ -222,7 +222,8 @@ private fun EditSessionForm(
 
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = if (currentDate != null) {
-            java.util.Calendar.getInstance().apply {
+            // Usar UTC para que el picker muestre el día correcto sin desplazarse por timezone
+            java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply {
                 set(currentDate.first, currentDate.second, currentDate.third, 0, 0, 0)
                 set(java.util.Calendar.MILLISECOND, 0)
             }.timeInMillis
@@ -242,7 +243,8 @@ private fun EditSessionForm(
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { millis ->
-                        val cal = java.util.Calendar.getInstance().apply { timeInMillis = millis }
+                        // El DatePicker devuelve UTC midnight — leer con UTC para no perder un día
+                        val cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")).apply { timeInMillis = millis }
                         onDateSelected(
                             cal.get(java.util.Calendar.YEAR),
                             cal.get(java.util.Calendar.MONTH),
