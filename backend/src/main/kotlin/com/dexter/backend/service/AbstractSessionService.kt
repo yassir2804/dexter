@@ -30,8 +30,21 @@ class AbstractSessionService(
     @Autowired val aiServiceClient: AiServiceClient,
 ) : SessionService {
 
-    override fun findByMatch(matchId: Long): List<SessionDetails> =
-        sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId).map(::toDetails)
+    @Transactional
+    override fun findByMatch(matchId: Long): List<SessionDetails> {
+        val sessions = sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId)
+        // Auto-corregir numeración si está desincronizada con las fechas
+        val active = sessions.filter { it.status != SessionStatus.CANCELLED }
+            .sortedWith(compareBy({ it.scheduledAt ?: Date(Long.MAX_VALUE) }, { it.sessionNumber }))
+        active.forEachIndexed { index, s ->
+            if (s.sessionNumber != index + 1) {
+                s.sessionNumber = index + 1
+                sessionRepository.save(s)
+            }
+        }
+        // Devolver todas (incluidas canceladas) en orden final
+        return sessionRepository.findByMatchIdOrderBySessionNumberAsc(matchId).map(::toDetails)
+    }
 
     override fun findById(id: Long): SessionDetails =
         toDetails(sessionRepository.findById(id).orElseThrow {
