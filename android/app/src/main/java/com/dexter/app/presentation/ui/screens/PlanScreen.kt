@@ -64,6 +64,7 @@ fun PlanScreen(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCreateSession: (Long) -> Unit = {},
     onPlanFinished: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -88,6 +89,7 @@ fun PlanScreen(
         onBackClick = onBackClick,
         onEditSession = onEditSession,
         onRateSession = onRateSession,
+        onCreateSession = { onCreateSession(matchId) },
         onCompleteSession = { sessionId -> viewModel.completeSession(sessionId) },
         onCompletePlan = { viewModel.completePlan { onPlanFinished() } },
         modifier = modifier
@@ -102,6 +104,7 @@ private fun PlanContent(
     onBackClick: () -> Unit,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCreateSession: () -> Unit = {},
     onCompleteSession: (Long) -> Unit = {},
     onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
@@ -146,6 +149,7 @@ private fun PlanContent(
                     nextSessionId = state.nextSessionId,
                     onEditSession = onEditSession,
                     onRateSession = onRateSession,
+                    onCreateSession = onCreateSession,
                     onCompleteSession = onCompleteSession,
                     onCompletePlan = onCompletePlan,
                     modifier = Modifier
@@ -165,12 +169,14 @@ private fun PlanBody(
     nextSessionId: Long?,
     onEditSession: (Long) -> Unit,
     onRateSession: (Long) -> Unit,
+    onCreateSession: () -> Unit = {},
     onCompleteSession: (Long) -> Unit = {},
     onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
     val lastCompleted = sessions.lastOrNull { it.status == SessionStatus.COMPLETED }
+    val isReadOnly = match.status == MatchStatus.COMPLETED || match.status == MatchStatus.FINALIZED
 
     LazyColumn(
         modifier = modifier,
@@ -223,13 +229,14 @@ private fun PlanBody(
         items(sessions, key = { it.id }) { session ->
             PlanSessionItem(
                 session = session,
-                isNext = session.id == nextSessionId,
+                isNext = !isReadOnly && session.id == nextSessionId,
                 onEdit = { onEditSession(session.id) },
-                onComplete = { onCompleteSession(session.id) }
+                onComplete = { onCompleteSession(session.id) },
+                readOnly = isReadOnly
             )
         }
 
-        if (lastCompleted != null) {
+        if (!isReadOnly && lastCompleted != null) {
             item {
                 FilledTonalButton(
                     onClick = { onRateSession(lastCompleted.id) },
@@ -249,25 +256,42 @@ private fun PlanBody(
             }
         }
 
-        item {
-            OutlinedButton(
-                onClick = onCompletePlan,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.error
-                ),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    MaterialTheme.colorScheme.error
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.plan_finish),
-                    fontWeight = FontWeight.SemiBold
-                )
+        if (!isReadOnly) {
+            item {
+                OutlinedButton(
+                    onClick = onCreateSession,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(50)
+                ) {
+                    Text(
+                        text = stringResource(R.string.plan_add_session),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
+            }
+
+            item {
+                OutlinedButton(
+                    onClick = onCompletePlan,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    Text(
+                        text = stringResource(R.string.plan_finish),
+                        fontWeight = FontWeight.SemiBold
+                    )
+                }
             }
         }
 
@@ -341,9 +365,15 @@ private fun MatchSummaryHeader(match: MatchDetail) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+            val (statusLabel, statusSelected, statusError) = when (match.status) {
+                MatchStatus.COMPLETED -> Triple(stringResource(R.string.plan_status_completed), true, false)
+                MatchStatus.FINALIZED -> Triple(stringResource(R.string.plan_status_finalized), false, true)
+                else -> Triple(stringResource(R.string.plan_status_active), true, false)
+            }
             SkillChip(
-                label = stringResource(R.string.plan_status_active),
-                selected = true
+                label = statusLabel,
+                selected = statusSelected,
+                isError = statusError
             )
         }
     }

@@ -26,7 +26,8 @@ class SessionMapper @Inject constructor() {
         status = parseStatus(dto.status),
         scheduledAt = dto.scheduledAt?.let { Date(it) },
         completedAt = dto.completedAt?.let { Date(it) },
-        createdAt = Date(dto.createdAt ?: 0L)
+        createdAt = Date(dto.createdAt ?: 0L),
+        duration = dto.duration
     )
 
     fun mapToDto(domain: Session): SessionDto = SessionDto(
@@ -39,6 +40,7 @@ class SessionMapper @Inject constructor() {
         status = domain.status.name,
         scheduledAt = domain.scheduledAt?.time,
         completedAt = domain.completedAt?.time,
-        createdAt = domain.createdAt.time
+        createdAt = domain.createdAt.time,
+        duration = domain.duration
     )
 }

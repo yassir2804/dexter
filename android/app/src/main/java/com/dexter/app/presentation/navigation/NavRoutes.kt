@@ -105,6 +105,12 @@ sealed class NavRoutes {
         fun createRoute(sessionId: Long) = "editSession/$sessionId"
     }
 
+    data object CreateSession : NavRoutes() {
+        const val ROUTE = "createSession/{matchId}"
+        const val ARG_MATCH_ID = "matchId"
+        fun createRoute(matchId: Long) = "createSession/$matchId"
+    }
+
     data object ActiveSession : NavRoutes() {
         const val ROUTE = "activeSession/{sessionId}"
         const val ARG_SESSION_ID = "sessionId"

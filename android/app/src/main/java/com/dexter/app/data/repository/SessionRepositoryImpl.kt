@@ -68,8 +68,13 @@ class SessionRepositoryImpl @Inject constructor(
     }
 
     override suspend fun createSession(session: Session): Result<Session> = try {
-        // No create endpoint in current Mockoon sessions block yet.
-        Result.success(session)
+        remoteDataSource.createSession(sessionMapper.mapToDto(session)).fold(
+            onSuccess = { dto -> Result.success(sessionMapper.mapToDomain(dto)) },
+            onFailure = { exception ->
+                Log.e(TAG, "Remote createSession failed", exception)
+                Result.failure(DomainError.NetworkError("Network error creating session", exception))
+            }
+        )
     } catch (e: IOException) {
         Log.e(TAG, "Failed to create session", e)
         Result.failure(DomainError.NetworkError("Network error creating session", e))

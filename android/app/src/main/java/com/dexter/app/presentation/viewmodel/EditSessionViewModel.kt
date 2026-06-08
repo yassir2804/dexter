@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.Session
+import com.dexter.app.domain.model.SessionStatus
 import com.dexter.app.domain.repository.SessionRepository
 import com.dexter.app.presentation.ui.utils.InputFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +29,8 @@ sealed class EditSessionState {
         val saving: Boolean,
         val deleting: Boolean,
         val durationError: String? = null,
+        val isCreateMode: Boolean = false,
+        val totalSessions: Int = 0,
     ) : EditSessionState()
     data object Saved : EditSessionState()
     data object Cancelled : EditSessionState()
@@ -59,16 +62,20 @@ class EditSessionViewModel @Inject constructor(
             _state.value = EditSessionState.Loading
             repository.getSessionById(sessionId)
                 .onSuccess { session ->
+                    val totalSessions = repository.getSessionsByMatch(session.matchId)
+                        .getOrElse { emptyList() }
+                        .count { it.status != SessionStatus.CANCELLED }
                     _state.value = EditSessionState.Editing(
                         session = session,
                         title = session.title,
                         description = session.description,
                         date = session.scheduledAt?.let { dateFmt.format(it) } ?: "",
                         time = session.scheduledAt?.let { timeFmt.format(it) } ?: "",
-                        duration = DEFAULT_DURATION,
+                        duration = session.duration?.toString() ?: DEFAULT_DURATION,
                         showDeleteConfirm = false,
                         saving = false,
                         deleting = false,
+                        totalSessions = totalSessions,
                     )
                 }
                 .onFailure { exception ->
@@ -77,6 +84,42 @@ class EditSessionViewModel @Inject constructor(
                         exception.message ?: "Error desconocido"
                     )
                 }
+        }
+    }
+
+    fun initCreateMode(matchId: Long) {
+        viewModelScope.launch {
+            _state.value = EditSessionState.Loading
+            val sessions = repository.getSessionsByMatch(matchId)
+                .getOrElse { emptyList() }
+                .filter { it.status != SessionStatus.CANCELLED }
+            val nextNumber = (sessions.maxOfOrNull { it.sessionNumber } ?: 0) + 1
+            val placeholder = Session(
+                id = 0L,
+                matchId = matchId,
+                skillId = sessions.firstOrNull()?.skillId ?: 0L,
+                sessionNumber = nextNumber,
+                title = "",
+                description = "",
+                status = SessionStatus.SCHEDULED,
+                scheduledAt = null,
+                completedAt = null,
+                createdAt = Date(),
+                duration = 60
+            )
+            _state.value = EditSessionState.Editing(
+                session = placeholder,
+                title = "",
+                description = "",
+                date = "",
+                time = "",
+                duration = DEFAULT_DURATION,
+                showDeleteConfirm = false,
+                saving = false,
+                deleting = false,
+                isCreateMode = true,
+                totalSessions = sessions.size,
+            )
         }
     }
 
@@ -152,9 +195,12 @@ class EditSessionViewModel @Inject constructor(
             val updated = editing.session.copy(
                 title = editing.title,
                 description = editing.description,
-                scheduledAt = if (editing.date.isNotBlank()) scheduledAt else editing.session.scheduledAt
+                scheduledAt = if (editing.date.isNotBlank()) scheduledAt else editing.session.scheduledAt,
+                duration = dur
             )
-            repository.updateSession(updated)
+            val result = if (editing.isCreateMode) repository.createSession(updated)
+                else repository.updateSession(updated)
+            result
                 .onSuccess { _state.value = EditSessionState.Saved }
                 .onFailure { exception ->
                     Log.e(TAG, "Error saving session", exception)
@@ -194,6 +240,13 @@ class EditSessionViewModel @Inject constructor(
 
     fun onConfirmDelete() {
         val editing = currentEditing() ?: return
+        if (editing.totalSessions <= 2) {
+            _state.value = editing.copy(
+                showDeleteConfirm = false,
+                durationError = "Debe haber al menos 2 sesiones"
+            )
+            return
+        }
         viewModelScope.launch {
             _state.value = editing.copy(deleting = true)
             repository.cancelSession(editing.session.id)

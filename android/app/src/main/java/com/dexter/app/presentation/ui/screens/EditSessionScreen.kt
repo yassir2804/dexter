@@ -71,12 +71,15 @@ fun EditSessionScreen(
     viewModel: EditSessionViewModel,
     onBackClick: () -> Unit,
     onDoneClick: () -> Unit,
+    isCreateMode: Boolean = false,
+    createMatchId: Long = 0L,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(sessionId) {
-        viewModel.loadSession(sessionId)
+    LaunchedEffect(sessionId, isCreateMode) {
+        if (isCreateMode) viewModel.initCreateMode(createMatchId)
+        else viewModel.loadSession(sessionId)
     }
 
     LaunchedEffect(state) {
@@ -87,6 +90,7 @@ fun EditSessionScreen(
 
     EditSessionContent(
         state = state,
+        isCreateMode = isCreateMode,
         onBackClick = onBackClick,
         onTitleChange = viewModel::onTitleChange,
         onDescriptionChange = viewModel::onDescriptionChange,
@@ -105,6 +109,7 @@ fun EditSessionScreen(
 @Composable
 private fun EditSessionContent(
     state: EditSessionState,
+    isCreateMode: Boolean = false,
     onBackClick: () -> Unit,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
@@ -117,9 +122,13 @@ private fun EditSessionContent(
     onDismissDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val title = (state as? EditSessionState.Editing)?.session?.sessionNumber?.let {
-        stringResource(R.string.edit_session_title, it)
-    } ?: stringResource(R.string.edit_session_confirm_title)
+    val title = if (isCreateMode) {
+        stringResource(R.string.create_session_title)
+    } else {
+        (state as? EditSessionState.Editing)?.session?.sessionNumber?.let {
+            stringResource(R.string.edit_session_title, it)
+        } ?: stringResource(R.string.edit_session_confirm_title)
+    }
 
     Scaffold(
         topBar = { TopAppBarDexter(title = title, onBack = onBackClick) },
@@ -147,6 +156,7 @@ private fun EditSessionContent(
             is EditSessionState.Editing -> {
                 EditSessionForm(
                     state = state,
+                    isCreateMode = isCreateMode,
                     onTitleChange = onTitleChange,
                     onDescriptionChange = onDescriptionChange,
                     onDateSelected = onDateSelected,
@@ -183,6 +193,7 @@ private fun EditSessionContent(
 @Composable
 private fun EditSessionForm(
     state: EditSessionState.Editing,
+    isCreateMode: Boolean = false,
     onTitleChange: (String) -> Unit,
     onDescriptionChange: (String) -> Unit,
     onDateSelected: (Int, Int, Int) -> Unit,
@@ -386,15 +397,20 @@ private fun EditSessionForm(
             if (state.saving) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(20.dp))
             } else {
-                Text(text = stringResource(R.string.edit_session_save), fontWeight = FontWeight.SemiBold)
+                Text(
+                    text = stringResource(if (isCreateMode) R.string.create_session_save else R.string.edit_session_save),
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         }
-        OutlinedButton(
-            onClick = onRequestDelete,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
-            shape = RoundedCornerShape(50)
-        ) {
-            Text(stringResource(R.string.edit_session_delete))
+        if (!isCreateMode) {
+            OutlinedButton(
+                onClick = onRequestDelete,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+                shape = RoundedCornerShape(50)
+            ) {
+                Text(stringResource(R.string.edit_session_delete))
+            }
         }
 
         Spacer(Modifier.height(24.dp))

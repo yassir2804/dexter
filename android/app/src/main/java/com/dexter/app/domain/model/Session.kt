@@ -26,5 +26,6 @@ data class Session(
     val status: SessionStatus,
     val scheduledAt: Date?,
     val completedAt: Date?,
-    val createdAt: Date
+    val createdAt: Date,
+    val duration: Int? = null
 )

@@ -170,6 +170,11 @@
     <string name="match_accept">Aceptar</string>
     <string name="match_reject">Rechazar</string>
     <string name="match_view_plan">Ver plan de sesiones</string>
+    <string name="match_view_history">Ver historial de sesiones</string>
+    <string name="match_status_completed">Este match fue completado exitosamente</string>
+    <string name="match_status_finalized">Este match fue finalizado anticipadamente</string>
+    <string name="create_session_title">Nueva Sesión</string>
+    <string name="create_session_save">Crear Sesión</string>
     <string name="match_contact_label">Número de contacto</string>
     <string name="match_tap_profile">Toca para ver perfil completo</string>
 
@@ -211,6 +216,9 @@
     <string name="plan_pending_invite_desc">%1$s te invitó a sesión #%2$d - %3$s</string>
     <string name="plan_exchange">%1$s ↔ %2$s</string>
     <string name="plan_status_active">Activo</string>
+    <string name="plan_status_finalized">Finalizado</string>
+    <string name="plan_add_session">Agregar Sesión</string>
+    <string name="plan_min_sessions">Debe haber al menos 2 sesiones</string>
     <string name="plan_objective">OBJETIVO</string>
     <string name="plan_duration">DURACIÓN</string>
     <string name="plan_objective_value">5 canciones</string>

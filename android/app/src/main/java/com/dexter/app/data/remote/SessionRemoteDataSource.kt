@@ -24,6 +24,10 @@ class SessionRemoteDataSource @Inject constructor(
         sessionApiService.getSessionById(sessionId)
     }
 
+    suspend fun createSession(dto: SessionDto): Result<SessionDto> = safeApiCall {
+        sessionApiService.createSession(dto)
+    }
+
     suspend fun updateSession(sessionId: Long, dto: SessionDto): Result<SessionDto> = safeApiCall {
         sessionApiService.updateSession(sessionId, dto)
     }

@@ -11,5 +11,6 @@ data class SessionDto(
     val status: String? = null,
     val scheduledAt: Long? = null,
     val completedAt: Long? = null,
-    val createdAt: Long? = null
+    val createdAt: Long? = null,
+    val duration: Int? = null
 )

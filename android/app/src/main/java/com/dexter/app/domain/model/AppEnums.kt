@@ -10,7 +10,7 @@ enum class SkillRole { OFFERED, SOUGHT }
 
 enum class SkillLevel { BEGINNER, INTERMEDIATE, ADVANCED }
 
-enum class MatchStatus { PENDING, ACCEPTED, REJECTED, CANCELLED, COMPLETED }
+enum class MatchStatus { PENDING, ACCEPTED, REJECTED, CANCELLED, COMPLETED, FINALIZED }
 
 enum class SessionStatus { SCHEDULED, COMPLETED, CANCELLED }
 

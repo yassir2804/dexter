@@ -58,6 +58,8 @@ class MatchRepositoryImpl @Inject constructor(
             "ACCEPTED"  -> MatchStatus.ACCEPTED
             "REJECTED"  -> MatchStatus.REJECTED
             "CANCELLED" -> MatchStatus.CANCELLED
+            "COMPLETED" -> MatchStatus.COMPLETED
+            "FINALIZED" -> MatchStatus.FINALIZED
             else        -> MatchStatus.PENDING
         }
         Result.success(MatchDetail(

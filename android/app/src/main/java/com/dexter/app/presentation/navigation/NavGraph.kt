@@ -450,11 +450,36 @@ fun NavGraph(
                 onRateSession = { sessionId ->
                     navController.navigate(NavRoutes.Rate.createRoute(sessionId))
                 },
+                onCreateSession = { mId ->
+                    navController.navigate(NavRoutes.CreateSession.createRoute(mId))
+                },
                 onPlanFinished = {
                     navController.navigate(NavRoutes.Home.ROUTE) {
                         popUpTo(NavRoutes.Home.ROUTE) { inclusive = true }
                     }
                 }
+            )
+        }
+
+        // ── Create Session ─────────────────────────────────────────
+        composable(
+            route = NavRoutes.CreateSession.ROUTE,
+            arguments = listOf(
+                navArgument(NavRoutes.CreateSession.ARG_MATCH_ID) {
+                    type = NavType.LongType
+                }
+            )
+        ) { backStackEntry ->
+            val createMatchId = backStackEntry.arguments
+                ?.getLong(NavRoutes.CreateSession.ARG_MATCH_ID) ?: 0L
+            val viewModel: EditSessionViewModel = hiltViewModel()
+            EditSessionScreen(
+                sessionId = 0L,
+                viewModel = viewModel,
+                isCreateMode = true,
+                createMatchId = createMatchId,
+                onBackClick = { navController.navigateUp() },
+                onDoneClick = { navController.navigateUp() }
             )
         }
 

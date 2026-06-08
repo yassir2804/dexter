@@ -54,6 +54,7 @@ fun PlanSessionItem(
     isNext: Boolean,
     onEdit: () -> Unit,
     onComplete: () -> Unit = {},
+    readOnly: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     val completed = session.status == SessionStatus.COMPLETED
@@ -121,7 +122,7 @@ fun PlanSessionItem(
                     )
                 }
             }
-            if (!completed) {
+            if (!completed && !readOnly) {
                 if (isNext) {
                     IconButton(onClick = onComplete) {
                         Icon(
