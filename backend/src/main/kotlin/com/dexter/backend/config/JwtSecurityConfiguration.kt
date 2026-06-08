@@ -45,6 +45,9 @@ class JwtSecurityConfiguration(
     @Value("\${url.health}")
     val urlHealth: String? = null
 
+    @Value("\${url.search}")
+    val urlSearch: String? = null
+
     @Resource
     private lateinit var userDetailsService: AppUserDetailsService
 
@@ -85,6 +88,7 @@ class JwtSecurityConfiguration(
                     .requestMatchers(HttpMethod.POST, urlAuthRegister).permitAll()
                     .requestMatchers(HttpMethod.GET, "/$urlHealth").permitAll()
                     .requestMatchers(HttpMethod.POST, "/v1/users/login").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/$urlSearch/**").permitAll()
                     .requestMatchers("/**").authenticated()
             }
             .sessionManagement {
