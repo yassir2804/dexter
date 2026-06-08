@@ -108,7 +108,7 @@ private fun ForgotPasswordContent(
                     onEmailChange = onEmailChange,
                     onSendClick = onSendClick,
                     isLoading = state is ForgotPasswordState.Loading,
-                    errorMessage = (state as? ForgotPasswordState.Error)?.message,
+                    errorMessage = (state as? ForgotPasswordState.Error)?.messageRes?.let { stringResource(it) },
                     onBackToLoginClick = onBackToLoginClick
                 )
             }
@@ -396,7 +396,7 @@ private fun ForgotPasswordFormPreview() {
 private fun ForgotPasswordFormErrorPreview() {
     AppTheme(dynamicColor = false) {
         ForgotPasswordContent(
-            state = ForgotPasswordState.Error("Ingresa un correo válido"),
+            state = ForgotPasswordState.Error(R.string.error_invalid_email),
             email = "correo-malo",
             onEmailChange = {},
             onSendClick = {},

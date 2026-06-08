@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Declara los idiomas soportados por la app (per-app languages).
+  En Android 13+ permite que el sistema liste Dexter en
+  Ajustes > Idiomas y entrada > Idiomas de las apps.
+-->
+<locale-config xmlns:android="http://schemas.android.com/apk/res/android">
+    <locale android:name="es" />
+    <locale android:name="en" />
+    <locale android:name="pt" />
+</locale-config>
