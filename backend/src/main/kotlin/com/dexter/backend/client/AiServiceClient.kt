@@ -12,6 +12,8 @@ data class AiPlanRequest(
     val userBOffers: List<String>,
     val availableDays: List<String>,
     val overlapDayNumbers: List<Int> = emptyList(),
+    val userADayNumbers: List<Int> = emptyList(),
+    val userBDayNumbers: List<Int> = emptyList(),
     val timezone: String? = null
 )
 
