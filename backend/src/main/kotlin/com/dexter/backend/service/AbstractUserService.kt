@@ -2,17 +2,20 @@ package com.dexter.backend.service
 
 import com.dexter.backend.dto.RegisterInput
 import com.dexter.backend.dto.UserResult
+import com.dexter.backend.entity.Availability
 import com.dexter.backend.entity.Skill
 import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.entity.User
 import com.dexter.backend.mapper.UserMapper
+import com.dexter.backend.repository.AvailabilityRepository
 import com.dexter.backend.repository.RoleRepository
 import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import java.time.LocalTime
 import java.util.Date
 
 @Service
@@ -20,6 +23,7 @@ class AbstractUserService(
     @Autowired val userRepository: UserRepository,
     @Autowired val roleRepository: RoleRepository,
     @Autowired val skillRepository: SkillRepository,
+    @Autowired val availabilityRepository: AvailabilityRepository,
     @Autowired val userMapper: UserMapper,
     @Autowired val passwordEncoder: BCryptPasswordEncoder,
 ) : UserService {
@@ -38,6 +42,7 @@ class AbstractUserService(
             lastName = input.lastName,
             username = generateUsername(input.email!!, input.firstName),
             country = input.country,
+            phone = input.phone,
             enabled = true,
             profileVisible = true,
             tokenExpired = false,
@@ -50,6 +55,18 @@ class AbstractUserService(
         )
 
         val savedUser = userRepository.save(user)
+
+        // ── Create availability records for selected days ────────────────────
+        input.availabilityDays.forEach { dayOfWeek ->
+            if (dayOfWeek in 1..7) {
+                availabilityRepository.save(Availability(
+                    user = savedUser,
+                    dayOfWeek = dayOfWeek,
+                    startTime = LocalTime.of(9, 0),      // default 9 AM
+                    endTime = LocalTime.of(17, 0)        // default 5 PM
+                ))
+            }
+        }
 
         input.skillsToTeach.filter { it.isNotBlank() }.forEach { name ->
             skillRepository.save(Skill(
