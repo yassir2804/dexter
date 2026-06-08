@@ -62,7 +62,7 @@ class NotificationsViewModel @Inject constructor(
                 }
                 if (filtered.isEmpty()) return@combine NotificationsState.Empty
                 val (unread, read) = filtered.partition { !it.isRead }
-                _unreadCount.value = all.count { !it.isRead } // badge cuenta todas
+                _unreadCount.value = unread.size // badge solo cuenta las visibles
                 NotificationsState.Success(
                     unread = unread.sortedByDescending { it.createdAt },
                     read = read.sortedByDescending { it.createdAt }
