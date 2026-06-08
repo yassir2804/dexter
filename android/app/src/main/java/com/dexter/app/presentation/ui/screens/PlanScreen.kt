@@ -274,21 +274,14 @@ private fun PlanBody(
                 }
             }
 
-            if (allCompleted) {
+            if (isReadOnly) {
                 item {
                     OutlinedButton(
                         onClick = onCompletePlan,
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(48.dp),
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.error
-                        ),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            MaterialTheme.colorScheme.error
-                        )
+                        shape = RoundedCornerShape(50)
                     ) {
                         Text(
                             text = stringResource(R.string.plan_finish),
