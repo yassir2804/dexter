@@ -54,6 +54,39 @@ def next_dates_for_days(day_numbers: list[int], count: int) -> list[str]:
     return results
 
 
+def round_robin_dates(days_a: list[int], days_b: list[int], count: int) -> list[str]:
+    """
+    Sin solapamiento: alterna entre los días de A y B en round-robin.
+    Sesiones impares (B enseña) → próximo día disponible de B.
+    Sesiones pares  (A enseña) → próximo día disponible de A.
+    """
+    results = []
+    today = date.today()
+    cursor_a = today + timedelta(days=1)
+    cursor_b = today + timedelta(days=1)
+
+    def next_date_for(days: list[int], cursor: date) -> tuple[str, date]:
+        while cursor.isoweekday() not in days:
+            cursor += timedelta(days=1)
+        short = f"{DAY_SHORT_ES.get(cursor.isoweekday(), '')} {cursor.day} {MONTH_SHORT_ES.get(cursor.month, '')}"
+        return short, cursor + timedelta(days=1)
+
+    for i in range(1, count + 1):
+        if i % 2 == 1:  # impar → B enseña
+            if days_b:
+                d, cursor_b = next_date_for(days_b, cursor_b)
+                results.append(d)
+            else:
+                results.append(None)
+        else:            # par → A enseña
+            if days_a:
+                d, cursor_a = next_date_for(days_a, cursor_a)
+                results.append(d)
+            else:
+                results.append(None)
+    return results
+
+
 # ── Request / Response models ─────────────────────────────────────────────────
 
 class PlanRequest(BaseModel):
@@ -61,9 +94,11 @@ class PlanRequest(BaseModel):
     userAOffers: list[str]
     userBName: str
     userBOffers: list[str]
-    availableDays: list[str]          # nombres de días ("Lunes", etc.) — legacy
-    overlapDayNumbers: list[int] = [] # días ISO (1-7) en que ambos coinciden
-    timezone: Optional[str] = None    # ej. "America/Costa_Rica"
+    availableDays: list[str]           # nombres de días — legacy
+    overlapDayNumbers: list[int] = []  # días ISO donde ambos coinciden
+    userADayNumbers: list[int] = []    # días ISO solo de A (iniciador)
+    userBDayNumbers: list[int] = []    # días ISO solo de B (receptor)
+    timezone: Optional[str] = None     # ej. "America/Costa_Rica"
 
 
 class SessionPlan(BaseModel):
@@ -111,9 +146,17 @@ def generate_plan(req: PlanRequest):
     all_a_skills = req.userAOffers
     all_b_skills = req.userBOffers
 
-    # Calcular fechas sugeridas basadas en días de solapamiento
-    suggested_dates = next_dates_for_days(req.overlapDayNumbers, 6) if req.overlapDayNumbers else []
-    has_dates = len(suggested_dates) == 6
+    # Calcular fechas sugeridas:
+    # 1. Si hay solapamiento → fechas en días comunes
+    # 2. Si no hay solapamiento pero hay disponibilidad individual → round-robin por usuario
+    # 3. Si no hay disponibilidad → null
+    if req.overlapDayNumbers:
+        suggested_dates = next_dates_for_days(req.overlapDayNumbers, 6)
+    elif req.userADayNumbers or req.userBDayNumbers:
+        suggested_dates = round_robin_dates(req.userADayNumbers, req.userBDayNumbers, 6)
+    else:
+        suggested_dates = []
+    has_dates = len(suggested_dates) == 6 and all(d is not None for d in suggested_dates)
 
     # Asignación de skills por sesión
     session_skill_hints = []

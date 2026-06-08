@@ -351,6 +351,9 @@ class AbstractMatchService(
 
         val availableDays = effectiveDays.map { dayName(it) }
 
+        val initiatorDays = availabilityRepository.findByUserId(initiatorId).map { it.dayOfWeek }.distinct().sorted()
+        val receiverDays = availabilityRepository.findByUserId(receiverId).map { it.dayOfWeek }.distinct().sorted()
+
         val aiPlans = aiServiceClient.generatePlan(
             AiPlanRequest(
                 userAName = initiator.firstName ?: "Usuario A",
@@ -358,7 +361,9 @@ class AbstractMatchService(
                 userBName = receiver.firstName ?: "Usuario B",
                 userBOffers = receiverSkills.map { it.name },
                 availableDays = availableDays,
-                overlapDayNumbers = effectiveDays,
+                overlapDayNumbers = overlapDays,
+                userADayNumbers = initiatorDays,
+                userBDayNumbers = receiverDays,
                 timezone = timezone
             )
         )
