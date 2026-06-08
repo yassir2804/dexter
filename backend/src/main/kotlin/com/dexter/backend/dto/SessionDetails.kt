@@ -12,4 +12,5 @@ data class SessionDetails(
     var scheduledAt: Long? = null,
     var completedAt: Long? = null,
     var createdAt: Long? = null,
+    var duration: Int? = null,
 )

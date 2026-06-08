@@ -63,6 +63,7 @@ class AbstractSessionService(
                 status = status,
                 scheduledAt = request.scheduledAt,
                 completedAt = request.completedAt,
+                duration = request.duration,
                 createdAt = Date(),
             )
         )
@@ -78,6 +79,7 @@ class AbstractSessionService(
         request.sessionNumber?.let { session.sessionNumber = it }
         request.scheduledAt?.let { session.scheduledAt = it }
         request.completedAt?.let { session.completedAt = it }
+        request.duration?.let { session.duration = it }
         parseStatus(request.status)?.let { session.status = it }
         request.skillId?.let { skillId ->
             session.skill = skillRepository.findById(skillId).orElseThrow {
@@ -205,5 +207,6 @@ class AbstractSessionService(
         scheduledAt = s.scheduledAt?.time,
         completedAt = s.completedAt?.time,
         createdAt = s.createdAt?.time,
+        duration = s.duration,
     )
 }
