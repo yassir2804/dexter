@@ -43,6 +43,7 @@ class AbstractUserService(
             username = generateUsername(input.email!!, input.firstName),
             country = input.country,
             phone = input.phone,
+            avatarUrl = input.avatarUrl,
             enabled = true,
             profileVisible = true,
             tokenExpired = false,
