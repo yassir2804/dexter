@@ -303,6 +303,7 @@
     <string name="user_profile_schedule">Conectar</string>
     <string name="user_profile_request_sent">Solicitud enviada</string>
     <string name="user_profile_about">Sobre mí</string>
+    <string name="user_profile_availability">Disponibilidad</string>
     <string name="user_profile_skills_offered">Habilidades que ofrece</string>
     <string name="user_profile_skills_wanted">Quiere aprender</string>
     <string name="user_profile_reviews">Reseñas (%1$d)</string>

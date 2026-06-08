@@ -343,6 +343,30 @@ private fun UserProfileBody(
             Spacer(Modifier.height(16.dp))
         }
 
+        // ── Availability ────────────────────────────────────────────
+        if (profile.availabilityDays.isNotEmpty()) {
+            Text(
+                text = stringResource(R.string.user_profile_availability),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(Modifier.height(8.dp))
+            val dayLabels = listOf(
+                R.string.day_mon, R.string.day_tue, R.string.day_wed,
+                R.string.day_thu, R.string.day_fri, R.string.day_sat, R.string.day_sun
+            )
+            PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                dayLabels.forEachIndexed { index, resId ->
+                    SkillChip(
+                        label = stringResource(resId),
+                        selected = profile.availabilityDays.contains(index + 1),
+                        onClick = {}
+                    )
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+        }
+
         // ── Reviews ─────────────────────────────────────────────────
         if (profile.reviews.isNotEmpty()) {
             Text(
@@ -382,6 +406,7 @@ private fun UserProfileSuccessPreview() {
         totalMatches = 15,
         skillsOffered = listOf("Guitarra", "Ukulele", "Solfeo"),
         skillsSought = listOf("Inglés", "Francés"),
+        availabilityDays = listOf(1, 3, 6),
         reviews = listOf(
             ProfileReviewItem(
                 reviewerName = "Juan Pérez",
