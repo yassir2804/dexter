@@ -119,6 +119,7 @@
     <string name="home_active_session_desc">Clase de Guitarra con %1$s</string>
     <string name="home_suggested_matches">Mis matches</string>
     <string name="home_pending_requests">Solicitudes recibidas</string>
+    <string name="home_sent_requests">Solicitudes enviadas</string>
     <string name="home_ai_badge">por IA</string>
     <string name="home_offers">Ofrece: %1$s</string>
     <string name="home_seeks">Busca: %1$s</string>
@@ -169,6 +170,7 @@
     <string name="match_connect">Conectar con %1$s</string>
     <string name="match_accept">Aceptar</string>
     <string name="match_reject">Rechazar</string>
+    <string name="match_pending_sent">Solicitud enviada — esperando respuesta</string>
     <string name="match_view_plan">Ver plan de sesiones</string>
     <string name="match_view_history">Ver historial de sesiones</string>
     <string name="match_status_completed">Este match fue completado exitosamente</string>

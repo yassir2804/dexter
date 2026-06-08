@@ -19,7 +19,7 @@ class MatchSummaryMapper @Inject constructor() {
         compatibilityScore = dto.compatibilityScore,
         status = dto.status ?: "PENDING",
         sessionsCount = dto.sessionsCount,
-        isReceiver = dto.isReceiver,
+        isReceiver = dto.receiver,
         availability = dto.availability ?: emptyList(),
     )
 

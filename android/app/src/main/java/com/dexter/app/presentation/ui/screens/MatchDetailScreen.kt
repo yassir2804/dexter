@@ -365,89 +365,104 @@ private fun MatchDetailBody(
         val isActioning = actionState is MatchActionState.Loading || actionState is MatchActionState.AcceptDone || actionState is MatchActionState.RejectDone
         when (match.status) {
             MatchStatus.PENDING -> {
-                // Skill picker for receiver B (shown when B needs to pick what they want to learn)
-                AnimatedVisibility(
-                    visible = acceptPickerData != null,
-                    enter = expandVertically(),
-                    exit = shrinkVertically()
-                ) {
-                    acceptPickerData?.let { picker ->
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = stringResource(R.string.picker_what_to_learn),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
-                                Spacer(Modifier.height(12.dp))
-                                PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    picker.options.forEach { skill ->
-                                        SkillChip(
-                                            label = skill,
-                                            selected = skill == picker.selected,
-                                            onClick = { onAcceptPickerSelect(skill) }
+                if (match.isReceiver) {
+                    // Skill picker for receiver B (shown when B needs to pick what they want to learn)
+                    AnimatedVisibility(
+                        visible = acceptPickerData != null,
+                        enter = expandVertically(),
+                        exit = shrinkVertically()
+                    ) {
+                        acceptPickerData?.let { picker ->
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    Text(
+                                        text = stringResource(R.string.picker_what_to_learn),
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    )
+                                    Spacer(Modifier.height(12.dp))
+                                    PreviewSafeFlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                        picker.options.forEach { skill ->
+                                            SkillChip(
+                                                label = skill,
+                                                selected = skill == picker.selected,
+                                                onClick = { onAcceptPickerSelect(skill) }
+                                            )
+                                        }
+                                    }
+                                    Spacer(Modifier.height(14.dp))
+                                    Button(
+                                        onClick = onAcceptPickerConfirm,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(48.dp),
+                                        shape = RoundedCornerShape(50)
+                                    ) {
+                                        Text(
+                                            text = stringResource(R.string.picker_learn_button, picker.selected),
+                                            fontWeight = FontWeight.SemiBold
                                         )
                                     }
-                                }
-                                Spacer(Modifier.height(14.dp))
-                                Button(
-                                    onClick = onAcceptPickerConfirm,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(48.dp),
-                                    shape = RoundedCornerShape(50)
-                                ) {
-                                    Text(
-                                        text = stringResource(R.string.picker_learn_button, picker.selected),
-                                        fontWeight = FontWeight.SemiBold
-                                    )
                                 }
                             }
                         }
                     }
-                }
 
-                Spacer(Modifier.height(24.dp))
+                    Spacer(Modifier.height(24.dp))
 
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Button(
-                        onClick = onReject,
-                        enabled = !isActioning,
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Button(
+                            onClick = onReject,
+                            enabled = !isActioning,
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                                contentColor = MaterialTheme.colorScheme.onErrorContainer
+                            )
+                        ) {
+                            Text(
+                                text = stringResource(R.string.match_reject),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                        Button(
+                            onClick = onAcceptTapped,
+                            enabled = !isActioning && acceptPickerData == null,
+                            modifier = Modifier.weight(1f).height(48.dp),
+                            shape = RoundedCornerShape(50)
+                        ) {
+                            if (isActioning) CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = MaterialTheme.colorScheme.onPrimary
+                            ) else Text(
+                                text = stringResource(R.string.match_accept),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        }
+                    }
+                } else {
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.secondaryContainer,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(
-                            text = stringResource(R.string.match_reject),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                    }
-                    Button(
-                        onClick = onAcceptTapped,
-                        enabled = !isActioning && acceptPickerData == null,
-                        modifier = Modifier.weight(1f).height(48.dp),
-                        shape = RoundedCornerShape(50)
-                    ) {
-                        if (isActioning) CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
-                            color = MaterialTheme.colorScheme.onPrimary
-                        ) else Text(
-                            text = stringResource(R.string.match_accept),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold
+                            text = stringResource(R.string.match_pending_sent),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.padding(16.dp)
                         )
                     }
                 }

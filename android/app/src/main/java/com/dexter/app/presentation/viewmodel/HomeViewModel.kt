@@ -16,6 +16,7 @@ sealed class HomeState {
     data object Loading : HomeState()
     data class Success(
         val pendingMatches: List<MatchSummary>,
+        val sentPendingMatches: List<MatchSummary> = emptyList(),
         val acceptedMatches: List<MatchSummary>,
         val completedMatches: List<MatchSummary> = emptyList(),
         val suggestions: List<MatchSummary> = emptyList(),
@@ -61,12 +62,13 @@ class HomeViewModel @Inject constructor(
                     }
 
                     val pending = matches.filter { it.status == "PENDING" && it.isReceiver }
+                    val sentPending = matches.filter { it.status == "PENDING" && !it.isReceiver }
                     val accepted = matches.filter { it.status == "ACCEPTED" }
                     val completed = matches.filter { it.status == "COMPLETED" }
-                    if (pending.isEmpty() && accepted.isEmpty() && completed.isEmpty() && suggestions.isEmpty()) {
+                    if (pending.isEmpty() && sentPending.isEmpty() && accepted.isEmpty() && completed.isEmpty() && suggestions.isEmpty()) {
                         _homeState.value = HomeState.Empty
                     } else {
-                        _homeState.value = HomeState.Success(pending, accepted, completed, suggestions)
+                        _homeState.value = HomeState.Success(pending, sentPending, accepted, completed, suggestions)
                     }
                 }
                 .onFailure { exception ->

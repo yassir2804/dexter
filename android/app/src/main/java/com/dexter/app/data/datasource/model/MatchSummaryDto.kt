@@ -1,5 +1,7 @@
 package com.dexter.app.data.datasource.model
 
+import com.google.gson.annotations.SerializedName
+
 /** DTO for MatchSummary — mirrors the backend's MatchSummaryDto response. */
 data class MatchSummaryDto(
     val matchId: Long = 0L,
@@ -14,6 +16,6 @@ data class MatchSummaryDto(
     val compatibilityScore: Double = 0.0,
     val status: String? = null,
     val sessionsCount: Int = 0,
-    val isReceiver: Boolean = false,
+    @SerializedName("isReceiver") val receiver: Boolean = false,
     val availability: List<Int>? = null,
 )

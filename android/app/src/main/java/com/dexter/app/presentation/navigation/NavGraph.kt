@@ -120,7 +120,6 @@ fun NavGraph(
                     onRegisterClick = {
                         navController.navigate(NavRoutes.Welcome.ROUTE)
                     },
-                    onGoogleClick = { /* TODO: Google sign-in */ },
                     paddingValues = paddingValues
                 )
             }

@@ -79,7 +79,7 @@ class MatchRepositoryImpl @Inject constructor(
             status            = status,
             initiatorSkill    = dto.initiatorSkill,
             receiverSkill     = dto.receiverSkill,
-            isReceiver        = dto.isReceiver,
+            isReceiver        = dto.receiver,
             canLearnFromOther = dto.canLearnFromOther,
             contactPhone      = dto.otherUserPhone,
         ))

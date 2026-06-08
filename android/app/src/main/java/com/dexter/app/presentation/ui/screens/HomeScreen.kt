@@ -90,6 +90,7 @@ private fun HomeContent(
 
         is HomeState.Success -> HomeSuccessContent(
             pendingMatches = homeState.pendingMatches,
+            sentPendingMatches = homeState.sentPendingMatches,
             suggestions = homeState.suggestions,
             searchQuery = searchQuery,
             onSearchQueryChange = onSearchQueryChange,
@@ -102,6 +103,7 @@ private fun HomeContent(
 @Composable
 private fun HomeSuccessContent(
     pendingMatches: List<MatchSummary>,
+    sentPendingMatches: List<MatchSummary> = emptyList(),
     suggestions: List<MatchSummary>,
     searchQuery: String,
     onSearchQueryChange: (String) -> Unit,
@@ -111,10 +113,13 @@ private fun HomeSuccessContent(
     val filteredPending = if (searchQuery.isBlank()) pendingMatches
     else pendingMatches.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
+    val filteredSent = if (searchQuery.isBlank()) sentPendingMatches
+    else sentPendingMatches.filter { it.name.contains(searchQuery, ignoreCase = true) }
+
     val filteredSuggestions = if (searchQuery.isBlank()) suggestions
     else suggestions.filter { it.name.contains(searchQuery, ignoreCase = true) }
 
-    val noResults = searchQuery.isNotBlank() && filteredPending.isEmpty() && filteredSuggestions.isEmpty()
+    val noResults = searchQuery.isNotBlank() && filteredPending.isEmpty() && filteredSent.isEmpty() && filteredSuggestions.isEmpty()
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
 
@@ -168,6 +173,18 @@ private fun HomeSuccessContent(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
+            }
+        }
+
+        if (filteredSent.isNotEmpty()) {
+            item {
+                SectionHeader(
+                    title = stringResource(R.string.home_sent_requests),
+                    modifier = Modifier.padding(top = 16.dp, bottom = 12.dp)
+                )
+            }
+            items(filteredSent) { match ->
+                MatchCard(match = match, onClick = { onMatchClick(match) })
             }
         }
 

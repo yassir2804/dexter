@@ -135,8 +135,6 @@ private fun SettingsContent(
     var matchesNotif by remember { mutableStateOf(true) }
     var remindersNotif by remember { mutableStateOf(true) }
     var ratingsNotif by remember { mutableStateOf(false) }
-    var shareAvailability by remember { mutableStateOf(true) }
-
     val context = LocalContext.current
     val activity = LocalActivity.current
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -219,8 +217,6 @@ private fun SettingsContent(
             OutlinedCard(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Column {
                     SettingsToggleItem(label = R.string.settings_privacy_visible, checked = profileVisible, onCheckedChange = onProfileVisibleToggle)
-                    SettingsDivider()
-                    SettingsToggleItem(label = R.string.settings_privacy_availability, checked = shareAvailability, onCheckedChange = { shareAvailability = it })
                 }
             }
 
@@ -232,8 +228,6 @@ private fun SettingsContent(
             SectionLabel(label = R.string.settings_section_account)
             OutlinedCard(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
                 Column {
-                    SettingsClickableItem(label = R.string.settings_change_password, onClick = { })
-                    SettingsDivider()
                     SettingsClickableItem(label = R.string.settings_language, onClick = { showLanguageDialog = true })
                     SettingsDivider()
                     SettingsClickableItem(R.string.settings_logout, isDanger = true, onClick = onLogoutClick)

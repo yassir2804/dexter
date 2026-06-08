@@ -28,11 +28,9 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
@@ -80,7 +78,6 @@ import com.dexter.app.presentation.viewmodel.LoginViewModel
  * @param onLoginSuccess Callback invoked when authentication succeeds.
  * @param onForgotPasswordClick Callback invoked when the user taps "Forgot password".
  * @param onRegisterClick Callback invoked when the user taps the register link.
- * @param onGoogleClick Callback invoked when the user taps "Sign in with Google".
  * @param paddingValues Scaffold padding forwarded from the parent layout.
  * @param modifier Optional [Modifier] applied to the root layout.
  */
@@ -90,7 +87,6 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onRegisterClick: () -> Unit,
-    onGoogleClick: () -> Unit,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -117,7 +113,6 @@ fun LoginScreen(
         onLoginClick = loginViewModel::login,
         onForgotPasswordClick = onForgotPasswordClick,
         onRegisterClick = onRegisterClick,
-        onGoogleClick = onGoogleClick,
         paddingValues = paddingValues,
         modifier = modifier
     )
@@ -145,7 +140,6 @@ fun LoginScreen(
  * @param onLoginClick Invoked when the login button is tapped.
  * @param onForgotPasswordClick Invoked when "Forgot password?" is tapped.
  * @param onRegisterClick Invoked when the register link is tapped.
- * @param onGoogleClick Invoked when "Sign in with Google" is tapped.
  * @param paddingValues Scaffold padding forwarded from the parent layout.
  * @param modifier Optional [Modifier] applied to the root column.
  */
@@ -161,7 +155,6 @@ private fun LoginContent(
     onLoginClick: () -> Unit,
     onForgotPasswordClick: () -> Unit,
     onRegisterClick: () -> Unit,
-    onGoogleClick: () -> Unit,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier
 ) {
@@ -265,51 +258,6 @@ private fun LoginContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // ── Divider ─────────────────────────────────────────────────
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-            Text(
-                text = stringResource(R.string.login_divider),
-                modifier = Modifier.padding(horizontal = 12.dp),
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            HorizontalDivider(
-                modifier = Modifier.weight(1f),
-                color = MaterialTheme.colorScheme.outlineVariant
-            )
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // ── Google Button ───────────────────────────────────────────
-        val googleButtonCD = stringResource(R.string.cd_google_button)
-        OutlinedButton(
-            onClick = onGoogleClick,
-            shape = RoundedCornerShape(50),
-            colors = ButtonDefaults.outlinedButtonColors(
-                contentColor = MaterialTheme.colorScheme.primary
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .semantics { contentDescription = googleButtonCD }
-        ) {
-            Text(
-                text = stringResource(R.string.login_google_button),
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp
-            )
-        }
-
         Spacer(modifier = Modifier.height(24.dp))
 
         // ── Register Link ───────────────────────────────────────────
@@ -406,7 +354,7 @@ private fun LoginScreenPreview() {
                 onLoginClick = {},
                 onForgotPasswordClick = {},
                 onRegisterClick = {},
-                onGoogleClick = {},
+
                 paddingValues = PaddingValues(16.dp)
             )
         }
@@ -429,7 +377,6 @@ private fun LoginScreenErrorPreview() {
             onLoginClick = {},
             onForgotPasswordClick = {},
             onRegisterClick = {},
-            onGoogleClick = {},
             paddingValues = PaddingValues(16.dp)
             )
         }
@@ -452,7 +399,6 @@ private fun LoginScreenLoadingPreview() {
             onLoginClick = {},
             onForgotPasswordClick = {},
             onRegisterClick = {},
-            onGoogleClick = {},
             paddingValues = PaddingValues(16.dp)
         )
         }

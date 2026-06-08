@@ -1,5 +1,7 @@
 package com.dexter.app.data.datasource.model
 
+import com.google.gson.annotations.SerializedName
+
 data class MatchDetailDto(
     val matchId: Long = 0L,
     val otherUserId: Long = 0L,
@@ -17,7 +19,7 @@ data class MatchDetailDto(
     val status: String? = null,
     val initiatorSkill: String? = null,
     val receiverSkill: String? = null,
-    val isReceiver: Boolean = false,
+    @SerializedName("isReceiver") val receiver: Boolean = false,
     val canLearnFromOther: List<String> = emptyList(),
     val otherUserPhone: String? = null,
 )
