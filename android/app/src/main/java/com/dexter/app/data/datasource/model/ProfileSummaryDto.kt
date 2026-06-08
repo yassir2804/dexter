@@ -12,6 +12,9 @@ data class ProfileSummaryDto(
     val totalSessions: Int? = null,
     val totalMatches: Int? = null,
     val profileVisible: Boolean? = null,
+    val phone: String? = null,
+    val updateFirstName: String? = null,
+    val updateLastName: String? = null,
     val skillsOffered: List<String>? = null,
     val skillsSought: List<String>? = null,
     val reviews: List<ProfileReviewItemDto>? = null

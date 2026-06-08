@@ -58,6 +58,7 @@ fun SkillPickerBottomSheet(
     selectedSkills: List<String>,
     onSkillSelected: (String) -> Unit,
     onCustomSkillAdded: (String) -> Unit,
+    onSearchQueryChanged: (String) -> Unit = {},
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -109,7 +110,10 @@ fun SkillPickerBottomSheet(
             // ── Search field ───────────────────────────
             OutlinedTextField(
                 value = query,
-                onValueChange = { query = it },
+                onValueChange = {
+                    query = it
+                    onSearchQueryChanged(it.trim())
+                },
                 placeholder = {
                     Text(
                         text = stringResource(R.string.skill_search_placeholder),

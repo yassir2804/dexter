@@ -160,7 +160,7 @@ private fun OnboardingContent(
     }
 
     // Picker state
-    var pickerMode by remember { mutableStateOf<PickerMode?>(null) }
+    var pickerMode by remember { mutableStateOf<OnboardPickerMode?>(null) }
 
     // Build available skills list (backend + custom)
     val availableTeachForPicker = (availableSkillsToTeach + customSkills).distinct()
@@ -293,7 +293,7 @@ private fun OnboardingContent(
             // Show selected skills + "+" button
             if (skillsToTeach.isEmpty()) {
                 TextButton(
-                    onClick = { pickerMode = PickerMode.TEACH },
+                    onClick = { pickerMode = OnboardPickerMode.TEACH },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
@@ -321,7 +321,7 @@ private fun OnboardingContent(
                         )
                     }
                     IconButton(
-                        onClick = { pickerMode = PickerMode.TEACH },
+                        onClick = { pickerMode = OnboardPickerMode.TEACH },
                         modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
@@ -348,7 +348,7 @@ private fun OnboardingContent(
             // Show selected skills + "+" button
             if (skillsToLearn.isEmpty()) {
                 TextButton(
-                    onClick = { pickerMode = PickerMode.LEARN },
+                    onClick = { pickerMode = OnboardPickerMode.LEARN },
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(
@@ -376,7 +376,7 @@ private fun OnboardingContent(
                         )
                     }
                     IconButton(
-                        onClick = { pickerMode = PickerMode.LEARN },
+                        onClick = { pickerMode = OnboardPickerMode.LEARN },
                         modifier = Modifier.size(36.dp)
                     ) {
                         Icon(
@@ -453,7 +453,7 @@ private fun OnboardingContent(
 
     // ── Bottom sheet (open when pickerMode != null) ──
     if (pickerMode != null) {
-        val isTeach = pickerMode == PickerMode.TEACH
+        val isTeach = pickerMode == OnboardPickerMode.TEACH
         val title = stringResource(
             if (isTeach) R.string.skill_search_add_title
             else R.string.skill_search_add_interest_title
@@ -477,7 +477,7 @@ private fun OnboardingContent(
 }
 
 // Which picker is currently open
-private enum class PickerMode { TEACH, LEARN }
+private enum class OnboardPickerMode { TEACH, LEARN }
 
 /**
  * Simple chip wrap layout that avoids FlowRow (crashes with Compose BOM 2024.09.00).

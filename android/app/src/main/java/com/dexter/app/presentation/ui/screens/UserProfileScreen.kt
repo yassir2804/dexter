@@ -376,6 +376,7 @@ private fun UserProfileSuccessPreview() {
         avatarUrl = null,
         bio = "Guitarrista apasionada con 10 años de experiencia. Busco mejorar mi inglés para estudios en el extranjero.",
         country = "Costa Rica",
+        phone = "+506 7777-5678",
         rating = 4.8,
         totalSessions = 23,
         totalMatches = 15,

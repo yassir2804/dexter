@@ -55,15 +55,8 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 import com.dexter.app.presentation.viewmodel.EditProfileState
 import com.dexter.app.presentation.viewmodel.EditProfileViewModel
 
-// Which picker is currently open
-private enum class PickerMode { OFFERED, SOUGHT }
+private enum class EditPickerMode { OFFERED, SOUGHT }
 
-/**
- * Edit Profile screen — Stateful composable.
- *
- * Receives the current [ProfileSummary] to pre-fill the form fields.
- * On save, sends PUT /profile-summary via the ViewModel.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProfileScreen(
@@ -77,14 +70,16 @@ fun EditProfileScreen(
     val fullName by viewModel.fullName.collectAsState()
     val bio by viewModel.bio.collectAsState()
     val country by viewModel.country.collectAsState()
+    val phone by viewModel.phone.collectAsState()
     val skillsOffered by viewModel.skillsOffered.collectAsState()
     val skillsSought by viewModel.skillsSought.collectAsState()
     val customSkills by viewModel.customSkills.collectAsState()
+    val availableSkills by viewModel.availableSkills.collectAsState()
 
     val isSaving = state is EditProfileState.Loading
     val errorMessage = (state as? EditProfileState.Error)?.message
 
-    var pickerMode by remember { mutableStateOf<PickerMode?>(null) }
+    var pickerMode by remember { mutableStateOf<EditPickerMode?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadFromProfile(profile)
@@ -129,6 +124,7 @@ fun EditProfileScreen(
             fullName = fullName,
             bio = bio,
             country = country,
+            phone = phone,
             skillsOffered = skillsOffered,
             skillsSought = skillsSought,
             avatarUrl = profile.avatarUrl,
@@ -138,28 +134,28 @@ fun EditProfileScreen(
             onFullNameChange = viewModel::onFullNameChange,
             onBioChange = viewModel::onBioChange,
             onCountryChange = viewModel::onCountryChange,
+            onPhoneChange = viewModel::onPhoneChange,
             onToggleOffered = viewModel::toggleSkillOffered,
             onToggleSought = viewModel::toggleSkillSought,
-            onAddOfferedClick = { pickerMode = PickerMode.OFFERED },
-            onAddSoughtClick = { pickerMode = PickerMode.SOUGHT },
+            onAddOfferedClick = { pickerMode = EditPickerMode.OFFERED },
+            onAddSoughtClick = { pickerMode = EditPickerMode.SOUGHT },
             onSaveClick = { viewModel.saveProfile(onSaved = onSaved) },
             modifier = Modifier.padding(innerPadding)
         )
     }
 
-    // ── Bottom sheet (open when pickerMode != null) ──
     if (pickerMode != null) {
-        val isOffered = pickerMode == PickerMode.OFFERED
+        val isOffered = pickerMode == EditPickerMode.OFFERED
         val title = stringResource(
             if (isOffered) R.string.skill_search_add_title
             else R.string.skill_search_add_interest_title
         )
-        val available = rememberAvailableSkills() + customSkills
+        val allSkills = (availableSkills + customSkills).distinct()
         val selected = if (isOffered) skillsOffered else skillsSought
 
         SkillPickerBottomSheet(
             title = title,
-            availableSkills = available.distinct(),
+            availableSkills = allSkills,
             selectedSkills = selected,
             onSkillSelected = { skill ->
                 if (isOffered) viewModel.toggleSkillOffered(skill)
@@ -168,54 +164,20 @@ fun EditProfileScreen(
             onCustomSkillAdded = { skill ->
                 viewModel.addCustomSkill(skill, isOffered = isOffered)
             },
+            onSearchQueryChanged = { query ->
+                if (query.length >= 2) viewModel.searchSkills(query)
+            },
             onDismiss = { pickerMode = null }
         )
     }
 }
 
-/**
- * Builds the catalog of predefined skills from strings.xml.
- * Only readable inside a @Composable because it needs stringResource().
- */
-@Composable
-private fun rememberAvailableSkills(): List<String> {
-    return listOf(
-        stringResource(R.string.skill_english),
-        stringResource(R.string.skill_guitar),
-        stringResource(R.string.skill_piano),
-        stringResource(R.string.skill_programming),
-        stringResource(R.string.skill_python),
-        stringResource(R.string.skill_javascript),
-        stringResource(R.string.skill_java),
-        stringResource(R.string.skill_react),
-        stringResource(R.string.skill_marketing),
-        stringResource(R.string.skill_photography),
-        stringResource(R.string.skill_cooking),
-        stringResource(R.string.skill_graphic_design),
-        stringResource(R.string.skill_french),
-        stringResource(R.string.skill_german),
-        stringResource(R.string.skill_singing),
-        stringResource(R.string.skill_drums),
-        stringResource(R.string.skill_yoga),
-        stringResource(R.string.skill_running),
-        stringResource(R.string.skill_painting),
-        stringResource(R.string.skill_writing),
-        stringResource(R.string.skill_dance),
-        stringResource(R.string.skill_chess),
-        stringResource(R.string.skill_video_editing),
-        stringResource(R.string.skill_figma),
-        stringResource(R.string.skill_photoshop)
-    )
-}
-
-/**
- * Edit Profile form — Stateless composable.
- */
 @Composable
 private fun EditProfileForm(
     fullName: String,
     bio: String,
     country: String,
+    phone: String,
     skillsOffered: List<String>,
     skillsSought: List<String>,
     avatarUrl: String?,
@@ -225,6 +187,7 @@ private fun EditProfileForm(
     onFullNameChange: (String) -> Unit,
     onBioChange: (String) -> Unit,
     onCountryChange: (String) -> Unit,
+    onPhoneChange: (String) -> Unit,
     onToggleOffered: (String) -> Unit,
     onToggleSought: (String) -> Unit,
     onAddOfferedClick: () -> Unit,
@@ -249,7 +212,6 @@ private fun EditProfileForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ── Basic info section ──────────────────────────────
         Text(
             text = stringResource(R.string.edit_profile_basic_info),
             style = MaterialTheme.typography.titleMedium,
@@ -283,6 +245,17 @@ private fun EditProfileForm(
         Spacer(modifier = Modifier.height(8.dp))
 
         DexterTextField(
+            value = phone,
+            onValueChange = onPhoneChange,
+            label = stringResource(R.string.edit_profile_phone_label),
+            placeholder = stringResource(R.string.edit_profile_phone_placeholder),
+            contentDescriptionLabel = stringResource(R.string.edit_profile_phone_label),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        DexterTextField(
             value = bio,
             onValueChange = onBioChange,
             label = stringResource(R.string.edit_profile_about_label),
@@ -296,7 +269,6 @@ private fun EditProfileForm(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // ── Skills OFFERED section ──────────────────────────
         SkillsEditableSection(
             title = stringResource(R.string.edit_profile_skills_offered_title),
             skills = skillsOffered,
@@ -307,7 +279,6 @@ private fun EditProfileForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Skills SOUGHT section ───────────────────────────
         SkillsEditableSection(
             title = stringResource(R.string.edit_profile_skills_sought_title),
             skills = skillsSought,
@@ -316,7 +287,6 @@ private fun EditProfileForm(
             onAddClick = onAddSoughtClick
         )
 
-        // ── Error message ───────────────────────────────────
         if (errorMessage != null) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
@@ -354,10 +324,6 @@ private fun EditProfileForm(
     }
 }
 
-/**
- * One skills group: title + chips wrapped in rows of 3 + a "+" chip at the end.
- * Tapping a chip toggles selection (removes the skill). Tapping "+" opens the picker.
- */
 @Composable
 private fun SkillsEditableSection(
     title: String,
@@ -376,7 +342,6 @@ private fun SkillsEditableSection(
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // All visible items = skills + "+"
         val items: List<Any> = skills + "__ADD__"
 
         Column(
@@ -404,10 +369,6 @@ private fun SkillsEditableSection(
     }
 }
 
-/**
- * A "+" chip used at the end of a skills group to open the picker.
- * Dashed outline styling to differentiate from regular chips.
- */
 @Composable
 private fun AddSkillChip(
     onClick: () -> Unit,
@@ -438,8 +399,6 @@ private fun AddSkillChip(
     }
 }
 
-// ── Previews ────────────────────────────────────────────────────
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun EditProfilePreview() {
@@ -447,7 +406,8 @@ private fun EditProfilePreview() {
         EditProfileForm(
             fullName = "Alice Gonzalez",
             bio = "Guitar teacher",
-            country = "CR",
+            country = "Costa Rica",
+            phone = "+506 8888-1234",
             skillsOffered = listOf("Inglés", "Guitarra", "Marketing"),
             skillsSought = listOf("Fotografía", "Piano"),
             avatarUrl = null,
@@ -457,6 +417,7 @@ private fun EditProfilePreview() {
             onFullNameChange = {},
             onBioChange = {},
             onCountryChange = {},
+            onPhoneChange = {},
             onToggleOffered = {},
             onToggleSought = {},
             onAddOfferedClick = {},

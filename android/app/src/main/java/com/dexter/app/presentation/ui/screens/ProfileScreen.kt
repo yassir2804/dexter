@@ -197,9 +197,18 @@ private fun ProfileSuccessContent(
                 if (!profile.country.isNullOrBlank()) {
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = countryCodeToFlag(profile.country),
+                        text = profile.country,
                         style = MaterialTheme.typography.bodySmall,
                         fontStyle = FontStyle.Italic,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (!profile.phone.isNullOrBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = profile.phone,
+                        style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -316,16 +325,6 @@ private fun ProfileSuccessContent(
     }
 }
 
-// ── Helpers ─────────────────────────────────────────────────────────
-
-private fun countryCodeToFlag(countryCode: String): String {
-    val code = countryCode.uppercase()
-    if (code.length != 2) return countryCode
-    val first = Character.toChars(0x1F1E6 - 'A'.code + code[0].code)
-    val second = Character.toChars(0x1F1E6 - 'A'.code + code[1].code)
-    return String(first) + String(second)
-}
-
 // ── Previews ────────────────────────────────────────────────────────
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -340,7 +339,8 @@ private fun ProfileScreenPreview() {
                     lastName = "Gonzalez",
                     avatarUrl = null,
                     bio = "Guitar teacher",
-                    country = "CR",
+                    country = "Costa Rica",
+                    phone = "+506 8888-1234",
                     rating = 4.8,
                     totalSessions = 12,
                     totalMatches = 5,
