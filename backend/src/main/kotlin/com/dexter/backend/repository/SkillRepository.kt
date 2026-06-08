@@ -11,4 +11,5 @@ interface SkillRepository : JpaRepository<Skill, Long> {
     fun findByUserIdAndSkillRole(userId: Long, skillRole: SkillRole): List<Skill>
     fun findByNameContainingIgnoreCase(name: String): List<Skill>
     fun findByCategoryIgnoreCase(category: String): List<Skill>
+    fun deleteByUserId(userId: Long)
 }

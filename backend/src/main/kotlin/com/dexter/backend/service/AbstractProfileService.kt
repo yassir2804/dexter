@@ -2,12 +2,15 @@ package com.dexter.backend.service
 
 import com.dexter.backend.dto.ProfileReviewItemDetails
 import com.dexter.backend.dto.ProfileSummaryResult
+import com.dexter.backend.entity.Skill
+import com.dexter.backend.entity.SkillLevel
 import com.dexter.backend.entity.SkillRole
 import com.dexter.backend.repository.ReviewRepository
 import com.dexter.backend.repository.SkillRepository
 import com.dexter.backend.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.Date
 
 @Service
@@ -56,6 +59,7 @@ class AbstractProfileService(
         )
     }
 
+    @Transactional
     override fun update(userId: Long, dto: ProfileSummaryResult): ProfileSummaryResult {
         val user = userRepository.findById(userId).orElseThrow {
             NoSuchElementException("User with id $userId not found")
@@ -71,6 +75,31 @@ class AbstractProfileService(
         dto.updateRating?.let { user.rating = it }
         user.updatedAt = Date()
         userRepository.save(user)
+
+        if (dto.skillsOffered != null || dto.skillsSought != null) {
+            skillRepository.deleteByUserId(userId)
+            dto.skillsOffered?.forEach { name ->
+                skillRepository.save(
+                    Skill(
+                        user = user,
+                        name = name,
+                        skillRole = SkillRole.OFFERED,
+                        skillLevel = SkillLevel.BEGINNER
+                    )
+                )
+            }
+            dto.skillsSought?.forEach { name ->
+                skillRepository.save(
+                    Skill(
+                        user = user,
+                        name = name,
+                        skillRole = SkillRole.SOUGHT,
+                        skillLevel = SkillLevel.BEGINNER
+                    )
+                )
+            }
+        }
+
         return findByUserId(userId)
     }
 
