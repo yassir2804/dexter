@@ -386,6 +386,22 @@ private fun EditSessionForm(
             }
         }
 
+        // Error general (balance de skills, fecha duplicada, etc.)
+        if (state.generalError != null) {
+            androidx.compose.material3.Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = MaterialTheme.colorScheme.errorContainer,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = state.generalError,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(12.dp)
+                )
+            }
+        }
+
         Spacer(Modifier.height(8.dp))
 
         Button(
