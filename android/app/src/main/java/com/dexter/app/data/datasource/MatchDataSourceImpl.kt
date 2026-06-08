@@ -44,8 +44,8 @@ class MatchDataSourceImpl @Inject constructor(
         return remoteDataSource.createMatch(initiatorId, receiverId, initiatorSkill, receiverSkill).getOrThrow()
     }
 
-    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?): MatchSummaryDto {
-        return remoteDataSource.acceptMatch(matchId, viewerUserId, initiatorSkill).getOrThrow()
+    override suspend fun acceptMatch(matchId: Long, viewerUserId: Long, initiatorSkill: String?, timezone: String?): MatchSummaryDto {
+        return remoteDataSource.acceptMatch(matchId, viewerUserId, initiatorSkill, timezone).getOrThrow()
     }
 
     override suspend fun rejectMatch(matchId: Long) {
