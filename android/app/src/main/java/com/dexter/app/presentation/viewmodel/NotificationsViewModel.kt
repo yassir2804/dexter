@@ -90,7 +90,7 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.markAsRead(notificationId)
                 .onSuccess {
-                    _allNotifications.value = _allNotifications.value.map {
+                    _allNotifications.value = _allNotifications.value?.map {
                         if (it.id == notificationId) it.copy(isRead = true) else it
                     }
                 }
@@ -102,7 +102,7 @@ class NotificationsViewModel @Inject constructor(
         viewModelScope.launch {
             repository.markAllAsRead(userId)
                 .onSuccess {
-                    _allNotifications.value = _allNotifications.value.map { it.copy(isRead = true) }
+                    _allNotifications.value = _allNotifications.value?.map { it.copy(isRead = true) }
                 }
                 .onFailure { Log.e(TAG, "Error marking all as read", it) }
         }
