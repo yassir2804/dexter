@@ -174,7 +174,9 @@ private fun PlanBody(
     onCompletePlan: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val activeSessions = sessions.filter { it.status != SessionStatus.CANCELLED }
     val completedCount = sessions.count { it.status == SessionStatus.COMPLETED }
+    val allCompleted = activeSessions.isNotEmpty() && activeSessions.all { it.status == SessionStatus.COMPLETED }
     val lastCompleted = sessions.lastOrNull { it.status == SessionStatus.COMPLETED }
     val isReadOnly = match.status == MatchStatus.COMPLETED || match.status == MatchStatus.FINALIZED
 
@@ -272,25 +274,27 @@ private fun PlanBody(
                 }
             }
 
-            item {
-                OutlinedButton(
-                    onClick = onCompletePlan,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    ),
-                    border = androidx.compose.foundation.BorderStroke(
-                        1.dp,
-                        MaterialTheme.colorScheme.error
-                    )
-                ) {
-                    Text(
-                        text = stringResource(R.string.plan_finish),
-                        fontWeight = FontWeight.SemiBold
-                    )
+            if (allCompleted) {
+                item {
+                    OutlinedButton(
+                        onClick = onCompletePlan,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(50),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        border = androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(R.string.plan_finish),
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
                 }
             }
         }
