@@ -25,19 +25,6 @@ data class AiSessionPlan(
     val scheduledDate: String? = null
 )
 
-data class AiScheduleRequest(
-    val userAName: String,
-    val userBName: String,
-    val userAAvailability: List<Map<String, Any>>,
-    val userBAvailability: List<Map<String, Any>>,
-    val sessionTitle: String
-)
-
-data class AiScheduleSlot(
-    val day: String,
-    val time: String
-)
-
 @Component
 class AiServiceClient(
     @Value("\${ai.service.url:http://localhost:8001}") private val baseUrl: String
@@ -59,17 +46,4 @@ class AiServiceClient(
         null
     }
 
-    fun suggestSchedule(request: AiScheduleRequest): List<AiScheduleSlot>? = try {
-        val result = restTemplate.postForObject(
-            "$baseUrl/suggest-schedule",
-            request,
-            Array<AiScheduleSlot>::class.java
-        )
-        result?.toList().also {
-            log.info("AI sugirió ${it?.size} horarios para '${request.sessionTitle}'")
-        }
-    } catch (e: Exception) {
-        log.warn("AI service no disponible para sugerencia de horario: ${e.message}")
-        null
-    }
 }
