@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.ProfileSummary
 import com.dexter.app.domain.repository.UserRepository
+import com.dexter.app.presentation.ui.utils.InputFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -70,9 +71,9 @@ class EditProfileViewModel @Inject constructor(
     private var totalMatches = 0
     private var reviews = emptyList<com.dexter.app.domain.model.ProfileReviewItem>()
 
-    fun onFullNameChange(value: String) { _fullName.value = value }
-    fun onBioChange(value: String) { _bio.value = value }
-    fun onCountryChange(value: String) { _country.value = value }
+    fun onFullNameChange(value: String) { _fullName.value = InputFilters.filterName(value) }
+    fun onBioChange(value: String) { _bio.value = InputFilters.filterSafeText(value) }
+    fun onCountryChange(value: String) { _country.value = InputFilters.filterName(value) }
 
     fun toggleSkillOffered(skill: String) {
         _skillsOffered.value = if (skill in _skillsOffered.value) {
@@ -95,17 +96,17 @@ class EditProfileViewModel @Inject constructor(
      * @param isOffered true to add to offered list, false for sought list.
      */
     fun addCustomSkill(skill: String, isOffered: Boolean) {
-        val trimmed = skill.trim()
-        if (trimmed.isBlank()) return
-        if (trimmed !in _customSkills.value) {
-            _customSkills.value = _customSkills.value + trimmed
-        }
+        val trimmed = InputFilters.filterSkill(skill).trim()
+        if (trimmed.length < 2) return
+        val normalized = trimmed.lowercase()
+        if (_customSkills.value.any { it.lowercase() == normalized }) return
+        _customSkills.value = _customSkills.value + trimmed
         if (isOffered) {
-            if (trimmed !in _skillsOffered.value) {
+            if (_skillsOffered.value.none { it.lowercase() == normalized }) {
                 _skillsOffered.value = _skillsOffered.value + trimmed
             }
         } else {
-            if (trimmed !in _skillsSought.value) {
+            if (_skillsSought.value.none { it.lowercase() == normalized }) {
                 _skillsSought.value = _skillsSought.value + trimmed
             }
         }

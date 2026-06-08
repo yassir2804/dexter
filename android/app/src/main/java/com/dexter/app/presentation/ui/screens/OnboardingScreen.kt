@@ -246,6 +246,7 @@ private fun OnboardingContent(
                 onValueChange = onNameChange,
                 label = stringResource(R.string.onboard_name_label),
                 placeholder = stringResource(R.string.onboard_name_placeholder),
+                maxLength = 60,
                 contentDescriptionLabel = stringResource(R.string.onboard_name_label),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -258,6 +259,7 @@ private fun OnboardingContent(
                 onValueChange = onPhoneChange,
                 label = stringResource(R.string.onboard_phone_label),
                 placeholder = stringResource(R.string.onboard_phone_placeholder),
+                maxLength = 20,
                 contentDescriptionLabel = stringResource(R.string.onboard_phone_label),
                 keyboardType = KeyboardType.Phone,
                 modifier = Modifier.fillMaxWidth()
@@ -271,6 +273,7 @@ private fun OnboardingContent(
                 onValueChange = onCountryChange,
                 label = stringResource(R.string.onboard_country_label),
                 placeholder = stringResource(R.string.onboard_country_placeholder),
+                maxLength = 60,
                 contentDescriptionLabel = stringResource(R.string.onboard_country_label),
                 modifier = Modifier.fillMaxWidth()
             )

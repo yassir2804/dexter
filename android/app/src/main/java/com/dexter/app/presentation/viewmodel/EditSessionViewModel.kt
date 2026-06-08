@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.ScheduleSlot
 import com.dexter.app.domain.model.Session
 import com.dexter.app.domain.repository.SessionRepository
+import com.dexter.app.presentation.ui.utils.InputFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -109,23 +110,24 @@ class EditSessionViewModel @Inject constructor(
         _state.value as? EditSessionState.Editing
 
     fun onTitleChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(title = value) }
+        currentEditing()?.let { _state.value = it.copy(title = InputFilters.filterSafeText(value)) }
     }
 
     fun onDescriptionChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(description = value) }
+        currentEditing()?.let { _state.value = it.copy(description = InputFilters.filterSafeText(value)) }
     }
 
     fun onDateChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(date = value) }
+        currentEditing()?.let { _state.value = it.copy(date = InputFilters.filterDate(value)) }
     }
 
     fun onTimeChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(time = value) }
+        currentEditing()?.let { _state.value = it.copy(time = InputFilters.filterTime(value)) }
     }
 
     fun onDurationChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(duration = value) }
+        val filtered = InputFilters.filterDigits(value)
+        currentEditing()?.let { _state.value = it.copy(duration = filtered) }
     }
 
     fun onRequestDelete() {

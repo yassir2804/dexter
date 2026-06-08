@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.dexter.app.R
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.UserRepository
+import com.dexter.app.presentation.ui.utils.InputFilters
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -137,9 +138,9 @@ class RegisterViewModel @Inject constructor(
     private val _availabilityDays = MutableStateFlow<Set<Int>>(emptySet())
     val availabilityDays = _availabilityDays.asStateFlow()
 
-    fun onNameChange(value: String) { _name.value = value }
-    fun onCountryChange(value: String) { _country.value = value }
-    fun onPhoneChange(value: String) { _phone.value = value }
+    fun onNameChange(value: String) { _name.value = InputFilters.filterName(value) }
+    fun onCountryChange(value: String) { _country.value = InputFilters.filterName(value) }
+    fun onPhoneChange(value: String) { _phone.value = InputFilters.filterPhone(value) }
 
     fun toggleSkillToTeach(skill: String) {
         _skillsToTeach.value = if (skill in _skillsToTeach.value) {
@@ -171,17 +172,17 @@ class RegisterViewModel @Inject constructor(
      * @param isTeach true to add to teach list, false for learn list.
      */
     fun addCustomSkill(skill: String, isTeach: Boolean) {
-        val trimmed = skill.trim()
-        if (trimmed.isBlank()) return
-        if (trimmed !in _customSkills.value) {
-            _customSkills.value = _customSkills.value + trimmed
-        }
+        val trimmed = InputFilters.filterSkill(skill).trim()
+        if (trimmed.length < 2) return
+        val normalized = trimmed.lowercase()
+        if (_customSkills.value.any { it.lowercase() == normalized }) return
+        _customSkills.value = _customSkills.value + trimmed
         if (isTeach) {
-            if (trimmed !in _skillsToTeach.value) {
+            if (_skillsToTeach.value.none { it.lowercase() == normalized }) {
                 _skillsToTeach.value = _skillsToTeach.value + trimmed
             }
         } else {
-            if (trimmed !in _skillsToLearn.value) {
+            if (_skillsToLearn.value.none { it.lowercase() == normalized }) {
                 _skillsToLearn.value = _skillsToLearn.value + trimmed
             }
         }
@@ -219,8 +220,26 @@ class RegisterViewModel @Inject constructor(
      * [onRegisterSuccess] is called after a successful API call to trigger navigation.
      */
     fun register(email: String, password: String, onRegisterSuccess: () -> Unit) {
-        if (_name.value.trim().isBlank()) {
+        val nameTrimmed = _name.value.trim()
+        if (nameTrimmed.isBlank()) {
             _state.value = RegisterState.Error(R.string.error_name_required)
+            return
+        }
+        if (!InputFilters.isValidName(nameTrimmed)) {
+            _state.value = RegisterState.Error(R.string.error_name_required)
+            return
+        }
+        val phoneTrimmed = _phone.value.trim()
+        if (phoneTrimmed.isNotBlank() && !InputFilters.isValidPhone(phoneTrimmed)) {
+            _state.value = RegisterState.Error(R.string.error_invalid_phone)
+            return
+        }
+        if (_skillsToTeach.value.isEmpty()) {
+            _state.value = RegisterState.Error(R.string.error_skills_required)
+            return
+        }
+        if (_skillsToLearn.value.isEmpty()) {
+            _state.value = RegisterState.Error(R.string.error_skills_required)
             return
         }
 

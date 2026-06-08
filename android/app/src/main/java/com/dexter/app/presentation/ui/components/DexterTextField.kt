@@ -23,9 +23,7 @@ import com.dexter.app.presentation.ui.theme.AppTheme
 
 /**
  * Reusable text field following Dexter's M3 styles.
- * @param value current text
- * @param onValueChange called on text change
- * @param label label text shown above the field
+ * @param maxLength maximum characters allowed (enforced via onValueChange filter)
  */
 @Composable
 fun DexterTextField(
@@ -37,6 +35,7 @@ fun DexterTextField(
     trailingIcon: @Composable (() -> Unit)? = null,
     singleLine: Boolean = true,
     minLines: Int = 1,
+    maxLength: Int = Int.MAX_VALUE,
     keyboardType: KeyboardType = KeyboardType.Text,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
@@ -46,7 +45,7 @@ fun DexterTextField(
 ) {
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = { if (it.length <= maxLength) onValueChange(it) },
         label = { Text(label) },
         placeholder = if (placeholder != null) ({ Text(placeholder) }) else null,
         leadingIcon = if (leadingIcon != null) {

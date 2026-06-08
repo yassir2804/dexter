@@ -327,6 +327,7 @@ private fun SendBody(
             value = topic,
             onValueChange = onTopicChange,
             label = stringResource(R.string.invite_topic_label),
+            maxLength = 100,
             contentDescriptionLabel = stringResource(R.string.invite_topic_label)
         )
         DexterTextField(
@@ -336,6 +337,7 @@ private fun SendBody(
             placeholder = stringResource(R.string.invite_message_placeholder),
             singleLine = false,
             minLines = 4,
+            maxLength = 500,
             contentDescriptionLabel = stringResource(R.string.invite_message_label)
         )
         Button(

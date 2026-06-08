@@ -65,9 +65,14 @@
 
     <!-- Validation errors -->
     <string name="error_invalid_email">Ingresa un correo válido</string>
-    <string name="error_password_short">La contraseña debe tener al menos %1$d caracteres</string>
+    <string name="error_password_short">La contraseña debe tener al menos 6 caracteres</string>
     <string name="error_password_mismatch">Las contraseñas no coinciden</string>
-    <string name="error_name_required">Ingresa tu nombre</string>
+    <string name="error_name_required">Ingresa tu nombre (mínimo 2 caracteres)</string>
+    <string name="error_invalid_phone">Número de teléfono inválido (7–15 dígitos)</string>
+    <string name="error_skills_required">Selecciona al menos una habilidad en cada sección</string>
+    <string name="error_duration_invalid">La duración debe ser entre 15 y 480 minutos</string>
+    <string name="error_time_invalid">Usa el formato HH:MM (ej: 09:00)</string>
+    <string name="error_field_required">Este campo es requerido</string>
 
     <!-- ══ Skill Search Screen ════════════════════════════════ -->
     <string name="skill_search_add_title">Añadir habilidad</string>

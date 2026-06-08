@@ -326,6 +326,7 @@ private fun NotesCard(notes: String, onNotesChange: (String) -> Unit) {
             placeholder = stringResource(R.string.active_session_notes_placeholder),
             singleLine = false,
             minLines = 4,
+            maxLength = 1000,
             contentDescriptionLabel = stringResource(R.string.cd_notes_input)
         )
     }

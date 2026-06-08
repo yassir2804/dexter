@@ -39,8 +39,10 @@ fun SearchBar(
     TextField(
         value = displayQuery,
         onValueChange = { value ->
-            if (query == null) setInternalQuery(value)
-            onQueryChanged(value)
+            if (value.length <= 100) {
+                if (query == null) setInternalQuery(value)
+                onQueryChanged(value)
+            }
         },
         leadingIcon = {
             Icon(

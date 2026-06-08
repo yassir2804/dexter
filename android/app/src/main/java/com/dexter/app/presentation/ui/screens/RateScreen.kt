@@ -222,6 +222,7 @@ private fun RateBody(
             label = stringResource(R.string.rate_comment_label),
             singleLine = false,
             minLines = 3,
+            maxLength = 500,
             contentDescriptionLabel = stringResource(R.string.cd_notes_input)
         )
 

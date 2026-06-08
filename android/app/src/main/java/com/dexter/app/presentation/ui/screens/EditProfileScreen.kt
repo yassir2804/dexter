@@ -263,6 +263,7 @@ private fun EditProfileForm(
             onValueChange = onFullNameChange,
             label = stringResource(R.string.edit_profile_name_label),
             placeholder = stringResource(R.string.onboard_name_placeholder),
+            maxLength = 60,
             contentDescriptionLabel = stringResource(R.string.edit_profile_name_label),
             modifier = Modifier.fillMaxWidth()
         )
@@ -274,6 +275,7 @@ private fun EditProfileForm(
             onValueChange = onCountryChange,
             label = stringResource(R.string.onboard_country_label),
             placeholder = stringResource(R.string.onboard_country_placeholder),
+            maxLength = 60,
             contentDescriptionLabel = stringResource(R.string.onboard_country_label),
             modifier = Modifier.fillMaxWidth()
         )
@@ -287,6 +289,7 @@ private fun EditProfileForm(
             placeholder = stringResource(R.string.profile_bio_default),
             singleLine = false,
             minLines = 3,
+            maxLength = 300,
             contentDescriptionLabel = stringResource(R.string.edit_profile_about_label),
             modifier = Modifier.fillMaxWidth()
         )

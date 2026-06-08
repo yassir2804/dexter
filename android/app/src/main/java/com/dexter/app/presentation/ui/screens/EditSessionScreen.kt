@@ -198,6 +198,7 @@ private fun EditSessionForm(
             label = stringResource(R.string.edit_session_field_title),
             placeholder = stringResource(R.string.edit_session_field_title_placeholder),
             leadingIcon = Icons.Default.Title,
+            maxLength = 100,
             contentDescriptionLabel = stringResource(R.string.edit_session_field_title)
         )
         DexterTextField(
@@ -207,6 +208,7 @@ private fun EditSessionForm(
             placeholder = stringResource(R.string.edit_session_field_description_placeholder),
             singleLine = false,
             minLines = 3,
+            maxLength = 500,
             contentDescriptionLabel = stringResource(R.string.edit_session_field_description)
         )
         DexterTextField(
@@ -214,6 +216,7 @@ private fun EditSessionForm(
             onValueChange = onDateChange,
             label = stringResource(R.string.edit_session_field_date),
             leadingIcon = Icons.Default.CalendarToday,
+            maxLength = 10,
             contentDescriptionLabel = stringResource(R.string.edit_session_field_date)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -223,6 +226,7 @@ private fun EditSessionForm(
                     onValueChange = onTimeChange,
                     label = stringResource(R.string.edit_session_field_time),
                     leadingIcon = Icons.Default.Schedule,
+                    maxLength = 5,
                     contentDescriptionLabel = stringResource(R.string.edit_session_field_time)
                 )
             }
@@ -232,6 +236,7 @@ private fun EditSessionForm(
                     onValueChange = onDurationChange,
                     label = stringResource(R.string.edit_session_field_duration),
                     keyboardType = KeyboardType.Number,
+                    maxLength = 3,
                     contentDescriptionLabel = stringResource(R.string.edit_session_field_duration)
                 )
             }
