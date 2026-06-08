@@ -31,8 +31,7 @@ class NotificationsViewModel @Inject constructor(
 
     companion object { private const val TAG = "NotificationsViewModel" }
 
-    // Todas las notificaciones sin filtrar
-    private val _allNotifications = MutableStateFlow<List<Notification>>(emptyList())
+    private val _allNotifications = MutableStateFlow<List<Notification>?>(null) // null = aún cargando
     private val _loadError = MutableStateFlow<String?>(null)
 
     private val _state = MutableStateFlow<NotificationsState>(NotificationsState.Loading)
@@ -42,7 +41,6 @@ class NotificationsViewModel @Inject constructor(
     val unreadCount = _unreadCount.asStateFlow()
 
     init {
-        // Reactivo: si cambia cualquier preferencia, recalcula el estado
         viewModelScope.launch {
             combine(
                 _allNotifications,
@@ -51,8 +49,10 @@ class NotificationsViewModel @Inject constructor(
                 NotificationPreference.showReminders,
                 NotificationPreference.showRatings
             ) { all, error, showMatches, showReminders, showRatings ->
+                // null = todavía cargando, no emitir nada
+                if (all == null && error == null) return@combine NotificationsState.Loading
                 if (error != null) return@combine NotificationsState.Error(error)
-                val filtered = all.filter { notif ->
+                val filtered = all!!.filter { notif ->
                     when (notif.notificationType) {
                         NotificationType.NEW_MATCH -> showMatches
                         NotificationType.SESSION_REMINDER -> showReminders
@@ -62,7 +62,7 @@ class NotificationsViewModel @Inject constructor(
                 }
                 if (filtered.isEmpty()) return@combine NotificationsState.Empty
                 val (unread, read) = filtered.partition { !it.isRead }
-                _unreadCount.value = unread.size // badge solo cuenta las visibles
+                _unreadCount.value = unread.size
                 NotificationsState.Success(
                     unread = unread.sortedByDescending { it.createdAt },
                     read = read.sortedByDescending { it.createdAt }
@@ -73,10 +73,10 @@ class NotificationsViewModel @Inject constructor(
 
     fun loadNotifications(userId: Long) {
         viewModelScope.launch {
-            _state.value = NotificationsState.Loading
+            _allNotifications.value = null  // null dispara Loading en el combine
+            _loadError.value = null
             repository.getNotificationsForUser(userId)
                 .onSuccess { notifs ->
-                    _loadError.value = null
                     _allNotifications.value = notifs
                 }
                 .onFailure { exception ->
