@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.dexter.app.R
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,9 +47,9 @@ fun BottomNavigationBar(navController: NavController, isAdmin: Boolean = false) 
 
             val itemTitle = stringResource(id = item.title)
             val itemDescription = if (isSelected) {
-                "$itemTitle, selected"
+                stringResource(R.string.cd_nav_selected, itemTitle)
             } else {
-                "$itemTitle, not selected"
+                stringResource(R.string.cd_nav_not_selected, itemTitle)
             }
 
             NavigationBarItem(

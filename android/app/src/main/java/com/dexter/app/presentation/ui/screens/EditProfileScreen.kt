@@ -288,6 +288,7 @@ private fun EditProfileForm(
             label = stringResource(R.string.edit_profile_phone_label),
             placeholder = stringResource(R.string.edit_profile_phone_placeholder),
             contentDescriptionLabel = stringResource(R.string.edit_profile_phone_label),
+            maxLength = 20,
             modifier = Modifier.fillMaxWidth()
         )
 

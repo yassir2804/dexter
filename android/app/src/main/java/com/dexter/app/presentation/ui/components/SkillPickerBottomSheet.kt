@@ -111,8 +111,11 @@ fun SkillPickerBottomSheet(
             OutlinedTextField(
                 value = query,
                 onValueChange = {
-                    query = it
-                    onSearchQueryChanged(it.trim())
+                    // Limita el largo del nombre de la habilidad para no reventar UI/backend.
+                    if (it.length <= 50) {
+                        query = it
+                        onSearchQueryChanged(it.trim())
+                    }
                 },
                 placeholder = {
                     Text(

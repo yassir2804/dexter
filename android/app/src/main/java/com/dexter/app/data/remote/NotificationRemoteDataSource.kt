@@ -27,7 +27,7 @@ class NotificationRemoteDataSource @Inject constructor(
             notificationApiService.markAsRead(notificationId)
         }
         if (response.isSuccessful) Result.success(Unit)
-        else Result.failure(Exception("API error ${response.code()}"))
+        else Result.failure(Exception(ApiErrorParser.toMessage(response.code(), null)))
     } catch (e: Exception) {
         Result.failure(e)
     }
@@ -39,13 +39,13 @@ class NotificationRemoteDataSource @Inject constructor(
         if (response.isSuccessful) {
             response.body()?.let {
                 Result.success(it)
-            } ?: Result.failure(Exception("Response body is null"))
+            } ?: Result.failure(Exception("La respuesta del servidor llegó vacía. Intenta de nuevo."))
         } else {
             val errorBody = response.errorBody()?.string()
-            Result.failure(Exception("API error ${response.code()}: $errorBody"))
+            Result.failure(Exception(ApiErrorParser.toMessage(response.code(), errorBody)))
         }
     } catch (e: TimeoutCancellationException) {
-        Result.failure(Exception("Network timeout. Verify Mockoon is running on port 3000", e))
+        Result.failure(Exception("Tiempo de espera agotado. Revisa tu conexión a internet.", e))
     } catch (e: Exception) {
         Result.failure(e)
     }

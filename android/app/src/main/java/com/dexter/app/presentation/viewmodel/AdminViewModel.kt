@@ -1,8 +1,10 @@
 package com.dexter.app.presentation.viewmodel
 
 import android.util.Log
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dexter.app.R
 import com.dexter.app.domain.model.User
 import com.dexter.app.domain.repository.AdminRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -15,7 +17,11 @@ sealed class AdminState {
     data object Loading : AdminState()
     data class Success(
         val users: List<User>,
-        val actionMessage: String? = null
+        // Mensaje de éxito localizable: recurso + argumento (nombre del usuario).
+        @StringRes val actionMessageRes: Int? = null,
+        val actionMessageArg: String? = null,
+        // Mensaje de error (ya viene específico desde el backend vía ApiErrorParser).
+        val actionErrorMessage: String? = null
     ) : AdminState()
     data class Error(val message: String) : AdminState()
 }
@@ -52,16 +58,21 @@ class AdminViewModel @Inject constructor(
                     val updatedList = current.users.map {
                         if (it.id == userId) updatedUser else it
                     }
-                    val status = if (updatedUser.enabled) "habilitado" else "deshabilitado"
                     _state.value = current.copy(
                         users = updatedList,
-                        actionMessage = "Usuario ${updatedUser.firstName} $status"
+                        actionMessageRes = if (updatedUser.enabled) {
+                            R.string.admin_user_enabled
+                        } else {
+                            R.string.admin_user_disabled
+                        },
+                        actionMessageArg = updatedUser.firstName,
+                        actionErrorMessage = null
                     )
                 }
                 .onFailure { e ->
                     Log.e(TAG, "Error toggling user status", e)
                     val current = _state.value as? AdminState.Success ?: return@launch
-                    _state.value = current.copy(actionMessage = e.message ?: "Error al cambiar estado")
+                    _state.value = current.copy(actionErrorMessage = e.message)
                 }
         }
     }
@@ -74,22 +85,31 @@ class AdminViewModel @Inject constructor(
                     val updatedList = current.users.map {
                         if (it.id == userId) updatedUser else it
                     }
-                    val roleLabel = if (roleName == "ROLE_ADMIN") "Admin" else "Usuario"
                     _state.value = current.copy(
                         users = updatedList,
-                        actionMessage = "${updatedUser.firstName} ahora es $roleLabel"
+                        actionMessageRes = if (roleName == "ROLE_ADMIN") {
+                            R.string.admin_user_now_admin
+                        } else {
+                            R.string.admin_user_now_regular
+                        },
+                        actionMessageArg = updatedUser.firstName,
+                        actionErrorMessage = null
                     )
                 }
                 .onFailure { e ->
                     Log.e(TAG, "Error changing role", e)
                     val current = _state.value as? AdminState.Success ?: return@launch
-                    _state.value = current.copy(actionMessage = e.message ?: "Error al cambiar rol")
+                    _state.value = current.copy(actionErrorMessage = e.message)
                 }
         }
     }
 
     fun clearActionMessage() {
         val current = _state.value as? AdminState.Success ?: return
-        _state.value = current.copy(actionMessage = null)
+        _state.value = current.copy(
+            actionMessageRes = null,
+            actionMessageArg = null,
+            actionErrorMessage = null
+        )
     }
 }

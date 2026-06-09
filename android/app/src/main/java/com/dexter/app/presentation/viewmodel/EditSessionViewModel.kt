@@ -1,6 +1,8 @@
 package com.dexter.app.presentation.viewmodel
 
 import android.util.Log
+import androidx.annotation.StringRes
+import com.dexter.app.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dexter.app.domain.model.Session
@@ -28,8 +30,10 @@ sealed class EditSessionState {
         val showDeleteConfirm: Boolean,
         val saving: Boolean,
         val deleting: Boolean,
-        val durationError: String? = null,
-        val generalError: String? = null,
+        @StringRes val titleError: Int? = null,
+        @StringRes val descriptionError: Int? = null,
+        @StringRes val durationError: Int? = null,
+        @StringRes val generalError: Int? = null,
         val isCreateMode: Boolean = false,
         val totalSessions: Int = 0,
         // skillIds de sesiones restantes por skill — para validar balance al borrar
@@ -138,11 +142,11 @@ class EditSessionViewModel @Inject constructor(
         _state.value as? EditSessionState.Editing
 
     fun onTitleChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(title = InputFilters.filterSafeText(value)) }
+        currentEditing()?.let { _state.value = it.copy(title = InputFilters.filterSafeText(value), titleError = null) }
     }
 
     fun onDescriptionChange(value: String) {
-        currentEditing()?.let { _state.value = it.copy(description = InputFilters.filterSafeText(value)) }
+        currentEditing()?.let { _state.value = it.copy(description = InputFilters.filterSafeText(value), descriptionError = null) }
     }
 
     fun onDateChange(value: String) {
@@ -179,10 +183,21 @@ class EditSessionViewModel @Inject constructor(
     fun onSave() {
         val editing = currentEditing() ?: return
 
+        // Validar campos obligatorios (título y descripción). Se acumulan para
+        // mostrar todos los errores de una vez, no de uno en uno.
+        val titleError = if (editing.title.isBlank()) R.string.edit_session_error_title_required else null
+        val descriptionError = if (editing.description.isBlank()) R.string.edit_session_error_description_required else null
+
         // Validar duración
         val dur = editing.duration.toIntOrNull()
-        if (dur == null || dur < 15 || dur > 480) {
-            _state.value = editing.copy(durationError = "Entre 15 y 480 minutos")
+        val durationError = if (dur == null || dur < 15 || dur > 480) R.string.edit_session_error_duration_range else null
+
+        if (titleError != null || descriptionError != null || durationError != null) {
+            _state.value = editing.copy(
+                titleError = titleError,
+                descriptionError = descriptionError,
+                durationError = durationError
+            )
             return
         }
 
@@ -196,7 +211,7 @@ class EditSessionViewModel @Inject constructor(
                 set(java.util.Calendar.MILLISECOND, 0)
             }.time
             if (scheduledAt.before(today)) {
-                _state.value = editing.copy(generalError = "La fecha no puede ser anterior a hoy")
+                _state.value = editing.copy(generalError = R.string.edit_session_error_date_past)
                 return
             }
             // Solo validar que no haya dos sesiones en la misma fecha exacta
@@ -204,7 +219,7 @@ class EditSessionViewModel @Inject constructor(
                 d.year == scheduledAt.year && d.month == scheduledAt.month && d.date == scheduledAt.date
             }
             if (sameDate) {
-                _state.value = editing.copy(generalError = "Ya existe una sesión en esa fecha")
+                _state.value = editing.copy(generalError = R.string.edit_session_error_date_duplicate)
                 return
             }
         }
@@ -215,7 +230,7 @@ class EditSessionViewModel @Inject constructor(
                 title = editing.title,
                 description = editing.description,
                 scheduledAt = if (editing.date.isNotBlank()) scheduledAt else editing.session.scheduledAt,
-                duration = dur
+                duration = dur!! // garantizado no-nulo: ya validado arriba
             )
             val result = if (editing.isCreateMode) repository.createSession(updated)
                 else repository.updateSession(updated)
@@ -264,7 +279,7 @@ class EditSessionViewModel @Inject constructor(
         if (editing.totalSessions <= 2) {
             _state.value = editing.copy(
                 showDeleteConfirm = false,
-                generalError = "Debe quedar mínimo 1 sesión de cada habilidad"
+                generalError = R.string.edit_session_error_min_per_skill
             )
             return
         }
@@ -276,7 +291,7 @@ class EditSessionViewModel @Inject constructor(
         if (countOfMySkill <= 1) {
             _state.value = editing.copy(
                 showDeleteConfirm = false,
-                generalError = "Debe quedar al menos 1 sesión de cada habilidad"
+                generalError = R.string.edit_session_error_min_per_skill
             )
             return
         }

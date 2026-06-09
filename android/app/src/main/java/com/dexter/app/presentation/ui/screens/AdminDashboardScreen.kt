@@ -53,7 +53,13 @@ fun AdminDashboardScreen(
 
     LaunchedEffect(Unit) { viewModel.loadUsers() }
 
-    val actionMessage = (state as? AdminState.Success)?.actionMessage
+    val success = state as? AdminState.Success
+    val actionMessage: String? = when {
+        success?.actionErrorMessage != null -> success.actionErrorMessage
+        success?.actionMessageRes != null ->
+            stringResource(success.actionMessageRes, success.actionMessageArg ?: "")
+        else -> null
+    }
     LaunchedEffect(actionMessage) {
         actionMessage?.let {
             snackbarHostState.showSnackbar(it)

@@ -252,10 +252,10 @@ private fun EditSessionForm(
                         )
                     }
                     showDatePicker = false
-                }) { Text("OK") }
+                }) { Text(stringResource(R.string.action_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) { Text("Cancelar") }
+                TextButton(onClick = { showDatePicker = false }) { Text(stringResource(R.string.action_cancel)) }
             }
         ) {
             DatePicker(state = datePickerState)
@@ -283,11 +283,11 @@ private fun EditSessionForm(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
                     ) {
-                        TextButton(onClick = { showTimePicker = false }) { Text("Cancelar") }
+                        TextButton(onClick = { showTimePicker = false }) { Text(stringResource(R.string.action_cancel)) }
                         TextButton(onClick = {
                             onTimeSelected(timePickerState.hour, timePickerState.minute)
                             showTimePicker = false
-                        }) { Text("OK") }
+                        }) { Text(stringResource(R.string.action_ok)) }
                     }
                 }
             }
@@ -310,6 +310,8 @@ private fun EditSessionForm(
             singleLine = false,
             minLines = 1,
             maxLength = 100,
+            isError = state.titleError != null,
+            supportingText = state.titleError?.let { stringResource(it) },
             contentDescriptionLabel = stringResource(R.string.edit_session_field_title)
         )
         DexterTextField(
@@ -320,6 +322,8 @@ private fun EditSessionForm(
             singleLine = false,
             minLines = 3,
             maxLength = 500,
+            isError = state.descriptionError != null,
+            supportingText = state.descriptionError?.let { stringResource(it) },
             contentDescriptionLabel = stringResource(R.string.edit_session_field_description)
         )
 
@@ -329,7 +333,7 @@ private fun EditSessionForm(
             onValueChange = {},
             readOnly = true,
             label = { Text(stringResource(R.string.edit_session_field_date)) },
-            placeholder = { Text("DD/MM/YYYY") },
+            placeholder = { Text(stringResource(R.string.hint_date_format)) },
             leadingIcon = {
                 Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(20.dp))
             },
@@ -355,7 +359,7 @@ private fun EditSessionForm(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.edit_session_field_time)) },
-                    placeholder = { Text("HH:MM") },
+                    placeholder = { Text(stringResource(R.string.hint_time_format)) },
                     leadingIcon = {
                         Icon(Icons.Default.Schedule, contentDescription = null, modifier = Modifier.size(20.dp))
                     },
@@ -382,21 +386,21 @@ private fun EditSessionForm(
                     keyboardType = KeyboardType.Number,
                     maxLength = 3,
                     isError = state.durationError != null,
-                    supportingText = state.durationError,
+                    supportingText = state.durationError?.let { stringResource(it) },
                     contentDescriptionLabel = stringResource(R.string.edit_session_field_duration)
                 )
             }
         }
 
         // Error general (balance de skills, fecha duplicada, etc.)
-        if (state.generalError != null) {
+        state.generalError?.let { generalErrorRes ->
             androidx.compose.material3.Surface(
                 shape = RoundedCornerShape(8.dp),
                 color = MaterialTheme.colorScheme.errorContainer,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = state.generalError,
+                    text = stringResource(generalErrorRes),
                     color = MaterialTheme.colorScheme.onErrorContainer,
                     style = MaterialTheme.typography.bodySmall,
                     modifier = Modifier.padding(12.dp)

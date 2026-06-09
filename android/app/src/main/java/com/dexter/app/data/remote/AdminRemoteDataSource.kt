@@ -34,13 +34,13 @@ class AdminRemoteDataSource @Inject constructor(
         if (response.isSuccessful) {
             response.body()?.let {
                 Result.success(it)
-            } ?: Result.failure(Exception("Response body is null"))
+            } ?: Result.failure(Exception("La respuesta del servidor llegó vacía. Intenta de nuevo."))
         } else {
             val errorBody = response.errorBody()?.string()
-            Result.failure(Exception("API error ${response.code()}: $errorBody"))
+            Result.failure(Exception(ApiErrorParser.toMessage(response.code(), errorBody)))
         }
     } catch (e: TimeoutCancellationException) {
-        Result.failure(Exception("Network timeout", e))
+        Result.failure(Exception("Tiempo de espera agotado. Revisa tu conexión a internet.", e))
     } catch (e: Exception) {
         Result.failure(e)
     }

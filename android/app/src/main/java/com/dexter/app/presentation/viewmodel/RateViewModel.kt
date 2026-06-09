@@ -21,12 +21,14 @@ sealed class RateState {
     data class Editing(
         val revieweeName: String = "",
         val revieweeInitials: String = "",
+        val revieweeAvatarUrl: String? = null,
         val sessionNumber: Int = 0,
         val tagCatalog: List<String>,
         val rating: Int,
         val selectedTags: Set<String>,
         val comment: String,
-        val submitting: Boolean
+        val submitting: Boolean,
+        val showRatingError: Boolean = false
     ) : RateState()
     data object Submitted : RateState()
     data class Error(val message: String) : RateState()
@@ -49,6 +51,7 @@ class RateViewModel @Inject constructor(
     private var revieweeId: Long = 0L
     private var revieweeName: String = ""
     private var revieweeInitials: String = ""
+    private var revieweeAvatarUrl: String? = null
     private var sessionNumber: Int = 0
 
     fun loadTags(sessionId: Long) {
@@ -63,6 +66,7 @@ class RateViewModel @Inject constructor(
                     _state.value = RateState.Editing(
                         revieweeName = revieweeName,
                         revieweeInitials = revieweeInitials,
+                        revieweeAvatarUrl = revieweeAvatarUrl,
                         sessionNumber = sessionNumber,
                         tagCatalog = catalog,
                         rating = 0,
@@ -90,6 +94,7 @@ class RateViewModel @Inject constructor(
                         revieweeId = detail.otherUserId
                         revieweeName = detail.name
                         revieweeInitials = detail.initials
+                        revieweeAvatarUrl = detail.avatarUrl
                     }
                     .onFailure { Log.e(TAG, "Could not load match ${session.matchId}", it) }
             }
@@ -100,7 +105,7 @@ class RateViewModel @Inject constructor(
         _state.value as? RateState.Editing
 
     fun onRatingChange(rating: Int) {
-        currentEditing()?.let { _state.value = it.copy(rating = rating) }
+        currentEditing()?.let { _state.value = it.copy(rating = rating, showRatingError = false) }
     }
 
     fun onTagToggle(tag: String) {
@@ -120,7 +125,10 @@ class RateViewModel @Inject constructor(
 
     fun onSubmit() {
         val editing = currentEditing() ?: return
-        if (editing.rating <= 0) return
+        if (editing.rating <= 0) {
+            _state.value = editing.copy(showRatingError = true)
+            return
+        }
         viewModelScope.launch {
             _state.value = editing.copy(submitting = true)
             val review = Review(

@@ -160,7 +160,11 @@ private fun RateBody(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                AvatarCircle(initials = state.revieweeInitials, size = 64.dp)
+                AvatarCircle(
+                    initials = state.revieweeInitials,
+                    size = 64.dp,
+                    imageUrl = state.revieweeAvatarUrl
+                )
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = stringResource(R.string.rate_session_with, state.sessionNumber, state.revieweeName),
@@ -192,6 +196,14 @@ private fun RateBody(
                     text = stringResource(labelRes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
+                )
+            }
+            if (state.showRatingError) {
+                Spacer(Modifier.height(4.dp))
+                Text(
+                    text = stringResource(R.string.rate_error_no_rating),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error
                 )
             }
         }
@@ -229,7 +241,7 @@ private fun RateBody(
         // ── Submit ──────────────────────────────────────────────────
         Button(
             onClick = onSubmit,
-            enabled = state.rating > 0 && !state.submitting,
+            enabled = !state.submitting,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp),

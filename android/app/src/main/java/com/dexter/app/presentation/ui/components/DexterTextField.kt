@@ -1,6 +1,8 @@
 package com.dexter.app.presentation.ui.components
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -43,39 +45,44 @@ fun DexterTextField(
     contentDescriptionLabel: String,
     modifier: Modifier = Modifier
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = { if (it.length <= maxLength) onValueChange(it) },
-        label = { Text(label) },
-        placeholder = if (placeholder != null) ({ Text(placeholder) }) else null,
-        leadingIcon = if (leadingIcon != null) {
-            { androidx.compose.material3.Icon(imageVector = leadingIcon, contentDescription = null, modifier = Modifier.size(20.dp)) }
-        } else null,
-        trailingIcon = trailingIcon,
-        singleLine = singleLine,
-        minLines = minLines,
-        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType),
-        visualTransformation = visualTransformation,
-        isError = isError,
-        shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = MaterialTheme.colorScheme.primary,
-            unfocusedBorderColor = MaterialTheme.colorScheme.outline
-        ),
-        modifier = modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = contentDescriptionLabel }
-    )
-
-    if (!supportingText.isNullOrEmpty()) {
-        Text(
-            text = supportingText,
-            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-            style = MaterialTheme.typography.bodySmall,
-            fontSize = 12.sp,
+    // Envolvemos campo + texto de apoyo en una Column para que NUNCA se solapen,
+    // sin importar si el contenedor padre es un Box, Row o Column.
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = { if (it.length <= maxLength) onValueChange(it) },
+            label = { Text(label) },
+            placeholder = if (placeholder != null) ({ Text(placeholder) }) else null,
+            leadingIcon = if (leadingIcon != null) {
+                { androidx.compose.material3.Icon(imageVector = leadingIcon, contentDescription = null, modifier = Modifier.size(20.dp)) }
+            } else null,
+            trailingIcon = trailingIcon,
+            singleLine = singleLine,
+            minLines = minLines,
+            keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(keyboardType = keyboardType),
+            visualTransformation = visualTransformation,
+            isError = isError,
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(4.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline
+            ),
             modifier = Modifier
                 .fillMaxWidth()
+                .semantics { contentDescription = contentDescriptionLabel }
         )
+
+        if (!supportingText.isNullOrEmpty()) {
+            Text(
+                text = supportingText,
+                color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                style = MaterialTheme.typography.bodySmall,
+                fontSize = 12.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 12.dp, top = 4.dp)
+            )
+        }
     }
 }
 

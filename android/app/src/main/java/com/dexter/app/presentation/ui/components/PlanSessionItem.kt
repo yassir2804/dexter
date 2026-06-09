@@ -198,8 +198,9 @@ private fun NextBadge() {
     }
 }
 
+@Composable
 private fun formatDate(date: Date?): String {
-    if (date == null) return "Sin programar"
+    if (date == null) return stringResource(R.string.plan_session_unscheduled)
     val fmt = SimpleDateFormat("dd MMM yyyy • HH:mm", Locale.getDefault())
     return fmt.format(date)
 }

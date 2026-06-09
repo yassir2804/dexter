@@ -523,4 +523,34 @@
     <string name="match_compatibility_percent">Compatibilidad: %1$d%%</string>
     <string name="error_with_message">Error: %1$s</string>
 
+    <!-- Acciones genéricas de diálogo -->
+    <string name="action_ok">Aceptar</string>
+    <string name="action_cancel">Cancelar</string>
+
+    <!-- Hints de formato -->
+    <string name="hint_date_format">DD/MM/AAAA</string>
+    <string name="hint_time_format">HH:MM</string>
+
+    <!-- Plan -->
+    <string name="plan_session_unscheduled">Sin programar</string>
+
+    <!-- NavigationBar (accesibilidad) -->
+    <string name="cd_nav_selected">%1$s, seleccionado</string>
+    <string name="cd_nav_not_selected">%1$s, no seleccionado</string>
+
+    <!-- Validaciones de Editar Sesión -->
+    <string name="edit_session_error_title_required">El título es obligatorio</string>
+    <string name="edit_session_error_description_required">La descripción es obligatoria</string>
+    <string name="edit_session_error_duration_range">Entre 15 y 480 minutos</string>
+    <string name="edit_session_error_date_past">La fecha no puede ser anterior a hoy</string>
+    <string name="edit_session_error_date_duplicate">Ya existe una sesión en esa fecha</string>
+    <string name="edit_session_error_min_per_skill">Debe quedar al menos 1 sesión de cada habilidad</string>
+
+    <!-- Admin: mensajes de acción -->
+    <string name="admin_user_enabled">Usuario %1$s habilitado</string>
+    <string name="admin_user_disabled">Usuario %1$s deshabilitado</string>
+    <string name="admin_user_now_admin">%1$s ahora es administrador</string>
+    <string name="admin_user_now_regular">%1$s ahora es usuario</string>
+
+    <string name="rate_error_no_rating">Selecciona una calificación</string>
 </resources>

@@ -485,4 +485,70 @@
     <string name="match_compatibility_percent">Compatibilidade: %1$d%%</string>
     <string name="error_with_message">Erro: %1$s</string>
 
+    <!-- Acciones genéricas de diálogo -->
+    <string name="action_ok">OK</string>
+    <string name="action_cancel">Cancelar</string>
+
+    <!-- Hints de formato -->
+    <string name="hint_date_format">DD/MM/AAAA</string>
+    <string name="hint_time_format">HH:MM</string>
+
+    <!-- Plan -->
+    <string name="plan_session_unscheduled">Sem agendar</string>
+
+    <!-- NavigationBar (accesibilidad) -->
+    <string name="cd_nav_selected">%1$s, selecionado</string>
+    <string name="cd_nav_not_selected">%1$s, não selecionado</string>
+
+    <!-- Validaciones de Editar Sesión -->
+    <string name="edit_session_error_title_required">O título é obrigatório</string>
+    <string name="edit_session_error_description_required">A descrição é obrigatória</string>
+    <string name="edit_session_error_duration_range">Entre 15 e 480 minutos</string>
+    <string name="edit_session_error_date_past">A data não pode ser anterior a hoje</string>
+    <string name="edit_session_error_date_duplicate">Já existe uma sessão nessa data</string>
+    <string name="edit_session_error_min_per_skill">Deve restar pelo menos 1 sessão de cada habilidade</string>
+
+    <!-- Admin: mensajes de acción -->
+    <string name="admin_user_enabled">Usuário %1$s habilitado</string>
+    <string name="admin_user_disabled">Usuário %1$s desabilitado</string>
+    <string name="admin_user_now_admin">%1$s agora é administrador</string>
+    <string name="admin_user_now_regular">%1$s agora é usuário</string>
+
+    <!-- Strings agregados en main que faltaban traducir -->
+    <string name="admin_active_users">Ativos</string>
+    <string name="admin_admins">Admins</string>
+    <string name="admin_disabled">Desabilitado</string>
+    <string name="admin_enabled">Habilitado</string>
+    <string name="admin_make_admin">Tornar Admin</string>
+    <string name="admin_make_user">Tornar Usuário</string>
+    <string name="admin_role_admin">ADMIN</string>
+    <string name="admin_role_user">USUÁRIO</string>
+    <string name="admin_title">Administração</string>
+    <string name="admin_total_users">Total</string>
+    <string name="admin_user_list">Usuários do sistema</string>
+    <string name="create_session_save">Criar Sessão</string>
+    <string name="create_session_title">Nova Sessão</string>
+    <string name="error_duration_invalid">A duração deve ser entre 15 e 480 minutos</string>
+    <string name="error_field_required">Este campo é obrigatório</string>
+    <string name="error_invalid_phone">Número de telefone inválido (7–15 dígitos)</string>
+    <string name="error_skills_required">Selecione pelo menos uma habilidade em cada seção</string>
+    <string name="error_time_invalid">Use o formato HH:MM (ex: 09:00)</string>
+    <string name="home_sent_requests">Solicitações enviadas</string>
+    <string name="match_contact_label">Número de contato</string>
+    <string name="match_pending_sent">Solicitação enviada — aguardando resposta</string>
+    <string name="match_status_completed">Este match foi concluído com sucesso</string>
+    <string name="match_status_finalized">Este match foi encerrado antecipadamente</string>
+    <string name="match_view_history">Ver histórico de sessões</string>
+    <string name="matches_active_title">Matches ativos</string>
+    <string name="matches_completed_title">Matches concluídos</string>
+    <string name="nav_admin">Admin</string>
+    <string name="plan_add_session">Adicionar Sessão</string>
+    <string name="plan_complete_session">Concluir Sessão</string>
+    <string name="plan_finish">Finalizar Plano</string>
+    <string name="plan_min_sessions">Deve haver pelo menos 2 sessões</string>
+    <string name="plan_status_finalized">Encerrado</string>
+    <string name="profile_availability">Minha disponibilidade</string>
+    <string name="user_profile_availability">Disponibilidade</string>
+
+    <string name="rate_error_no_rating">Selecione uma avaliação</string>
 </resources>
