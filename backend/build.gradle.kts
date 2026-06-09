@@ -46,6 +46,13 @@ kotlin {
 	}
 }
 
+// Forzar UTF-8 en compilacion para que las tildes (Inglés, Música) no se corrompan
+tasks.withType<JavaCompile> {
+	options.encoding = "UTF-8"
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
+	systemProperty("file.encoding", "UTF-8")
+	jvmArgs("-Dfile.encoding=UTF-8")
 }

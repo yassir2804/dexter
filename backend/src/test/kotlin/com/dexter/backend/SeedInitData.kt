@@ -453,23 +453,24 @@ class SeedInitData {
         ))
 
         // M4: Ana ↔ Hugo (ACCEPTED — 6 sesiones, sesión 1 COMPLETED + review de Hugo)
-        // Ana enseña Piano (par), Hugo enseña Inglés (impar)
+        // Ana enseña Guitarra (par), Hugo enseña Piano (impar) — ambos skills OFFERED reales
         val matchHugo = matchRepository.save(Match(
             initiator = adminUser, receiver = hugoUser,
             compatibilityScore = 76.7, status = MatchStatus.ACCEPTED,
-            initiatorSkill = "Piano", receiverSkill = "Inglés",
+            initiatorSkill = "Guitarra", receiverSkill = "Piano",
             createdAt = Date(),
         ))
 
-        val pianoAna = skillRepository.findByUserId(adminUser.id!!)
+        // Ana enseña Guitarra (sesiones pares), Hugo enseña Piano (sesiones impares)
+        val guitarraAnaH = skillRepository.findByUserId(adminUser.id!!)
+            .first { it.skillRole == SkillRole.OFFERED && it.name == "Guitarra" }
+        val pianoHugo = skillRepository.findByUserId(hugoUser.id!!)
             .first { it.skillRole == SkillRole.OFFERED && it.name == "Piano" }
-        val inglesHugo = skillRepository.findByUserId(hugoUser.id!!)
-            .first { it.skillRole == SkillRole.OFFERED && it.name == "Inglés" }
 
         val session1Hugo = sessionRepository.save(
-            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 1,
-                title = "Inglés: Fundamentos del idioma",
-                description = "Pronunciación, alfabeto y frases esenciales.",
+            Session(match = matchHugo, skill = pianoHugo, sessionNumber = 1,
+                title = "Piano: Fundamentos del teclado",
+                description = "Postura, notas básicas y primeras melodías.",
                 status = SessionStatus.COMPLETED,
                 scheduledAt = Date(System.currentTimeMillis() - 7 * 24 * 60 * 60 * 1000L),
                 completedAt = Date(System.currentTimeMillis() - 6 * 24 * 60 * 60 * 1000L),
@@ -477,25 +478,25 @@ class SeedInitData {
         )
 
         sessionRepository.saveAll(listOf(
-            Session(match = matchHugo, skill = pianoAna, sessionNumber = 2,
-                title = "Piano: Postura y notas básicas",
-                description = "Aprendemos la postura correcta y las notas en el teclado.",
+            Session(match = matchHugo, skill = guitarraAnaH, sessionNumber = 2,
+                title = "Guitarra: Acordes básicos",
+                description = "Primeros acordes y posición de los dedos.",
                 status = SessionStatus.SCHEDULED, scheduledAt = lun1, createdAt = Date()),
-            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 3,
-                title = "Inglés: Presente simple y vocabulario",
-                description = "Conjugación del presente simple con vocabulario cotidiano.",
+            Session(match = matchHugo, skill = pianoHugo, sessionNumber = 3,
+                title = "Piano: Escalas y Do mayor",
+                description = "Escala de Do mayor y ejercicios de digitación.",
                 status = SessionStatus.SCHEDULED, scheduledAt = mie1, createdAt = Date()),
-            Session(match = matchHugo, skill = pianoAna, sessionNumber = 4,
-                title = "Piano: Do mayor y primeras melodías",
-                description = "Escala de Do mayor y melodías simples con la mano derecha.",
+            Session(match = matchHugo, skill = guitarraAnaH, sessionNumber = 4,
+                title = "Guitarra: Rasgueo y ritmo",
+                description = "Técnicas de rasgueo y cambios de acorde fluidos.",
                 status = SessionStatus.SCHEDULED, scheduledAt = vie1, createdAt = Date()),
-            Session(match = matchHugo, skill = inglesHugo, sessionNumber = 5,
-                title = "Inglés: Pasado simple y narración",
-                description = "Contamos historias usando el pasado simple.",
+            Session(match = matchHugo, skill = pianoHugo, sessionNumber = 5,
+                title = "Piano: Ambas manos",
+                description = "Coordinación de ambas manos en una pieza sencilla.",
                 status = SessionStatus.SCHEDULED, scheduledAt = lun2, createdAt = Date()),
-            Session(match = matchHugo, skill = pianoAna, sessionNumber = 6,
-                title = "Piano: Ambas manos — primera pieza completa",
-                description = "Coordinamos ambas manos para tocar una pieza sencilla.",
+            Session(match = matchHugo, skill = guitarraAnaH, sessionNumber = 6,
+                title = "Guitarra: Primera canción completa",
+                description = "Aplicamos lo aprendido en una canción de principio a fin.",
                 status = SessionStatus.SCHEDULED, scheduledAt = mie2, createdAt = Date()),
         ))
 

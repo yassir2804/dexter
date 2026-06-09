@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 import os
 import json
@@ -18,14 +19,31 @@ _RAW_KEYS = [
 ]
 API_KEYS = [k for k in _RAW_KEYS if k and k.startswith("AIza")]
 
+# Contenido educativo de intercambio de habilidades — desactivamos los filtros
+# de seguridad para que nombres de skills (ej. "odio", "defensa personal") no se bloqueen.
+SAFETY_SETTINGS = [
+    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+]
+
 def generate_with_fallback(prompt: str) -> str:
     """Intenta generar contenido con cada key disponible hasta que una funcione."""
     last_error = None
     for key in API_KEYS:
         try:
             c = genai.Client(api_key=key)
-            response = c.models.generate_content(model=MODEL, contents=prompt)
-            return response.text
+            response = c.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(safety_settings=SAFETY_SETTINGS),
+            )
+            text = response.text
+            # Si Gemini bloqueó/devolvió vacío, lanzar para que el backend use su fallback.
+            if not text or not text.strip():
+                raise ValueError("Gemini devolvió respuesta vacía (posible bloqueo de seguridad)")
+            return text
         except Exception as e:
             last_error = e
             continue
