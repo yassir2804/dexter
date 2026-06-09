@@ -11,6 +11,7 @@ data class Skill(
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "id")
     var user: User? = null,
+    @Column(length = 60)
     var name: String,
     var category: String? = null,
     @Enumerated(EnumType.STRING)
