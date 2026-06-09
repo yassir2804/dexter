@@ -26,23 +26,23 @@ class DataInitializer(
 
     @Transactional
     override fun run(args: ApplicationArguments) {
-        val readPrivilege = privilegeRepository.findByName("READ_PRIVILEGE").orElseGet {
-            log.info("Creating READ_PRIVILEGE")
-            privilegeRepository.save(Privilege(name = "READ_PRIVILEGE"))
-        }
-        val writePrivilege = privilegeRepository.findByName("WRITE_PRIVILEGE").orElseGet {
-            log.info("Creating WRITE_PRIVILEGE")
-            privilegeRepository.save(Privilege(name = "WRITE_PRIVILEGE"))
-        }
+        val readPrivilege = privilegeRepository.findAllByName("READ_PRIVILEGE").firstOrNull()
+            ?: privilegeRepository.save(Privilege(name = "READ_PRIVILEGE")).also {
+                log.info("Created READ_PRIVILEGE")
+            }
+        val writePrivilege = privilegeRepository.findAllByName("WRITE_PRIVILEGE").firstOrNull()
+            ?: privilegeRepository.save(Privilege(name = "WRITE_PRIVILEGE")).also {
+                log.info("Created WRITE_PRIVILEGE")
+            }
 
-        val roleAdmin = roleRepository.findByName("ROLE_ADMIN").orElseGet {
-            log.info("Creating ROLE_ADMIN")
-            roleRepository.save(Role(name = "ROLE_ADMIN", privilegeList = setOf(readPrivilege, writePrivilege)))
-        }
-        val roleUser = roleRepository.findByName("ROLE_USER").orElseGet {
-            log.info("Creating ROLE_USER")
-            roleRepository.save(Role(name = "ROLE_USER", privilegeList = setOf(readPrivilege)))
-        }
+        val roleAdmin = roleRepository.findAllByName("ROLE_ADMIN").firstOrNull()
+            ?: roleRepository.save(Role(name = "ROLE_ADMIN", privilegeList = setOf(readPrivilege, writePrivilege))).also {
+                log.info("Created ROLE_ADMIN")
+            }
+        roleRepository.findAllByName("ROLE_USER").firstOrNull()
+            ?: roleRepository.save(Role(name = "ROLE_USER", privilegeList = setOf(readPrivilege))).also {
+                log.info("Created ROLE_USER")
+            }
 
         val adminCandidates = userRepository.findAllByEmail("admin@dexter.app")
         if (adminCandidates.isEmpty()) {

@@ -9,4 +9,5 @@ import java.util.Optional
 @Repository
 interface RoleRepository : JpaRepository<Role, Long> {
     fun findByName(@Param("name") name: String): Optional<Role>
+    fun findAllByName(name: String): List<Role>
 }
