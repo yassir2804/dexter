@@ -377,7 +377,8 @@ private fun EditSessionForm(
                     shape = RoundedCornerShape(4.dp)
                 )
             }
-            // Duración — libre pero solo números
+            // Duración — libre pero solo números. El error va debajo del Row (ancho
+            // completo) para que el mensaje no se solape con el label en este campo angosto.
             Box(Modifier.weight(1f)) {
                 DexterTextField(
                     value = state.duration,
@@ -386,10 +387,19 @@ private fun EditSessionForm(
                     keyboardType = KeyboardType.Number,
                     maxLength = 3,
                     isError = state.durationError != null,
-                    supportingText = state.durationError?.let { stringResource(it) },
                     contentDescriptionLabel = stringResource(R.string.edit_session_field_duration)
                 )
             }
+        }
+
+        // Error de duración: ancho completo debajo del Row (no se solapa con el label).
+        state.durationError?.let { durationErrorRes ->
+            Text(
+                text = stringResource(durationErrorRes),
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.fillMaxWidth().padding(start = 4.dp)
+            )
         }
 
         // Error general (balance de skills, fecha duplicada, etc.)

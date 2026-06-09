@@ -107,7 +107,7 @@ class EditProfileViewModel @Inject constructor(
 
     fun addCustomSkill(skill: String, isOffered: Boolean) {
         val trimmed = InputFilters.filterSkill(skill).trim()
-        if (trimmed.length < 2) return
+        if (trimmed.length < 2 || trimmed.length > 50) return
         val normalized = trimmed.lowercase()
         if (_customSkills.value.any { it.lowercase() == normalized }) return
         _customSkills.value = _customSkills.value + trimmed

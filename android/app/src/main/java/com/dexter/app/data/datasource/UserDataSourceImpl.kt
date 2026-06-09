@@ -41,11 +41,9 @@ class UserDataSourceImpl @Inject constructor(
      */
     override suspend fun insertUser(request: RegisterRequestDto): UserDto? {
         val result = remoteDataSource.register(request)
-        return result.getOrNull()
-            ?: run {
-                Log.w(TAG, "API failed for register, registration not persisted")
-                null
-            }
+        // Propaga la excepción real (mensaje del backend traducido por ApiErrorParser)
+        // en vez de tragarla con getOrNull() → null, que ocultaba la causa.
+        return result.getOrThrow()
     }
 
     // ── Below methods still use UserProvider (no API endpoints yet) ──

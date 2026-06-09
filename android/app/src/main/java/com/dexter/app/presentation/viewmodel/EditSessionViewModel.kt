@@ -188,9 +188,9 @@ class EditSessionViewModel @Inject constructor(
         val titleError = if (editing.title.isBlank()) R.string.edit_session_error_title_required else null
         val descriptionError = if (editing.description.isBlank()) R.string.edit_session_error_description_required else null
 
-        // Validar duración
+        // Validar duración (15 min a 4 horas)
         val dur = editing.duration.toIntOrNull()
-        val durationError = if (dur == null || dur < 15 || dur > 480) R.string.edit_session_error_duration_range else null
+        val durationError = if (dur == null || dur < 15 || dur > 240) R.string.edit_session_error_duration_range else null
 
         if (titleError != null || descriptionError != null || durationError != null) {
             _state.value = editing.copy(

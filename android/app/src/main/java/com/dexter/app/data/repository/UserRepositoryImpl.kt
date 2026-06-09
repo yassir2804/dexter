@@ -80,7 +80,7 @@ class UserRepositoryImpl @Inject constructor(
             availabilityDays = user.availabilityDays,
         )
 
-        // Call the API via DataSource
+        // Call the API via DataSource (lanza excepción con el mensaje real del backend si falla)
         val createdDto = dataSource.insertUser(request)
         if (createdDto != null) {
             Result.success(userMapper.mapToDomain(createdDto))
@@ -91,8 +91,9 @@ class UserRepositoryImpl @Inject constructor(
         Log.e(TAG, "Failed to save user", e)
         Result.failure(DomainError.NetworkError("Network error saving user", e))
     } catch (e: Exception) {
-        Log.e(TAG, "Unknown error in saveUser", e)
-        Result.failure(DomainError.UnknownError("Unknown error saving user", e))
+        // Propaga el mensaje real del backend (ApiErrorParser ya lo tradujo).
+        Log.e(TAG, "Error in saveUser: ${e.message}", e)
+        Result.failure(DomainError.UnknownError(e.message ?: "Unknown error saving user", e))
     }
 
     override suspend fun deleteUser(id: Long): Result<Unit> = try {

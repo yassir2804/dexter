@@ -503,7 +503,7 @@
     <!-- Validaciones de Editar Sesión -->
     <string name="edit_session_error_title_required">O título é obrigatório</string>
     <string name="edit_session_error_description_required">A descrição é obrigatória</string>
-    <string name="edit_session_error_duration_range">Entre 15 e 480 minutos</string>
+    <string name="edit_session_error_duration_range">A duração deve ser entre 15 e 240 minutos</string>
     <string name="edit_session_error_date_past">A data não pode ser anterior a hoje</string>
     <string name="edit_session_error_date_duplicate">Já existe uma sessão nessa data</string>
     <string name="edit_session_error_min_per_skill">Deve restar pelo menos 1 sessão de cada habilidade</string>

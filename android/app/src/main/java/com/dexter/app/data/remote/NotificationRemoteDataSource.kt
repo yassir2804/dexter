@@ -37,9 +37,14 @@ class NotificationRemoteDataSource @Inject constructor(
     ): Result<T> = try {
         val response = withTimeout(API_TIMEOUT_MS) { apiCall() }
         if (response.isSuccessful) {
-            response.body()?.let {
-                Result.success(it)
-            } ?: Result.failure(Exception("La respuesta del servidor llegó vacía. Intenta de nuevo."))
+            val body = response.body()
+            if (body != null) {
+                Result.success(body)
+            } else {
+                // 204 No Content / body vacío es éxito válido (ej. markAsRead).
+                @Suppress("UNCHECKED_CAST")
+                Result.success(Unit as T)
+            }
         } else {
             val errorBody = response.errorBody()?.string()
             Result.failure(Exception(ApiErrorParser.toMessage(response.code(), errorBody)))
