@@ -44,7 +44,8 @@ class DataInitializer(
             roleRepository.save(Role(name = "ROLE_USER", privilegeList = setOf(readPrivilege)))
         }
 
-        if (userRepository.findByEmail("admin@dexter.app").isEmpty) {
+        val adminCandidates = userRepository.findAllByEmail("admin@dexter.app")
+        if (adminCandidates.isEmpty()) {
             log.info("Creating admin user: admin@dexter.app")
             userRepository.save(User(
                 email = "admin@dexter.app",
@@ -67,10 +68,10 @@ class DataInitializer(
             ))
         } else {
             log.info("Admin user already exists — ensuring ROLE_ADMIN is assigned")
-            val admin = userRepository.findByEmail("admin@dexter.app").get()
+            val admin = adminCandidates.first()
             val hasAdminRole = admin.roleList?.any { it.name == "ROLE_ADMIN" } == true
             if (!hasAdminRole) {
-                admin.roleList = setOf(roleAdmin)
+                admin.roleList = HashSet(admin.roleList ?: emptySet()) + roleAdmin
                 userRepository.save(admin)
                 log.info("Assigned ROLE_ADMIN to existing admin user")
             }

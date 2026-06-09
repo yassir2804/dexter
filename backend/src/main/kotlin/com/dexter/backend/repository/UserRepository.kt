@@ -11,6 +11,8 @@ import java.util.Optional
 interface UserRepository : JpaRepository<User, Long> {
     fun findByEmail(@Param("email") email: String): Optional<User>
 
+    fun findAllByEmail(@Param("email") email: String): List<User>
+
     fun findByUsername(@Param("username") username: String): Optional<User>
 
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roleList")
