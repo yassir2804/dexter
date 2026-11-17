@@ -1,0 +1,3081 @@
+{
+	"id": "db60ac57-6403-4371-93c4-21e22d0f3ebe",
+	"name": "Dexter Backend API",
+	"timestamp": "2026-05-30T00:21:38.082Z",
+	"collection_id": "51523053-0c8ca8c5-c419-4083-95f4-aac59a7a27ea",
+	"folder_id": 0,
+	"environment_id": "51523053-69c4c88c-5fef-4b14-a3b1-91b09d7c1480",
+	"totalPass": 255,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2026-05-30T00:21:26.640Z",
+	"totalFail": 9,
+	"results": [
+		{
+			"id": "fed1b000-09bc-4033-9d12-3b4404f6792a",
+			"name": "Health",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/health",
+			"time": 91,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Content-Type application/json": true,
+				"Respuesta contiene status:ok": true,
+				"Tiempo de respuesta < 500ms": true,
+				"Environment es dev": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Content-Type application/json": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta contiene status:ok": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Tiempo de respuesta < 500ms": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Environment es dev": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Content-Type application/json": true,
+					"Respuesta contiene status:ok": true,
+					"Tiempo de respuesta < 500ms": true,
+					"Environment es dev": true
+				}
+			]
+		},
+		{
+			"id": "07bce0ea-6c98-4855-96d2-13641486b015",
+			"name": "Register (nuevo usuario)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/auth/register",
+			"time": 164,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es UserResult válido": false,
+				"UserResult tiene todos los campos": false,
+				"Email coincide con el enviado": true,
+				"Contraseña hasheada con BCrypt": true,
+				"Rating inicia en 0": true,
+				"totalSessions inicia en 0": true,
+				"totalMatches inicia en 0": true,
+				"Country coincide con el enviado": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es UserResult válido": {
+					"pass": 0,
+					"fail": 1
+				},
+				"UserResult tiene todos los campos": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Email coincide con el enviado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Contraseña hasheada con BCrypt": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalSessions inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalMatches inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country coincide con el enviado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				164
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es UserResult válido": false,
+					"UserResult tiene todos los campos": false,
+					"Email coincide con el enviado": true,
+					"Contraseña hasheada con BCrypt": true,
+					"Rating inicia en 0": true,
+					"totalSessions inicia en 0": true,
+					"totalMatches inicia en 0": true,
+					"Country coincide con el enviado": true
+				}
+			]
+		},
+		{
+			"id": "59d9564a-c113-42d0-98f1-defac9d941cc",
+			"name": "Login (admin) — guarda token + userId",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 166,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Header Authorization con Bearer token": true,
+				"Body contiene UserResult del admin": true,
+				"JWT tiene 3 partes (header.payload.signature)": true,
+				"UserResult tiene firstName y lastName": true,
+				"Rating es numérico": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Header Authorization con Bearer token": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Body contiene UserResult del admin": {
+					"pass": 1,
+					"fail": 0
+				},
+				"JWT tiene 3 partes (header.payload.signature)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserResult tiene firstName y lastName": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating es numérico": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				166
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Header Authorization con Bearer token": true,
+					"Body contiene UserResult del admin": true,
+					"JWT tiene 3 partes (header.payload.signature)": true,
+					"UserResult tiene firstName y lastName": true,
+					"Rating es numérico": true
+				}
+			]
+		},
+		{
+			"id": "ed811643-e1d9-47b4-857e-a07bb2860569",
+			"name": "Login (user normal)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 167,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Header Authorization Bearer": true,
+				"Email = user@dexter.app": true,
+				"Id es numérico": true,
+				"Enabled es true": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Header Authorization Bearer": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Email = user@dexter.app": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Enabled es true": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				167
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Header Authorization Bearer": true,
+					"Email = user@dexter.app": true,
+					"Id es numérico": true,
+					"Enabled es true": true
+				}
+			]
+		},
+		{
+			"id": "6f3b11e7-90fe-47c7-8393-f683aa290ec3",
+			"name": "Login con password incorrecto (debe fallar)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 238,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status 401 o 403": true,
+				"No devuelve header Authorization": true,
+				"Body no contiene JWT": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No devuelve header Authorization": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Body no contiene JWT": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				238
+			],
+			"allTests": [
+				{
+					"Status 401 o 403": true,
+					"No devuelve header Authorization": true,
+					"Body no contiene JWT": true
+				}
+			]
+		},
+		{
+			"id": "05e37beb-bea8-4780-b329-d446bfed7de2",
+			"name": "Login con email inexistente (debe fallar)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 238,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status 401 o 403": true,
+				"No devuelve header Authorization": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No devuelve header Authorization": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				238
+			],
+			"allTests": [
+				{
+					"Status 401 o 403": true,
+					"No devuelve header Authorization": true
+				}
+			]
+		},
+		{
+			"id": "e9fc0ddd-18a2-474f-81ff-ca813fddfb3c",
+			"name": "GET protegido sin token (401/403)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 87,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status 401 o 403 sin token": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403 sin token": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				87
+			],
+			"allTests": [
+				{
+					"Status 401 o 403 sin token": true
+				}
+			]
+		},
+		{
+			"id": "a9f5fabb-46d3-4446-a0c8-e65608e7f8d0",
+			"name": "GET con token inválido (401/403)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 92,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status 401 o 403 con token inválido": true
+			},
+			"testPassFailCounts": {
+				"Status 401 o 403 con token inválido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 401 o 403 con token inválido": true
+				}
+			]
+		},
+		{
+			"id": "24acd674-edc9-425d-88bb-2875da9d8e07",
+			"name": "GET profile-summary (admin)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 92,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"ProfileSummaryResult tiene todos los campos": true,
+				"Initials es string de 2 chars": true,
+				"Rating es numérico entre 0 y 5": true,
+				"Skills son arrays de strings": true,
+				"Reviews es array con ProfileReviewItemDetails": true,
+				"totalSessions y totalMatches son enteros": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ProfileSummaryResult tiene todos los campos": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Initials es string de 2 chars": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Rating es numérico entre 0 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills son arrays de strings": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Reviews es array con ProfileReviewItemDetails": {
+					"pass": 1,
+					"fail": 0
+				},
+				"totalSessions y totalMatches son enteros": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"ProfileSummaryResult tiene todos los campos": true,
+					"Initials es string de 2 chars": true,
+					"Rating es numérico entre 0 y 5": true,
+					"Skills son arrays de strings": true,
+					"Reviews es array con ProfileReviewItemDetails": true,
+					"totalSessions y totalMatches son enteros": true
+				}
+			]
+		},
+		{
+			"id": "d646b5a9-e9b7-4257-a261-f8436616ddd3",
+			"name": "GET profile-summary userId=9999 (404)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=9999",
+			"time": 90,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona userId": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona userId": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				90
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona userId": true
+				}
+			]
+		},
+		{
+			"id": "8f71d57f-99fd-444f-ac46-96c5e7dd8128",
+			"name": "PUT profile-summary (editar bio/country)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=1",
+			"time": 103,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio actualizada": true,
+				"Country actualizado": true,
+				"Respuesta mantiene estructura ProfileSummaryResult": true,
+				"Skills no se pierden tras PUT": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta mantiene estructura ProfileSummaryResult": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills no se pierden tras PUT": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				103
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio actualizada": true,
+					"Country actualizado": true,
+					"Respuesta mantiene estructura ProfileSummaryResult": true,
+					"Skills no se pierden tras PUT": true
+				}
+			]
+		},
+		{
+			"id": "b80817fb-2b0e-45c0-883b-8d5bff7d3f40",
+			"name": "PUT profile-summary userId=9999 (404)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=9999",
+			"time": 92,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona userId": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona userId": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona userId": true
+				}
+			]
+		},
+		{
+			"id": "be73bcf0-7f1b-48fd-95a0-0c6d0f00dab0",
+			"name": "GET matches (lista) — guarda matchId",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches?userId=1",
+			"time": 109,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Array no está vacío": true,
+				"MatchSummaryResult tiene campos obligatorios": true,
+				"matchId es numérico": true,
+				"otherUserName es string": true,
+				"skillsOffered es array": true,
+				"skillsSought es array": true,
+				"compatibilityScore es numérico": true,
+				"Status es un enum válido": false,
+				"isReceiver es boolean": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array no está vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchSummaryResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"otherUserName es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillsOffered es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillsSought es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"compatibilityScore es numérico": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status es un enum válido": {
+					"pass": 0,
+					"fail": 1
+				},
+				"isReceiver es boolean": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				109
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Array no está vacío": true,
+					"MatchSummaryResult tiene campos obligatorios": true,
+					"matchId es numérico": true,
+					"otherUserName es string": true,
+					"skillsOffered es array": true,
+					"skillsSought es array": true,
+					"compatibilityScore es numérico": true,
+					"Status es un enum válido": false,
+					"isReceiver es boolean": true
+				}
+			]
+		},
+		{
+			"id": "ca7da7b9-68b8-48d2-b7ae-7361f85b3bcb",
+			"name": "GET matches/{matchId} — detalle MatchResult",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/4",
+			"time": 89,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"MatchResult tiene id": true,
+				"MatchResult tiene initiatorId": true,
+				"MatchResult tiene receiverId": true,
+				"MatchResult tiene compatibilityScore": true,
+				"MatchResult tiene status": true,
+				"MatchResult tiene createdAt epoch": true,
+				"Id coincide con el solicitado": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene initiatorId": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene receiverId": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene compatibilityScore": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene status": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchResult tiene createdAt epoch": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide con el solicitado": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				89
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"MatchResult tiene id": true,
+					"MatchResult tiene initiatorId": true,
+					"MatchResult tiene receiverId": true,
+					"MatchResult tiene compatibilityScore": true,
+					"MatchResult tiene status": true,
+					"MatchResult tiene createdAt epoch": true,
+					"Id coincide con el solicitado": true
+				}
+			]
+		},
+		{
+			"id": "65eb04ff-8159-453c-b684-159fcd8f3ac0",
+			"name": "GET matches/{matchId}/detail — MatchDetailResult",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/4/detail?viewerUserId=1",
+			"time": 97,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"MatchDetailResult tiene campos obligatorios": true,
+				"offeredSkills es array": true,
+				"soughtSkills es array": true,
+				"availability es array de enteros": true,
+				"aiAnalysis es string no vacío": true,
+				"rating entre 0 y 5": true,
+				"bio es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"MatchDetailResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"offeredSkills es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"soughtSkills es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"availability es array de enteros": {
+					"pass": 1,
+					"fail": 0
+				},
+				"aiAnalysis es string no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating entre 0 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"bio es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				97
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"MatchDetailResult tiene campos obligatorios": true,
+					"offeredSkills es array": true,
+					"soughtSkills es array": true,
+					"availability es array de enteros": true,
+					"aiAnalysis es string no vacío": true,
+					"rating entre 0 y 5": true,
+					"bio es string": true
+				}
+			]
+		},
+		{
+			"id": "7bb4902c-ebee-417b-a5b5-eaf2557a662e",
+			"name": "GET matches/suggestions",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/suggestions?userId=1",
+			"time": 168,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Suggestions tienen status SUGGESTION": true,
+				"Cada suggestion tiene MatchSummaryResult shape": true,
+				"compatibilityScore es numérico positivo": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Suggestions tienen status SUGGESTION": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada suggestion tiene MatchSummaryResult shape": {
+					"pass": 1,
+					"fail": 0
+				},
+				"compatibilityScore es numérico positivo": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				168
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Suggestions tienen status SUGGESTION": true,
+					"Cada suggestion tiene MatchSummaryResult shape": true,
+					"compatibilityScore es numérico positivo": true
+				}
+			]
+		},
+		{
+			"id": "2bbf926c-f61c-4ee8-a3f7-983afc710771",
+			"name": "GET matches/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/9999",
+			"time": 89,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				89
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "af9c2ffd-f918-4301-9526-29ce3fd59af9",
+			"name": "GET matches/0 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/matches/0",
+			"time": 92,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true
+				}
+			]
+		},
+		{
+			"id": "4a7ae4e4-e42e-422e-9a8c-7196563d43a5",
+			"name": "GET search/categories",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/categories",
+			"time": 97,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array no vacío": true,
+				"Cada categoría es string": true,
+				"Contiene categorías del seed": true,
+				"No hay categorías duplicadas": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada categoría es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Contiene categorías del seed": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No hay categorías duplicadas": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				97
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array no vacío": true,
+					"Cada categoría es string": true,
+					"Contiene categorías del seed": true,
+					"No hay categorías duplicadas": true
+				}
+			]
+		},
+		{
+			"id": "67d54776-bc4e-4772-bf09-96e89192e943",
+			"name": "GET search/skills (populares)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills",
+			"time": 97,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array de SkillSummaryDetails": true,
+				"Cada skill tiene peopleCount > 0": true,
+				"iconType está presente": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array de SkillSummaryDetails": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada skill tiene peopleCount > 0": {
+					"pass": 1,
+					"fail": 0
+				},
+				"iconType está presente": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				97
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array de SkillSummaryDetails": true,
+					"Cada skill tiene peopleCount > 0": true,
+					"iconType está presente": true
+				}
+			]
+		},
+		{
+			"id": "29eb5178-f45f-4a2d-b261-91cff95da9dc",
+			"name": "GET search/skills?query=gu",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills?query=gu",
+			"time": 96,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Resultados contienen \"gu\" en el nombre": true,
+				"Resultados mantienen estructura SkillSummaryDetails": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Resultados contienen \"gu\" en el nombre": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Resultados mantienen estructura SkillSummaryDetails": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				96
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Resultados contienen \"gu\" en el nombre": true,
+					"Resultados mantienen estructura SkillSummaryDetails": true
+				}
+			]
+		},
+		{
+			"id": "ba425391-55d0-4366-912a-ead38458738e",
+			"name": "GET search/skills?category=Música",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/skills?category=Música",
+			"time": 98,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Array no vacío": true,
+				"Todos son categoría Música": true,
+				"Cada skill tiene peopleCount": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Array no vacío": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todos son categoría Música": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Cada skill tiene peopleCount": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				98
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Array no vacío": true,
+					"Todos son categoría Música": true,
+					"Cada skill tiene peopleCount": true
+				}
+			]
+		},
+		{
+			"id": "25a90c9d-3948-4639-a1e6-1954f48055b8",
+			"name": "GET search/people?skill=Guitarra",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/search/people?skill=Guitarra&viewerUserId=1",
+			"time": 100,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array de PersonResult": true,
+				"PersonResult tiene campos obligatorios": true,
+				"skillDescription menciona guitarra": true,
+				"No incluye al viewerUserId": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array de PersonResult": {
+					"pass": 1,
+					"fail": 0
+				},
+				"PersonResult tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillDescription menciona guitarra": {
+					"pass": 1,
+					"fail": 0
+				},
+				"No incluye al viewerUserId": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				100
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array de PersonResult": true,
+					"PersonResult tiene campos obligatorios": true,
+					"skillDescription menciona guitarra": true,
+					"No incluye al viewerUserId": true
+				}
+			]
+		},
+		{
+			"id": "7b291a1b-485b-4171-9c04-5de8f58c3148",
+			"name": "GET sessions?matchId=3 (match ACCEPTED)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions?matchId=3",
+			"time": 92,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una sesión existe": true,
+				"SessionDetails tiene campos obligatorios": true,
+				"matchId coincide con el solicitado": true,
+				"status es enum válido": true,
+				"sessionNumber es entero positivo": true,
+				"skillName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una sesión existe": {
+					"pass": 1,
+					"fail": 0
+				},
+				"SessionDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId coincide con el solicitado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es enum válido": {
+					"pass": 1,
+					"fail": 0
+				},
+				"sessionNumber es entero positivo": {
+					"pass": 1,
+					"fail": 0
+				},
+				"skillName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una sesión existe": true,
+					"SessionDetails tiene campos obligatorios": true,
+					"matchId coincide con el solicitado": true,
+					"status es enum válido": true,
+					"sessionNumber es entero positivo": true,
+					"skillName es string": true
+				}
+			]
+		},
+		{
+			"id": "fd1b0a1b-e5b2-4a3b-909a-697cf5c7d6da",
+			"name": "GET sessions/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/1",
+			"time": 88,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"Tiene title y description": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Tiene title y description": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				88
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"Tiene title y description": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "01cdf7f7-c700-49e1-b691-8ed63cffe5ef",
+			"name": "POST sessions (crear nueva)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions",
+			"time": 91,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Sesión creada con id": true,
+				"Title coincide": true,
+				"Status es SCHEDULED": true,
+				"matchId coincide": true,
+				"sessionNumber es 2": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Sesión creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Title coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status es SCHEDULED": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"sessionNumber es 2": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Sesión creada con id": true,
+					"Title coincide": true,
+					"Status es SCHEDULED": true,
+					"matchId coincide": true,
+					"sessionNumber es 2": true
+				}
+			]
+		},
+		{
+			"id": "8c066b3e-4237-4e2b-9747-4332fb54b07e",
+			"name": "PUT sessions/{id} (actualizar)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/3354",
+			"time": 94,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Title actualizado": true,
+				"Description actualizada": true,
+				"Id no cambió": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Title actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Description actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id no cambió": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				94
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Title actualizado": true,
+					"Description actualizada": true,
+					"Id no cambió": true
+				}
+			]
+		},
+		{
+			"id": "a1876a41-5daa-4c14-8029-e7e7f39d2593",
+			"name": "PATCH sessions/{id}/complete",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/3354/complete",
+			"time": 94,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Status cambió a COMPLETED": true,
+				"completedAt no es null": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status cambió a COMPLETED": {
+					"pass": 1,
+					"fail": 0
+				},
+				"completedAt no es null": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				94
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Status cambió a COMPLETED": true,
+					"completedAt no es null": true
+				}
+			]
+		},
+		{
+			"id": "6f7d954b-423e-4ad6-bfdb-e7e7c9b749a2",
+			"name": "DELETE sessions/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/3354",
+			"time": 92,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "a76b12e6-e0ee-4d8d-a714-efab927423e9",
+			"name": "GET sessions/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/sessions/9999",
+			"time": 90,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				90
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "9e74dfad-8e20-411f-a831-acf60f5dd6f4",
+			"name": "GET reviews?revieweeId=1",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews?revieweeId=1",
+			"time": 92,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos un review existe": true,
+				"ReviewDetails tiene campos obligatorios": true,
+				"revieweeId coincide": true,
+				"rating entre 1 y 5": true,
+				"reviewerName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos un review existe": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReviewDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"revieweeId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating entre 1 y 5": {
+					"pass": 1,
+					"fail": 0
+				},
+				"reviewerName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos un review existe": true,
+					"ReviewDetails tiene campos obligatorios": true,
+					"revieweeId coincide": true,
+					"rating entre 1 y 5": true,
+					"reviewerName es string": true
+				}
+			]
+		},
+		{
+			"id": "aab4d952-24de-4e5a-96f1-1192ca9b1be3",
+			"name": "GET reviews/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews/1",
+			"time": 95,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"rating es entero": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating es entero": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				95
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"rating es entero": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "86057a00-0ffa-49e0-ad88-0d52f0b55d76",
+			"name": "GET reviews?sessionId=1",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews?sessionId=1",
+			"time": 99,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Todos los reviews son de sessionId=1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todos los reviews son de sessionId=1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				99
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Todos los reviews son de sessionId=1": true
+				}
+			]
+		},
+		{
+			"id": "8be7978a-2796-4d43-b04c-a9ea794b2664",
+			"name": "POST reviews (crear)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews",
+			"time": 88,
+			"responseCode": {
+				"code": 400,
+				"name": "Bad Request"
+			},
+			"tests": {
+				"Status 200": false,
+				"Review creado con id": false,
+				"Rating es 4": false,
+				"Comment coincide": false,
+				"reviewerId es 1": false,
+				"revieweeId es 4": false
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Review creado con id": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Rating es 4": {
+					"pass": 0,
+					"fail": 1
+				},
+				"Comment coincide": {
+					"pass": 0,
+					"fail": 1
+				},
+				"reviewerId es 1": {
+					"pass": 0,
+					"fail": 1
+				},
+				"revieweeId es 4": {
+					"pass": 0,
+					"fail": 1
+				}
+			},
+			"times": [
+				88
+			],
+			"allTests": [
+				{
+					"Status 200": false,
+					"Review creado con id": false,
+					"Rating es 4": false,
+					"Comment coincide": false,
+					"reviewerId es 1": false,
+					"revieweeId es 4": false
+				}
+			]
+		},
+		{
+			"id": "0f3815d1-4295-4c1e-8165-138c28d3b780",
+			"name": "GET reviews/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/reviews/9999",
+			"time": 93,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				93
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "934f84ff-61fa-4449-9e2d-2dbc6f4a8d69",
+			"name": "GET review-tags?reviewId=1",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/review-tags?reviewId=1",
+			"time": 89,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"ReviewTagDetails tiene campos si no vacío": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ReviewTagDetails tiene campos si no vacío": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				89
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"ReviewTagDetails tiene campos si no vacío": true
+				}
+			]
+		},
+		{
+			"id": "410bdbbb-2c44-4b5d-a6e1-153df7f5b330",
+			"name": "POST notifications (crear)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications",
+			"time": 95,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Notification creada con id": true,
+				"title coincide": true,
+				"body coincide": true,
+				"notificationType coincide": true,
+				"isRead es false por defecto": true,
+				"userId es 1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Notification creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"title coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"body coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"notificationType coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"isRead es false por defecto": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId es 1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				95
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Notification creada con id": true,
+					"title coincide": true,
+					"body coincide": true,
+					"notificationType coincide": true,
+					"isRead es false por defecto": true,
+					"userId es 1": true
+				}
+			]
+		},
+		{
+			"id": "e62c1bf2-e4e5-41d0-82d5-94fb1707ff18",
+			"name": "GET notifications?userId=1",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications?userId=1",
+			"time": 87,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una notificación": true,
+				"NotificationDetails tiene campos obligatorios": true,
+				"userId coincide": true,
+				"notificationType es enum válido": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una notificación": {
+					"pass": 1,
+					"fail": 0
+				},
+				"NotificationDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"notificationType es enum válido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				87
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una notificación": true,
+					"NotificationDetails tiene campos obligatorios": true,
+					"userId coincide": true,
+					"notificationType es enum válido": true
+				}
+			]
+		},
+		{
+			"id": "7a6d45b3-6e34-4b0f-860d-2944e72275c0",
+			"name": "GET notifications?userId=1&unread=true",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications?userId=1&unread=true",
+			"time": 110,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Todas son no leídas": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Todas son no leídas": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				110
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Todas son no leídas": true
+				}
+			]
+		},
+		{
+			"id": "ae693467-d10c-42c9-8dfd-e38dc54d8e19",
+			"name": "GET notifications/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/1858",
+			"time": 91,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"title es Test Notification": true,
+				"isRead es boolean": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"title es Test Notification": {
+					"pass": 1,
+					"fail": 0
+				},
+				"isRead es boolean": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"title es Test Notification": true,
+					"isRead es boolean": true
+				}
+			]
+		},
+		{
+			"id": "a047bcd8-47d3-4d7f-b148-5e742f6ef9b9",
+			"name": "PATCH notifications/{id}/read",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/1858/read",
+			"time": 98,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				98
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "62c6f3ad-2562-43d8-b447-df189574b512",
+			"name": "DELETE notifications/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/1858",
+			"time": 97,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				97
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "2832362d-d9d4-47be-ab7b-77cb3302106a",
+			"name": "GET notifications/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/notifications/9999",
+			"time": 90,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				90
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "46d0ed9f-37fc-41bb-8ec1-eba23a1595aa",
+			"name": "GET availability?userId=1",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability?userId=1",
+			"time": 89,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una disponibilidad": true,
+				"AvailabilityDetails tiene campos obligatorios": true,
+				"userId coincide": true,
+				"dayOfWeek entre 1 y 7": true,
+				"startTime tiene formato HH:mm": true,
+				"endTime tiene formato HH:mm": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una disponibilidad": {
+					"pass": 1,
+					"fail": 0
+				},
+				"AvailabilityDetails tiene campos obligatorios": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek entre 1 y 7": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime tiene formato HH:mm": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime tiene formato HH:mm": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				89
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una disponibilidad": true,
+					"AvailabilityDetails tiene campos obligatorios": true,
+					"userId coincide": true,
+					"dayOfWeek entre 1 y 7": true,
+					"startTime tiene formato HH:mm": true,
+					"endTime tiene formato HH:mm": true
+				}
+			]
+		},
+		{
+			"id": "24a7536b-b8d3-4944-8c84-a118e53b59da",
+			"name": "GET availability/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/1",
+			"time": 92,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"startTime es string": true,
+				"endTime es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"startTime es string": true,
+					"endTime es string": true
+				}
+			]
+		},
+		{
+			"id": "ac3016d4-f398-482c-8059-32cb1d50a493",
+			"name": "POST availability (crear)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability",
+			"time": 94,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Availability creada con id": true,
+				"dayOfWeek es 6 (Sábado)": true,
+				"startTime es 10:00": true,
+				"endTime es 12:00": true,
+				"userId es 1": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Availability creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek es 6 (Sábado)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime es 10:00": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime es 12:00": {
+					"pass": 1,
+					"fail": 0
+				},
+				"userId es 1": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				94
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Availability creada con id": true,
+					"dayOfWeek es 6 (Sábado)": true,
+					"startTime es 10:00": true,
+					"endTime es 12:00": true,
+					"userId es 1": true
+				}
+			]
+		},
+		{
+			"id": "b3ed9a23-3553-40be-93e7-b21f0010a3b9",
+			"name": "PUT availability/{id} (actualizar)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/1732",
+			"time": 98,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"startTime actualizado": true,
+				"endTime actualizado": true,
+				"dayOfWeek cambió a 7": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"startTime actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"endTime actualizado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"dayOfWeek cambió a 7": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				98
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"startTime actualizado": true,
+					"endTime actualizado": true,
+					"dayOfWeek cambió a 7": true
+				}
+			]
+		},
+		{
+			"id": "0fe768ba-882c-40df-a48a-9bbb18a132d7",
+			"name": "DELETE availability/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/1732",
+			"time": 92,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status 204 No Content": true
+			},
+			"testPassFailCounts": {
+				"Status 204 No Content": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				92
+			],
+			"allTests": [
+				{
+					"Status 204 No Content": true
+				}
+			]
+		},
+		{
+			"id": "3887a95c-c3e1-4451-96de-79228e4c9a5e",
+			"name": "GET availability/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/availability/9999",
+			"time": 93,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				93
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "86f5ec08-ddc5-4625-bbdf-5eb9ad291e9a",
+			"name": "POST session-invitations (crear)",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations",
+			"time": 95,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Invitation creada con id": true,
+				"senderId es 1": true,
+				"receiverId es 4": true,
+				"matchId es 3": true,
+				"status es PENDING": true,
+				"SessionInvitationDetails tiene todos los campos": true,
+				"senderName es string": true,
+				"receiverName es string": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Invitation creada con id": {
+					"pass": 1,
+					"fail": 0
+				},
+				"senderId es 1": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverId es 4": {
+					"pass": 1,
+					"fail": 0
+				},
+				"matchId es 3": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es PENDING": {
+					"pass": 1,
+					"fail": 0
+				},
+				"SessionInvitationDetails tiene todos los campos": {
+					"pass": 1,
+					"fail": 0
+				},
+				"senderName es string": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverName es string": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				95
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Invitation creada con id": true,
+					"senderId es 1": true,
+					"receiverId es 4": true,
+					"matchId es 3": true,
+					"status es PENDING": true,
+					"SessionInvitationDetails tiene todos los campos": true,
+					"senderName es string": true,
+					"receiverName es string": true
+				}
+			]
+		},
+		{
+			"id": "1556e592-0dc1-4b5a-ab12-356463ce125c",
+			"name": "GET session-invitations?receiverId=4",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations?receiverId=4",
+			"time": 90,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Respuesta es array": true,
+				"Al menos una invitación": true,
+				"receiverId coincide": true,
+				"status es enum válido": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Respuesta es array": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Al menos una invitación": {
+					"pass": 1,
+					"fail": 0
+				},
+				"receiverId coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es enum válido": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				90
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Respuesta es array": true,
+					"Al menos una invitación": true,
+					"receiverId coincide": true,
+					"status es enum válido": true
+				}
+			]
+		},
+		{
+			"id": "a8f5d926-56f2-42d8-97c9-fd196939d7fd",
+			"name": "GET session-invitations/{id}",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/1704",
+			"time": 90,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Id coincide": true,
+				"status es PENDING": true,
+				"createdAt es epoch": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Id coincide": {
+					"pass": 1,
+					"fail": 0
+				},
+				"status es PENDING": {
+					"pass": 1,
+					"fail": 0
+				},
+				"createdAt es epoch": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				90
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Id coincide": true,
+					"status es PENDING": true,
+					"createdAt es epoch": true
+				}
+			]
+		},
+		{
+			"id": "d92fb7ac-25cf-4ddc-928f-cf2f4c714bfa",
+			"name": "PATCH session-invitations/{id}/reject",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/1704/reject",
+			"time": 107,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Status cambió a REJECTED": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status cambió a REJECTED": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				107
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Status cambió a REJECTED": true
+				}
+			]
+		},
+		{
+			"id": "e7f6df3c-599a-43cb-bb8f-fd9bdbd6bcbc",
+			"name": "GET session-invitations/9999 → 404",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/session-invitations/9999",
+			"time": 86,
+			"responseCode": {
+				"code": 404,
+				"name": "Not Found"
+			},
+			"tests": {
+				"Status 404": true,
+				"ApiError tiene estructura completa": true,
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+				"debugMessage menciona id": true
+			},
+			"testPassFailCounts": {
+				"Status 404": {
+					"pass": 1,
+					"fail": 0
+				},
+				"ApiError tiene estructura completa": {
+					"pass": 1,
+					"fail": 0
+				},
+				"apiSubErrors contiene ELEMENT_NOT_FOUND": {
+					"pass": 1,
+					"fail": 0
+				},
+				"debugMessage menciona id": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				86
+			],
+			"allTests": [
+				{
+					"Status 404": true,
+					"ApiError tiene estructura completa": true,
+					"apiSubErrors contiene ELEMENT_NOT_FOUND": true,
+					"debugMessage menciona id": true
+				}
+			]
+		},
+		{
+			"id": "b9d71287-0d03-4e3f-8ea4-3b2615a791da",
+			"name": "[E2E 1/5] Register new user",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/auth/register",
+			"time": 170,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"UserResult creado": true,
+				"enabled es true": true,
+				"rating inicia en 0": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"UserResult creado": {
+					"pass": 1,
+					"fail": 0
+				},
+				"enabled es true": {
+					"pass": 1,
+					"fail": 0
+				},
+				"rating inicia en 0": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				170
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"UserResult creado": true,
+					"enabled es true": true,
+					"rating inicia en 0": true
+				}
+			]
+		},
+		{
+			"id": "a1aff8ea-d232-470a-b247-abd8c2ddd392",
+			"name": "[E2E 2/5] Login con el nuevo user",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/users/login",
+			"time": 162,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"JWT en header": true,
+				"Email coincide": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"JWT en header": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Email coincide": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				162
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"JWT en header": true,
+					"Email coincide": true
+				}
+			]
+		},
+		{
+			"id": "40890f4d-7024-4c5a-88f5-cf1625ecd16d",
+			"name": "[E2E 3/5] GET su profile",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=3368",
+			"time": 91,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Nombre es E2E Flow": true,
+				"Skills vacías": true,
+				"Reviews vacías": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Nombre es E2E Flow": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Skills vacías": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Reviews vacías": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Nombre es E2E Flow": true,
+					"Skills vacías": true,
+					"Reviews vacías": true
+				}
+			]
+		},
+		{
+			"id": "f90b3fdc-e67e-4d09-ab9b-0879c764bc83",
+			"name": "[E2E 4/5] PUT actualizar bio",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=3368",
+			"time": 171,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio actualizada": true,
+				"Country cambiado a AR": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio actualizada": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country cambiado a AR": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				171
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio actualizada": true,
+					"Country cambiado a AR": true
+				}
+			]
+		},
+		{
+			"id": "bf1fa265-bc71-4220-8ff3-e6c56e7c469c",
+			"name": "[E2E 5/5] Verificar persistencia",
+			"url": "https://dexter-backend-84cdf8564cb3.herokuapp.com/v1/profile-summary?userId=3368",
+			"time": 91,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status 200": true,
+				"Bio persiste": true,
+				"Country persiste como AR": true,
+				"Initials son EF": true
+			},
+			"testPassFailCounts": {
+				"Status 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Bio persiste": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Country persiste como AR": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Initials son EF": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				91
+			],
+			"allTests": [
+				{
+					"Status 200": true,
+					"Bio persiste": true,
+					"Country persiste como AR": true,
+					"Initials son EF": true
+				}
+			]
+		}
+	],
+	"count": 1,
+	"totalTime": 6328,
+	"collection": {
+		"requests": [
+			{
+				"id": "fed1b000-09bc-4033-9d12-3b4404f6792a",
+				"method": "GET"
+			},
+			{
+				"id": "07bce0ea-6c98-4855-96d2-13641486b015",
+				"method": "POST"
+			},
+			{
+				"id": "59d9564a-c113-42d0-98f1-defac9d941cc",
+				"method": "POST"
+			},
+			{
+				"id": "ed811643-e1d9-47b4-857e-a07bb2860569",
+				"method": "POST"
+			},
+			{
+				"id": "6f3b11e7-90fe-47c7-8393-f683aa290ec3",
+				"method": "POST"
+			},
+			{
+				"id": "05e37beb-bea8-4780-b329-d446bfed7de2",
+				"method": "POST"
+			},
+			{
+				"id": "e9fc0ddd-18a2-474f-81ff-ca813fddfb3c",
+				"method": "GET"
+			},
+			{
+				"id": "a9f5fabb-46d3-4446-a0c8-e65608e7f8d0",
+				"method": "GET"
+			},
+			{
+				"id": "24acd674-edc9-425d-88bb-2875da9d8e07",
+				"method": "GET"
+			},
+			{
+				"id": "d646b5a9-e9b7-4257-a261-f8436616ddd3",
+				"method": "GET"
+			},
+			{
+				"id": "8f71d57f-99fd-444f-ac46-96c5e7dd8128",
+				"method": "PUT"
+			},
+			{
+				"id": "b80817fb-2b0e-45c0-883b-8d5bff7d3f40",
+				"method": "PUT"
+			},
+			{
+				"id": "be73bcf0-7f1b-48fd-95a0-0c6d0f00dab0",
+				"method": "GET"
+			},
+			{
+				"id": "ca7da7b9-68b8-48d2-b7ae-7361f85b3bcb",
+				"method": "GET"
+			},
+			{
+				"id": "65eb04ff-8159-453c-b684-159fcd8f3ac0",
+				"method": "GET"
+			},
+			{
+				"id": "7bb4902c-ebee-417b-a5b5-eaf2557a662e",
+				"method": "GET"
+			},
+			{
+				"id": "2bbf926c-f61c-4ee8-a3f7-983afc710771",
+				"method": "GET"
+			},
+			{
+				"id": "af9c2ffd-f918-4301-9526-29ce3fd59af9",
+				"method": "GET"
+			},
+			{
+				"id": "4a7ae4e4-e42e-422e-9a8c-7196563d43a5",
+				"method": "GET"
+			},
+			{
+				"id": "67d54776-bc4e-4772-bf09-96e89192e943",
+				"method": "GET"
+			},
+			{
+				"id": "29eb5178-f45f-4a2d-b261-91cff95da9dc",
+				"method": "GET"
+			},
+			{
+				"id": "ba425391-55d0-4366-912a-ead38458738e",
+				"method": "GET"
+			},
+			{
+				"id": "25a90c9d-3948-4639-a1e6-1954f48055b8",
+				"method": "GET"
+			},
+			{
+				"id": "7b291a1b-485b-4171-9c04-5de8f58c3148",
+				"method": "GET"
+			},
+			{
+				"id": "fd1b0a1b-e5b2-4a3b-909a-697cf5c7d6da",
+				"method": "GET"
+			},
+			{
+				"id": "01cdf7f7-c700-49e1-b691-8ed63cffe5ef",
+				"method": "POST"
+			},
+			{
+				"id": "8c066b3e-4237-4e2b-9747-4332fb54b07e",
+				"method": "PUT"
+			},
+			{
+				"id": "a1876a41-5daa-4c14-8029-e7e7f39d2593",
+				"method": "PATCH"
+			},
+			{
+				"id": "6f7d954b-423e-4ad6-bfdb-e7e7c9b749a2",
+				"method": "DELETE"
+			},
+			{
+				"id": "a76b12e6-e0ee-4d8d-a714-efab927423e9",
+				"method": "GET"
+			},
+			{
+				"id": "9e74dfad-8e20-411f-a831-acf60f5dd6f4",
+				"method": "GET"
+			},
+			{
+				"id": "aab4d952-24de-4e5a-96f1-1192ca9b1be3",
+				"method": "GET"
+			},
+			{
+				"id": "86057a00-0ffa-49e0-ad88-0d52f0b55d76",
+				"method": "GET"
+			},
+			{
+				"id": "8be7978a-2796-4d43-b04c-a9ea794b2664",
+				"method": "POST"
+			},
+			{
+				"id": "0f3815d1-4295-4c1e-8165-138c28d3b780",
+				"method": "GET"
+			},
+			{
+				"id": "934f84ff-61fa-4449-9e2d-2dbc6f4a8d69",
+				"method": "GET"
+			},
+			{
+				"id": "410bdbbb-2c44-4b5d-a6e1-153df7f5b330",
+				"method": "POST"
+			},
+			{
+				"id": "e62c1bf2-e4e5-41d0-82d5-94fb1707ff18",
+				"method": "GET"
+			},
+			{
+				"id": "7a6d45b3-6e34-4b0f-860d-2944e72275c0",
+				"method": "GET"
+			},
+			{
+				"id": "ae693467-d10c-42c9-8dfd-e38dc54d8e19",
+				"method": "GET"
+			},
+			{
+				"id": "a047bcd8-47d3-4d7f-b148-5e742f6ef9b9",
+				"method": "PATCH"
+			},
+			{
+				"id": "62c6f3ad-2562-43d8-b447-df189574b512",
+				"method": "DELETE"
+			},
+			{
+				"id": "2832362d-d9d4-47be-ab7b-77cb3302106a",
+				"method": "GET"
+			},
+			{
+				"id": "46d0ed9f-37fc-41bb-8ec1-eba23a1595aa",
+				"method": "GET"
+			},
+			{
+				"id": "24a7536b-b8d3-4944-8c84-a118e53b59da",
+				"method": "GET"
+			},
+			{
+				"id": "ac3016d4-f398-482c-8059-32cb1d50a493",
+				"method": "POST"
+			},
+			{
+				"id": "b3ed9a23-3553-40be-93e7-b21f0010a3b9",
+				"method": "PUT"
+			},
+			{
+				"id": "0fe768ba-882c-40df-a48a-9bbb18a132d7",
+				"method": "DELETE"
+			},
+			{
+				"id": "3887a95c-c3e1-4451-96de-79228e4c9a5e",
+				"method": "GET"
+			},
+			{
+				"id": "86f5ec08-ddc5-4625-bbdf-5eb9ad291e9a",
+				"method": "POST"
+			},
+			{
+				"id": "1556e592-0dc1-4b5a-ab12-356463ce125c",
+				"method": "GET"
+			},
+			{
+				"id": "a8f5d926-56f2-42d8-97c9-fd196939d7fd",
+				"method": "GET"
+			},
+			{
+				"id": "d92fb7ac-25cf-4ddc-928f-cf2f4c714bfa",
+				"method": "PATCH"
+			},
+			{
+				"id": "e7f6df3c-599a-43cb-bb8f-fd9bdbd6bcbc",
+				"method": "GET"
+			},
+			{
+				"id": "b9d71287-0d03-4e3f-8ea4-3b2615a791da",
+				"method": "POST"
+			},
+			{
+				"id": "a1aff8ea-d232-470a-b247-abd8c2ddd392",
+				"method": "POST"
+			},
+			{
+				"id": "40890f4d-7024-4c5a-88f5-cf1625ecd16d",
+				"method": "GET"
+			},
+			{
+				"id": "f90b3fdc-e67e-4d09-ab9b-0879c764bc83",
+				"method": "PUT"
+			},
+			{
+				"id": "bf1fa265-bc71-4220-8ff3-e6c56e7c469c",
+				"method": "GET"
+			}
+		]
+	}
+}

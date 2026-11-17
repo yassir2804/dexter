@@ -1,0 +1,1087 @@
+{
+  "info": {
+    "name": "Dexter Backend API",
+    "description": "Colección de pruebas de integración para el backend Dexter (Spring Boot + Kotlin + JWT). Cubre los 11 controllers y 38 endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "a1b2c3d4-dext-er00-0001-000000000001"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/v1", "type": "string" },
+    { "key": "token", "value": "", "type": "string" },
+    { "key": "userId", "value": "1", "type": "string" },
+    { "key": "matchId", "value": "", "type": "string" },
+    { "key": "sessionId", "value": "", "type": "string" },
+    { "key": "reviewId", "value": "", "type": "string" },
+    { "key": "notifId", "value": "", "type": "string" },
+    { "key": "availId", "value": "", "type": "string" },
+    { "key": "invId", "value": "", "type": "string" },
+    { "key": "newSessionId", "value": "", "type": "string" },
+    { "key": "newReviewId", "value": "", "type": "string" },
+    { "key": "newNotifId", "value": "", "type": "string" },
+    { "key": "newAvailId", "value": "", "type": "string" },
+    { "key": "newInvId", "value": "", "type": "string" },
+    { "key": "e2eEmail", "value": "", "type": "string" },
+    { "key": "e2eUserId", "value": "", "type": "string" },
+    { "key": "e2eToken", "value": "", "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const token = pm.collectionVariables.get('token');",
+          "const skipAuto = pm.request.url.path.join('/').match(/(health|users\\/login|auth\\/register)/);",
+          "",
+          "if (!token && !skipAuto) {",
+          "    const baseUrl = pm.collectionVariables.get('baseUrl');",
+          "    pm.sendRequest({",
+          "        url: baseUrl + '/users/login',",
+          "        method: 'POST',",
+          "        header: { 'Content-Type': 'application/json' },",
+          "        body: { mode: 'raw', raw: JSON.stringify({ username: 'admin@dexter.app', password: 'admin123' }) },",
+          "    }, (err, res) => {",
+          "        if (err) { console.log('Auto-login failed:', err); return; }",
+          "        const auth = res.headers.get('Authorization');",
+          "        if (auth) {",
+          "            const t = auth.replace(/^Bearer\\s+/i, '').trim();",
+          "            pm.collectionVariables.set('token', t);",
+          "            try {",
+          "                const body = res.json();",
+          "                if (body && body.id) pm.collectionVariables.set('userId', String(body.id));",
+          "            } catch (e) {}",
+          "            console.log('Auto-login OK');",
+          "        }",
+          "    });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "0. Public (sin auth)",
+      "item": [
+        {
+          "name": "Health",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Content-Type application/json', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));",
+            "pm.test('Respuesta contiene status:ok', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status', 'ok');",
+            "    pm.expect(body).to.have.property('environment');",
+            "});",
+            "pm.test('Tiempo de respuesta < 500ms', () => pm.expect(pm.response.responseTime).to.be.below(500));",
+            "pm.test('Environment es dev', () => pm.expect(pm.response.json().environment).to.equal('dev'));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/health", "host": ["{{baseUrl}}"], "path": ["health"] } }
+        },
+        {
+          "name": "Register (nuevo usuario)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es UserResult válido', () => {",
+            "    const u = pm.response.json();",
+            "    pm.expect(u).to.have.property('id').that.is.a('number');",
+            "    pm.expect(u).to.have.property('email').that.is.a('string');",
+            "    pm.expect(u).to.have.property('firstName', 'Newman');",
+            "    pm.expect(u).to.have.property('enabled', true);",
+            "});",
+            "pm.test('UserResult tiene todos los campos', () => {",
+            "    const u = pm.response.json();",
+            "    ['id','email','firstName','lastName','username','country','enabled','profileVisible','tokenExpired','rating','totalSessions','totalMatches','createDate','updatedAt'].forEach(k => {",
+            "        pm.expect(u).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('Email coincide con el enviado', () => {",
+            "    const sent = JSON.parse(pm.request.body.raw).email;",
+            "    pm.expect(pm.response.json().email).to.equal(sent);",
+            "});",
+            "pm.test('Password no se expone en la respuesta', () => pm.expect(pm.response.json()).to.not.have.property('password'));",
+            "pm.test('Rating inicia en 0', () => pm.expect(pm.response.json().rating).to.equal(0.0));",
+            "pm.test('totalSessions inicia en 0', () => pm.expect(pm.response.json().totalSessions).to.equal(0));",
+            "pm.test('totalMatches inicia en 0', () => pm.expect(pm.response.json().totalMatches).to.equal(0));",
+            "pm.test('Country coincide con el enviado', () => pm.expect(pm.response.json().country).to.equal('CR'));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"newman-{{$timestamp}}@dexter.app\",\n  \"password\": \"test1234\",\n  \"firstName\": \"Newman\",\n  \"lastName\": \"Test\",\n  \"country\": \"CR\",\n  \"skillsToTeach\": [],\n  \"skillsToLearn\": []\n}" }, "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] } }
+        },
+        {
+          "name": "Login (admin) — guarda token + userId",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Header Authorization con Bearer token', () => {",
+            "    const auth = pm.response.headers.get('Authorization');",
+            "    pm.expect(auth).to.be.a('string');",
+            "    pm.expect(auth).to.match(/^Bearer\\s+/);",
+            "});",
+            "pm.test('Body contiene UserResult del admin', () => {",
+            "    const u = pm.response.json();",
+            "    pm.expect(u).to.have.property('id');",
+            "    pm.expect(u).to.have.property('email', 'admin@dexter.app');",
+            "});",
+            "pm.test('JWT tiene 3 partes (header.payload.signature)', () => {",
+            "    const auth = pm.response.headers.get('Authorization');",
+            "    const token = auth.replace(/^Bearer\\s+/i, '').trim();",
+            "    pm.expect(token.split('.').length).to.equal(3);",
+            "});",
+            "pm.test('UserResult tiene firstName y lastName', () => {",
+            "    const u = pm.response.json();",
+            "    pm.expect(u.firstName).to.be.a('string').and.not.empty;",
+            "    pm.expect(u.lastName).to.be.a('string').and.not.empty;",
+            "});",
+            "pm.test('Rating es numérico', () => pm.expect(pm.response.json().rating).to.be.a('number'));",
+            "",
+            "const authHeader = pm.response.headers.get('Authorization');",
+            "if (authHeader) pm.collectionVariables.set('token', authHeader.replace(/^Bearer\\s+/i, '').trim());",
+            "const body = pm.response.json();",
+            "if (body && body.id) pm.collectionVariables.set('userId', String(body.id));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin@dexter.app\",\n  \"password\": \"admin123\"\n}" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] } }
+        },
+        {
+          "name": "Login (user normal)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Header Authorization Bearer', () => pm.expect(pm.response.headers.get('Authorization')).to.match(/^Bearer\\s+/));",
+            "pm.test('Email = user@dexter.app', () => pm.expect(pm.response.json().email).to.equal('user@dexter.app'));",
+            "pm.test('Id es numérico', () => pm.expect(pm.response.json().id).to.be.a('number'));",
+            "pm.test('Enabled es true', () => pm.expect(pm.response.json().enabled).to.be.true);"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"user@dexter.app\",\n  \"password\": \"user123\"\n}" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] } }
+        },
+        {
+          "name": "Login con password incorrecto (debe fallar)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401 o 403', () => pm.expect([401, 403]).to.include(pm.response.code));",
+            "pm.test('No devuelve header Authorization', () => pm.expect(pm.response.headers.get('Authorization')).to.be.oneOf([undefined, null]));",
+            "pm.test('Body no contiene JWT', () => {",
+            "    const text = pm.response.text();",
+            "    pm.expect(text).to.not.include('eyJ');",
+            "});"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"admin@dexter.app\",\n  \"password\": \"wrong-password\"\n}" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] } }
+        },
+        {
+          "name": "Login con email inexistente (debe fallar)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401 o 403', () => pm.expect([401, 403]).to.include(pm.response.code));",
+            "pm.test('No devuelve header Authorization', () => pm.expect(pm.response.headers.get('Authorization')).to.be.oneOf([undefined, null]));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"noexiste@dexter.app\",\n  \"password\": \"whatever\"\n}" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] } }
+        },
+        {
+          "name": "GET protegido sin token (401/403)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 401 o 403 sin token', () => pm.expect([401, 403]).to.include(pm.response.code));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId=1", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "1" }] } }
+        },
+        {
+          "name": "GET con token inválido (401/403)",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer invalid.token.here' });"] }},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status 401 o 403 con token inválido', () => pm.expect([401, 403]).to.include(pm.response.code));"
+            ]}}
+          ],
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId=1", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "1" }] } }
+        }
+      ]
+    },
+    {
+      "name": "1. Profile Summary",
+      "item": [
+        {
+          "name": "GET profile-summary (admin)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('ProfileSummaryResult tiene todos los campos', () => {",
+            "    const p = pm.response.json();",
+            "    ['initials','firstName','lastName','avatarUrl','bio','country','rating','totalSessions','totalMatches','skillsOffered','skillsSought','reviews'].forEach(k => {",
+            "        pm.expect(p).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('Initials es string de 2 chars', () => {",
+            "    const i = pm.response.json().initials;",
+            "    pm.expect(i).to.be.a('string');",
+            "    pm.expect(i.length).to.be.at.most(3);",
+            "});",
+            "pm.test('Rating es numérico entre 0 y 5', () => {",
+            "    const r = pm.response.json().rating;",
+            "    pm.expect(r).to.be.a('number');",
+            "    pm.expect(r).to.be.at.least(0).and.at.most(5);",
+            "});",
+            "pm.test('Skills son arrays de strings', () => {",
+            "    const p = pm.response.json();",
+            "    pm.expect(p.skillsOffered).to.be.an('array');",
+            "    pm.expect(p.skillsSought).to.be.an('array');",
+            "    if (p.skillsOffered.length > 0) pm.expect(p.skillsOffered[0]).to.be.a('string');",
+            "});",
+            "pm.test('Reviews es array con ProfileReviewItemDetails', () => {",
+            "    const p = pm.response.json();",
+            "    pm.expect(p.reviews).to.be.an('array');",
+            "    if (p.reviews.length > 0) {",
+            "        const r = p.reviews[0];",
+            "        pm.expect(r).to.have.property('reviewerName');",
+            "        pm.expect(r).to.have.property('rating').that.is.a('number');",
+            "        pm.expect(r).to.have.property('comment');",
+            "    }",
+            "});",
+            "pm.test('totalSessions y totalMatches son enteros', () => {",
+            "    const p = pm.response.json();",
+            "    pm.expect(p.totalSessions).to.be.a('number');",
+            "    pm.expect(p.totalMatches).to.be.a('number');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "{{userId}}" }] } }
+        },
+        {
+          "name": "GET profile-summary userId=9999 (404)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona userId', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId=9999", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "9999" }] } }
+        },
+        {
+          "name": "PUT profile-summary (editar bio/country)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Bio actualizada', () => pm.expect(pm.response.json().bio).to.include('Updated via Postman'));",
+            "pm.test('Country actualizado', () => pm.expect(pm.response.json().country).to.equal('CR'));",
+            "pm.test('Respuesta mantiene estructura ProfileSummaryResult', () => {",
+            "    const p = pm.response.json();",
+            "    pm.expect(p).to.have.property('initials');",
+            "    pm.expect(p).to.have.property('firstName');",
+            "    pm.expect(p).to.have.property('rating');",
+            "});",
+            "pm.test('Skills no se pierden tras PUT', () => {",
+            "    const p = pm.response.json();",
+            "    pm.expect(p.skillsOffered).to.be.an('array');",
+            "    pm.expect(p.skillsSought).to.be.an('array');",
+            "});"
+          ]}}],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"bio\": \"Updated via Postman tests at {{$timestamp}}\",\n  \"country\": \"CR\",\n  \"avatarUrl\": null\n}" }, "url": { "raw": "{{baseUrl}}/profile-summary?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "{{userId}}" }] } }
+        },
+        {
+          "name": "PUT profile-summary userId=9999 (404)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona userId', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"bio\":\"no existe\",\"country\":\"XX\"}" }, "url": { "raw": "{{baseUrl}}/profile-summary?userId=9999", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "9999" }] } }
+        }
+      ]
+    },
+    {
+      "name": "2. Matches",
+      "item": [
+        {
+          "name": "GET matches (lista) — guarda matchId",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Array no está vacío', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('MatchSummaryResult tiene campos obligatorios', () => {",
+            "    const m = pm.response.json()[0];",
+            "    ['matchId','otherUserId','otherUserName','otherUserInitials','skillsOffered','skillsSought','otherUserRating','compatibilityScore','status','sessionsCount'].forEach(k => {",
+            "        pm.expect(m).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('matchId es numérico', () => pm.expect(pm.response.json()[0].matchId).to.be.a('number'));",
+            "pm.test('otherUserName es string', () => pm.expect(pm.response.json()[0].otherUserName).to.be.a('string'));",
+            "pm.test('skillsOffered es array', () => pm.expect(pm.response.json()[0].skillsOffered).to.be.an('array'));",
+            "pm.test('skillsSought es array', () => pm.expect(pm.response.json()[0].skillsSought).to.be.an('array'));",
+            "pm.test('compatibilityScore es numérico', () => pm.expect(pm.response.json()[0].compatibilityScore).to.be.a('number'));",
+            "pm.test('Status es un enum válido', () => {",
+            "    const valid = ['PENDING','ACCEPTED','REJECTED','CANCELLED','COMPLETED'];",
+            "    pm.response.json().forEach(m => pm.expect(valid).to.include(m.status));",
+            "});",
+            "pm.test('isReceiver es boolean', () => pm.expect(pm.response.json()[0].isReceiver).to.be.a('boolean'));",
+            "",
+            "const items = pm.response.json();",
+            "if (items.length > 0) pm.collectionVariables.set('matchId', String(items[0].matchId));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["matches"], "query": [{ "key": "userId", "value": "{{userId}}" }] } }
+        },
+        {
+          "name": "GET matches/{matchId} — detalle MatchResult",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('MatchResult tiene id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('MatchResult tiene initiatorId', () => pm.expect(pm.response.json()).to.have.property('initiatorId').that.is.a('number'));",
+            "pm.test('MatchResult tiene receiverId', () => pm.expect(pm.response.json()).to.have.property('receiverId').that.is.a('number'));",
+            "pm.test('MatchResult tiene compatibilityScore', () => pm.expect(pm.response.json()).to.have.property('compatibilityScore').that.is.a('number'));",
+            "pm.test('MatchResult tiene status', () => pm.expect(pm.response.json()).to.have.property('status').that.is.a('string'));",
+            "pm.test('MatchResult tiene createdAt epoch', () => pm.expect(pm.response.json()).to.have.property('createdAt').that.is.a('number'));",
+            "pm.test('Id coincide con el solicitado', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('matchId'))));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches/{{matchId}}", "host": ["{{baseUrl}}"], "path": ["matches", "{{matchId}}"] } }
+        },
+        {
+          "name": "GET matches/{matchId}/detail — MatchDetailResult",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('MatchDetailResult tiene campos obligatorios', () => {",
+            "    const d = pm.response.json();",
+            "    ['matchId','otherUserId','otherUserName','otherUserInitials','bio','rating','sessionsCompleted','compatibilityScore','offeredSkills','soughtSkills','availability','aiAnalysis','status'].forEach(k => {",
+            "        pm.expect(d).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('offeredSkills es array', () => pm.expect(pm.response.json().offeredSkills).to.be.an('array'));",
+            "pm.test('soughtSkills es array', () => pm.expect(pm.response.json().soughtSkills).to.be.an('array'));",
+            "pm.test('availability es array de enteros', () => {",
+            "    const a = pm.response.json().availability;",
+            "    pm.expect(a).to.be.an('array');",
+            "    if (a.length > 0) pm.expect(a[0]).to.be.a('number');",
+            "});",
+            "pm.test('aiAnalysis es string no vacío', () => pm.expect(pm.response.json().aiAnalysis).to.be.a('string').and.not.empty);",
+            "pm.test('rating entre 0 y 5', () => {",
+            "    const r = pm.response.json().rating;",
+            "    pm.expect(r).to.be.at.least(0).and.at.most(5);",
+            "});",
+            "pm.test('bio es string', () => pm.expect(pm.response.json().bio).to.be.a('string'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches/{{matchId}}/detail?viewerUserId={{userId}}", "host": ["{{baseUrl}}"], "path": ["matches", "{{matchId}}", "detail"], "query": [{ "key": "viewerUserId", "value": "{{userId}}" }] } }
+        },
+        {
+          "name": "GET matches/suggestions",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Suggestions tienen status SUGGESTION', () => {",
+            "    pm.response.json().forEach(s => pm.expect(s.status).to.equal('SUGGESTION'));",
+            "});",
+            "pm.test('Cada suggestion tiene MatchSummaryResult shape', () => {",
+            "    const items = pm.response.json();",
+            "    if (items.length > 0) {",
+            "        const s = items[0];",
+            "        pm.expect(s).to.have.property('otherUserId');",
+            "        pm.expect(s).to.have.property('otherUserName');",
+            "        pm.expect(s).to.have.property('compatibilityScore');",
+            "    }",
+            "});",
+            "pm.test('compatibilityScore es numérico positivo', () => {",
+            "    pm.response.json().forEach(s => pm.expect(s.compatibilityScore).to.be.above(0));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches/suggestions?userId={{userId}}", "host": ["{{baseUrl}}"], "path": ["matches", "suggestions"], "query": [{ "key": "userId", "value": "{{userId}}" }] } }
+        },
+        {
+          "name": "GET matches/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches/9999", "host": ["{{baseUrl}}"], "path": ["matches", "9999"] } }
+        },
+        {
+          "name": "GET matches/0 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/matches/0", "host": ["{{baseUrl}}"], "path": ["matches", "0"] } }
+        }
+      ]
+    },
+    {
+      "name": "3. Search",
+      "item": [
+        {
+          "name": "GET search/categories",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array no vacío', () => {",
+            "    const cats = pm.response.json();",
+            "    pm.expect(cats).to.be.an('array').that.is.not.empty;",
+            "});",
+            "pm.test('Cada categoría es string', () => pm.response.json().forEach(c => pm.expect(c).to.be.a('string')));",
+            "pm.test('Contiene categorías del seed', () => {",
+            "    const cats = pm.response.json();",
+            "    const found = cats.some(c => c.toLowerCase().includes('m'));",
+            "    pm.expect(found).to.be.true;",
+            "});",
+            "pm.test('No hay categorías duplicadas', () => {",
+            "    const cats = pm.response.json();",
+            "    const unique = [...new Set(cats)];",
+            "    pm.expect(unique.length).to.equal(cats.length);",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/search/categories", "host": ["{{baseUrl}}"], "path": ["search", "categories"] } }
+        },
+        {
+          "name": "GET search/skills (populares)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array de SkillSummaryDetails', () => {",
+            "    const items = pm.response.json();",
+            "    pm.expect(items).to.be.an('array').that.is.not.empty;",
+            "    const s = items[0];",
+            "    pm.expect(s).to.have.property('name').that.is.a('string');",
+            "    pm.expect(s).to.have.property('category').that.is.a('string');",
+            "    pm.expect(s).to.have.property('peopleCount').that.is.a('number');",
+            "});",
+            "pm.test('Cada skill tiene peopleCount > 0', () => pm.response.json().forEach(s => pm.expect(s.peopleCount).to.be.above(0)));",
+            "pm.test('iconType está presente', () => {",
+            "    pm.response.json().forEach(s => pm.expect(s).to.have.property('iconType'));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/search/skills", "host": ["{{baseUrl}}"], "path": ["search", "skills"] } }
+        },
+        {
+          "name": "GET search/skills?query=gu",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Resultados contienen \"gu\" en el nombre', () => {",
+            "    const items = pm.response.json();",
+            "    pm.expect(items).to.be.an('array').that.is.not.empty;",
+            "    items.forEach(s => pm.expect(s.name.toLowerCase()).to.include('gu'));",
+            "});",
+            "pm.test('Resultados mantienen estructura SkillSummaryDetails', () => {",
+            "    const s = pm.response.json()[0];",
+            "    pm.expect(s).to.have.property('name');",
+            "    pm.expect(s).to.have.property('category');",
+            "    pm.expect(s).to.have.property('peopleCount');",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/search/skills?query=gu", "host": ["{{baseUrl}}"], "path": ["search", "skills"], "query": [{ "key": "query", "value": "gu" }] } }
+        },
+        {
+          "name": "GET search/skills?category=Música",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Array no vacío', () => pm.expect(pm.response.json()).to.be.an('array').that.is.not.empty);",
+            "pm.test('Todos son categoría Música', () => pm.response.json().forEach(s => pm.expect(s.category).to.include('sica')));",
+            "pm.test('Cada skill tiene peopleCount', () => pm.response.json().forEach(s => pm.expect(s.peopleCount).to.be.a('number')));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/search/skills?category=Música", "host": ["{{baseUrl}}"], "path": ["search", "skills"], "query": [{ "key": "category", "value": "Música" }] } }
+        },
+        {
+          "name": "GET search/people?skill=Guitarra",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array de PersonResult', () => {",
+            "    const items = pm.response.json();",
+            "    pm.expect(items).to.be.an('array');",
+            "});",
+            "pm.test('PersonResult tiene campos obligatorios', () => {",
+            "    const items = pm.response.json();",
+            "    if (items.length > 0) {",
+            "        const p = items[0];",
+            "        pm.expect(p).to.have.property('userId').that.is.a('number');",
+            "        pm.expect(p).to.have.property('name').that.is.a('string');",
+            "        pm.expect(p).to.have.property('initials').that.is.a('string');",
+            "        pm.expect(p).to.have.property('skillDescription').that.is.a('string');",
+            "        pm.expect(p).to.have.property('rating');",
+            "        pm.expect(p).to.have.property('sessionCount');",
+            "    }",
+            "});",
+            "pm.test('skillDescription menciona guitarra', () => {",
+            "    const items = pm.response.json();",
+            "    if (items.length > 0) items.forEach(p => pm.expect(p.skillDescription.toLowerCase()).to.include('guitarra'));",
+            "});",
+            "pm.test('No incluye al viewerUserId', () => {",
+            "    const viewerId = Number(pm.collectionVariables.get('userId'));",
+            "    pm.response.json().forEach(p => pm.expect(p.userId).to.not.equal(viewerId));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/search/people?skill=Guitarra&viewerUserId={{userId}}", "host": ["{{baseUrl}}"], "path": ["search", "people"], "query": [{ "key": "skill", "value": "Guitarra" }, { "key": "viewerUserId", "value": "{{userId}}" }] } }
+        }
+      ]
+    },
+    {
+      "name": "4. Sessions",
+      "item": [
+        {
+          "name": "GET sessions?matchId=3 (match ACCEPTED)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Al menos una sesión existe', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('SessionDetails tiene campos obligatorios', () => {",
+            "    const s = pm.response.json()[0];",
+            "    ['id','matchId','skillId','skillName','sessionNumber','title','description','status','createdAt'].forEach(k => {",
+            "        pm.expect(s).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('matchId coincide con el solicitado', () => pm.response.json().forEach(s => pm.expect(s.matchId).to.equal(3)));",
+            "pm.test('status es enum válido', () => {",
+            "    const valid = ['SCHEDULED','COMPLETED','CANCELLED'];",
+            "    pm.response.json().forEach(s => pm.expect(valid).to.include(s.status));",
+            "});",
+            "pm.test('sessionNumber es entero positivo', () => pm.response.json().forEach(s => pm.expect(s.sessionNumber).to.be.above(0)));",
+            "pm.test('skillName es string', () => pm.expect(pm.response.json()[0].skillName).to.be.a('string'));",
+            "",
+            "const items = pm.response.json();",
+            "if (items.length > 0) pm.collectionVariables.set('sessionId', String(items[0].id));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/sessions?matchId=3", "host": ["{{baseUrl}}"], "path": ["sessions"], "query": [{ "key": "matchId", "value": "3" }] } }
+        },
+        {
+          "name": "GET sessions/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Id coincide', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('sessionId'))));",
+            "pm.test('Tiene title y description', () => {",
+            "    const s = pm.response.json();",
+            "    pm.expect(s.title).to.be.a('string');",
+            "    pm.expect(s.description).to.be.a('string');",
+            "});",
+            "pm.test('createdAt es epoch', () => pm.expect(pm.response.json().createdAt).to.be.a('number'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/sessions/{{sessionId}}", "host": ["{{baseUrl}}"], "path": ["sessions", "{{sessionId}}"] } }
+        },
+        {
+          "name": "POST sessions (crear nueva)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Sesión creada con id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('Title coincide', () => pm.expect(pm.response.json().title).to.equal('Postman Test Session'));",
+            "pm.test('Status es SCHEDULED', () => pm.expect(pm.response.json().status).to.equal('SCHEDULED'));",
+            "pm.test('matchId coincide', () => pm.expect(pm.response.json().matchId).to.equal(3));",
+            "pm.test('sessionNumber es 2', () => pm.expect(pm.response.json().sessionNumber).to.equal(2));",
+            "",
+            "pm.collectionVariables.set('newSessionId', String(pm.response.json().id));"
+          ]}}],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"matchId\": 3,\n  \"skillId\": 1,\n  \"sessionNumber\": 2,\n  \"title\": \"Postman Test Session\",\n  \"description\": \"Sesión creada desde Postman\",\n  \"status\": \"SCHEDULED\"\n}" }, "url": { "raw": "{{baseUrl}}/sessions", "host": ["{{baseUrl}}"], "path": ["sessions"] } }
+        },
+        {
+          "name": "PUT sessions/{id} (actualizar)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Title actualizado', () => pm.expect(pm.response.json().title).to.equal('Updated Session Title'));",
+            "pm.test('Description actualizada', () => pm.expect(pm.response.json().description).to.equal('Updated description'));",
+            "pm.test('Id no cambió', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('newSessionId'))));"
+          ]}}],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"matchId\": 3,\n  \"skillId\": 1,\n  \"sessionNumber\": 2,\n  \"title\": \"Updated Session Title\",\n  \"description\": \"Updated description\",\n  \"status\": \"SCHEDULED\"\n}" }, "url": { "raw": "{{baseUrl}}/sessions/{{newSessionId}}", "host": ["{{baseUrl}}"], "path": ["sessions", "{{newSessionId}}"] } }
+        },
+        {
+          "name": "PATCH sessions/{id}/complete",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Status cambió a COMPLETED', () => pm.expect(pm.response.json().status).to.equal('COMPLETED'));",
+            "pm.test('completedAt no es null', () => pm.expect(pm.response.json().completedAt).to.not.be.null);"
+          ]}}],
+          "request": { "method": "PATCH", "header": [], "url": { "raw": "{{baseUrl}}/sessions/{{newSessionId}}/complete", "host": ["{{baseUrl}}"], "path": ["sessions", "{{newSessionId}}", "complete"] } }
+        },
+        {
+          "name": "DELETE sessions/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/sessions/{{newSessionId}}", "host": ["{{baseUrl}}"], "path": ["sessions", "{{newSessionId}}"] } }
+        },
+        {
+          "name": "GET sessions/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/sessions/9999", "host": ["{{baseUrl}}"], "path": ["sessions", "9999"] } }
+        }
+      ]
+    },
+    {
+      "name": "5. Reviews & Tags",
+      "item": [
+        {
+          "name": "GET reviews?revieweeId=1",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Al menos un review existe', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('ReviewDetails tiene campos obligatorios', () => {",
+            "    const r = pm.response.json()[0];",
+            "    ['id','reviewerId','reviewerName','revieweeId','sessionId','rating','comment','createdAt'].forEach(k => {",
+            "        pm.expect(r).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('revieweeId coincide', () => pm.response.json().forEach(r => pm.expect(r.revieweeId).to.equal(1)));",
+            "pm.test('rating entre 1 y 5', () => pm.response.json().forEach(r => pm.expect(r.rating).to.be.at.least(1).and.at.most(5)));",
+            "pm.test('reviewerName es string', () => pm.expect(pm.response.json()[0].reviewerName).to.be.a('string'));",
+            "",
+            "pm.collectionVariables.set('reviewId', String(pm.response.json()[0].id));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews?revieweeId=1", "host": ["{{baseUrl}}"], "path": ["reviews"], "query": [{ "key": "revieweeId", "value": "1" }] } }
+        },
+        {
+          "name": "GET reviews/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Id coincide', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('reviewId'))));",
+            "pm.test('rating es entero', () => pm.expect(pm.response.json().rating).to.be.a('number'));",
+            "pm.test('createdAt es epoch', () => pm.expect(pm.response.json().createdAt).to.be.a('number'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews/{{reviewId}}", "host": ["{{baseUrl}}"], "path": ["reviews", "{{reviewId}}"] } }
+        },
+        {
+          "name": "GET reviews?sessionId=1",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Todos los reviews son del sessionId consultado', () => {",
+            "    const sid = Number(pm.collectionVariables.get('sessionId'));",
+            "    pm.response.json().forEach(r => pm.expect(r.sessionId).to.equal(sid));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews?sessionId={{sessionId}}", "host": ["{{baseUrl}}"], "path": ["reviews"], "query": [{ "key": "sessionId", "value": "{{sessionId}}" }] } }
+        },
+        {
+          "name": "POST reviews (crear)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Review creado con id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('Rating es 4', () => pm.expect(pm.response.json().rating).to.equal(4));",
+            "pm.test('Comment coincide', () => pm.expect(pm.response.json().comment).to.equal('Buen profesor, recomendado'));",
+            "pm.test('reviewerId es 1', () => pm.expect(pm.response.json().reviewerId).to.equal(1));",
+            "pm.test('revieweeId es 4', () => pm.expect(pm.response.json().revieweeId).to.equal(4));",
+            "pm.test('tags es array no vacío', () => pm.expect(pm.response.json().tags).to.be.an('array').and.not.empty);",
+            "",
+            "pm.collectionVariables.set('newReviewId', String(pm.response.json().id));"
+          ]}}],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reviewerId\": 1,\n  \"revieweeId\": 4,\n  \"sessionId\": {{sessionId}},\n  \"rating\": 4,\n  \"comment\": \"Buen profesor, recomendado\",\n  \"tags\": [\"Puntual\", \"Paciente\"]\n}" }, "url": { "raw": "{{baseUrl}}/reviews", "host": ["{{baseUrl}}"], "path": ["reviews"] } }
+        },
+        {
+          "name": "GET reviews/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/reviews/9999", "host": ["{{baseUrl}}"], "path": ["reviews", "9999"] } }
+        },
+        {
+          "name": "GET review-tags?reviewId=1",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('ReviewTagDetails tiene campos si no vacío', () => {",
+            "    const tags = pm.response.json();",
+            "    if (tags.length > 0) {",
+            "        pm.expect(tags[0]).to.have.property('id');",
+            "        pm.expect(tags[0]).to.have.property('reviewId');",
+            "        pm.expect(tags[0]).to.have.property('tagName');",
+            "    }",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/review-tags?reviewId=1", "host": ["{{baseUrl}}"], "path": ["review-tags"], "query": [{ "key": "reviewId", "value": "1" }] } }
+        }
+      ]
+    },
+    {
+      "name": "6. Notifications",
+      "item": [
+        {
+          "name": "POST notifications (crear)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Notification creada con id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('title coincide', () => pm.expect(pm.response.json().title).to.equal('Test Notification'));",
+            "pm.test('body coincide', () => pm.expect(pm.response.json().body).to.equal('Creada desde Postman'));",
+            "pm.test('notificationType coincide', () => pm.expect(pm.response.json().notificationType).to.equal('NEW_MATCH'));",
+            "pm.test('isRead es false por defecto', () => pm.expect(pm.response.json().isRead).to.be.false);",
+            "pm.test('userId es 1', () => pm.expect(pm.response.json().userId).to.equal(1));",
+            "",
+            "pm.collectionVariables.set('newNotifId', String(pm.response.json().id));"
+          ]}}],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"referenceId\": 1,\n  \"title\": \"Test Notification\",\n  \"body\": \"Creada desde Postman\",\n  \"notificationType\": \"NEW_MATCH\"\n}" }, "url": { "raw": "{{baseUrl}}/notifications", "host": ["{{baseUrl}}"], "path": ["notifications"] } }
+        },
+        {
+          "name": "GET notifications?userId=1",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Al menos una notificación', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('NotificationDetails tiene campos obligatorios', () => {",
+            "    const n = pm.response.json()[0];",
+            "    ['id','userId','title','body','notificationType','isRead','createdAt'].forEach(k => {",
+            "        pm.expect(n).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('userId coincide', () => pm.response.json().forEach(n => pm.expect(n.userId).to.equal(1)));",
+            "pm.test('notificationType es enum válido', () => {",
+            "    const valid = ['NEW_MATCH','SESSION_REMINDER','NEW_MESSAGE','NEW_REVIEW','AI_SUGGESTION'];",
+            "    pm.response.json().forEach(n => pm.expect(valid).to.include(n.notificationType));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notifications?userId=1", "host": ["{{baseUrl}}"], "path": ["notifications"], "query": [{ "key": "userId", "value": "1" }] } }
+        },
+        {
+          "name": "GET notifications?userId=1&unread=true",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Todas son no leídas', () => pm.response.json().forEach(n => pm.expect(n.isRead).to.be.false));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notifications?userId=1&unread=true", "host": ["{{baseUrl}}"], "path": ["notifications"], "query": [{ "key": "userId", "value": "1" }, { "key": "unread", "value": "true" }] } }
+        },
+        {
+          "name": "GET notifications/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Id coincide', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('newNotifId'))));",
+            "pm.test('title es Test Notification', () => pm.expect(pm.response.json().title).to.equal('Test Notification'));",
+            "pm.test('isRead es boolean', () => pm.expect(pm.response.json().isRead).to.be.a('boolean'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notifications/{{newNotifId}}", "host": ["{{baseUrl}}"], "path": ["notifications", "{{newNotifId}}"] } }
+        },
+        {
+          "name": "PATCH notifications/{id}/read",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": { "method": "PATCH", "header": [], "url": { "raw": "{{baseUrl}}/notifications/{{newNotifId}}/read", "host": ["{{baseUrl}}"], "path": ["notifications", "{{newNotifId}}", "read"] } }
+        },
+        {
+          "name": "DELETE notifications/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/notifications/{{newNotifId}}", "host": ["{{baseUrl}}"], "path": ["notifications", "{{newNotifId}}"] } }
+        },
+        {
+          "name": "GET notifications/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/notifications/9999", "host": ["{{baseUrl}}"], "path": ["notifications", "9999"] } }
+        }
+      ]
+    },
+    {
+      "name": "7. Availability",
+      "item": [
+        {
+          "name": "GET availability?userId=1",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Al menos una disponibilidad', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('AvailabilityDetails tiene campos obligatorios', () => {",
+            "    const a = pm.response.json()[0];",
+            "    ['id','userId','dayOfWeek','startTime','endTime'].forEach(k => {",
+            "        pm.expect(a).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('userId coincide', () => pm.response.json().forEach(a => pm.expect(a.userId).to.equal(1)));",
+            "pm.test('dayOfWeek entre 1 y 7', () => pm.response.json().forEach(a => pm.expect(a.dayOfWeek).to.be.at.least(1).and.at.most(7)));",
+            "pm.test('startTime tiene formato HH:mm', () => pm.expect(pm.response.json()[0].startTime).to.match(/^\\d{2}:\\d{2}$/));",
+            "pm.test('endTime tiene formato HH:mm', () => pm.expect(pm.response.json()[0].endTime).to.match(/^\\d{2}:\\d{2}$/));",
+            "",
+            "pm.collectionVariables.set('availId', String(pm.response.json()[0].id));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/availability?userId=1", "host": ["{{baseUrl}}"], "path": ["availability"], "query": [{ "key": "userId", "value": "1" }] } }
+        },
+        {
+          "name": "GET availability/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Id coincide', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('availId'))));",
+            "pm.test('startTime es string', () => pm.expect(pm.response.json().startTime).to.be.a('string'));",
+            "pm.test('endTime es string', () => pm.expect(pm.response.json().endTime).to.be.a('string'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/availability/{{availId}}", "host": ["{{baseUrl}}"], "path": ["availability", "{{availId}}"] } }
+        },
+        {
+          "name": "POST availability (crear)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Availability creada con id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('dayOfWeek es 6 (Sábado)', () => pm.expect(pm.response.json().dayOfWeek).to.equal(6));",
+            "pm.test('startTime es 10:00', () => pm.expect(pm.response.json().startTime).to.equal('10:00'));",
+            "pm.test('endTime es 12:00', () => pm.expect(pm.response.json().endTime).to.equal('12:00'));",
+            "pm.test('userId es 1', () => pm.expect(pm.response.json().userId).to.equal(1));",
+            "",
+            "pm.collectionVariables.set('newAvailId', String(pm.response.json().id));"
+          ]}}],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"dayOfWeek\": 6,\n  \"startTime\": \"10:00\",\n  \"endTime\": \"12:00\"\n}" }, "url": { "raw": "{{baseUrl}}/availability", "host": ["{{baseUrl}}"], "path": ["availability"] } }
+        },
+        {
+          "name": "PUT availability/{id} (actualizar)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('startTime actualizado', () => pm.expect(pm.response.json().startTime).to.equal('14:00'));",
+            "pm.test('endTime actualizado', () => pm.expect(pm.response.json().endTime).to.equal('16:00'));",
+            "pm.test('dayOfWeek cambió a 7', () => pm.expect(pm.response.json().dayOfWeek).to.equal(7));"
+          ]}}],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"userId\": 1,\n  \"dayOfWeek\": 7,\n  \"startTime\": \"14:00\",\n  \"endTime\": \"16:00\"\n}" }, "url": { "raw": "{{baseUrl}}/availability/{{newAvailId}}", "host": ["{{baseUrl}}"], "path": ["availability", "{{newAvailId}}"] } }
+        },
+        {
+          "name": "DELETE availability/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 204 No Content', () => pm.response.to.have.status(204));"
+          ]}}],
+          "request": { "method": "DELETE", "header": [], "url": { "raw": "{{baseUrl}}/availability/{{newAvailId}}", "host": ["{{baseUrl}}"], "path": ["availability", "{{newAvailId}}"] } }
+        },
+        {
+          "name": "GET availability/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/availability/9999", "host": ["{{baseUrl}}"], "path": ["availability", "9999"] } }
+        }
+      ]
+    },
+    {
+      "name": "8. Session Invitations",
+      "item": [
+        {
+          "name": "POST session-invitations (crear)",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Invitation creada con id', () => pm.expect(pm.response.json()).to.have.property('id').that.is.a('number'));",
+            "pm.test('senderId es 1', () => pm.expect(pm.response.json().senderId).to.equal(1));",
+            "pm.test('receiverId es 4', () => pm.expect(pm.response.json().receiverId).to.equal(4));",
+            "pm.test('matchId es 3', () => pm.expect(pm.response.json().matchId).to.equal(3));",
+            "pm.test('status es PENDING', () => pm.expect(pm.response.json().status).to.equal('PENDING'));",
+            "pm.test('SessionInvitationDetails tiene todos los campos', () => {",
+            "    const inv = pm.response.json();",
+            "    ['id','senderId','senderName','receiverId','receiverName','matchId','status','createdAt'].forEach(k => {",
+            "        pm.expect(inv).to.have.property(k);",
+            "    });",
+            "});",
+            "pm.test('senderName es string', () => pm.expect(pm.response.json().senderName).to.be.a('string'));",
+            "pm.test('receiverName es string', () => pm.expect(pm.response.json().receiverName).to.be.a('string'));",
+            "",
+            "pm.collectionVariables.set('newInvId', String(pm.response.json().id));"
+          ]}}],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"senderId\": 1,\n  \"receiverId\": 4,\n  \"matchId\": 3\n}" }, "url": { "raw": "{{baseUrl}}/session-invitations", "host": ["{{baseUrl}}"], "path": ["session-invitations"] } }
+        },
+        {
+          "name": "GET session-invitations?receiverId=4",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Respuesta es array', () => pm.expect(pm.response.json()).to.be.an('array'));",
+            "pm.test('Al menos una invitación', () => pm.expect(pm.response.json().length).to.be.above(0));",
+            "pm.test('receiverId coincide', () => pm.response.json().forEach(inv => pm.expect(inv.receiverId).to.equal(4)));",
+            "pm.test('status es enum válido', () => {",
+            "    const valid = ['PENDING','ACCEPTED','REJECTED','EXPIRED','CANCELLED'];",
+            "    pm.response.json().forEach(inv => pm.expect(valid).to.include(inv.status));",
+            "});"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/session-invitations?receiverId=4", "host": ["{{baseUrl}}"], "path": ["session-invitations"], "query": [{ "key": "receiverId", "value": "4" }] } }
+        },
+        {
+          "name": "GET session-invitations/{id}",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Id coincide', () => pm.expect(pm.response.json().id).to.equal(Number(pm.collectionVariables.get('newInvId'))));",
+            "pm.test('status es PENDING', () => pm.expect(pm.response.json().status).to.equal('PENDING'));",
+            "pm.test('createdAt es epoch', () => pm.expect(pm.response.json().createdAt).to.be.a('number'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/session-invitations/{{newInvId}}", "host": ["{{baseUrl}}"], "path": ["session-invitations", "{{newInvId}}"] } }
+        },
+        {
+          "name": "PATCH session-invitations/{id}/reject",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('Status cambió a REJECTED', () => pm.expect(pm.response.json().status).to.equal('REJECTED'));"
+          ]}}],
+          "request": { "method": "PATCH", "header": [], "url": { "raw": "{{baseUrl}}/session-invitations/{{newInvId}}/reject", "host": ["{{baseUrl}}"], "path": ["session-invitations", "{{newInvId}}", "reject"] } }
+        },
+        {
+          "name": "GET session-invitations/9999 → 404",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 404', () => pm.response.to.have.status(404));",
+            "pm.test('ApiError tiene estructura completa', () => {",
+            "    const body = pm.response.json();",
+            "    pm.expect(body).to.have.property('status').that.includes('404');",
+            "    pm.expect(body).to.have.property('message').that.is.a('string');",
+            "    pm.expect(body).to.have.property('debugMessage').that.is.a('string');",
+            "    pm.expect(body).to.have.property('localDateTime').that.is.a('string');",
+            "});",
+            "pm.test('apiSubErrors contiene ELEMENT_NOT_FOUND', () => {",
+            "    const errors = pm.response.json().apiSubErrors;",
+            "    pm.expect(errors).to.be.an('array').that.is.not.empty;",
+            "    pm.expect(errors[0].code).to.equal('ELEMENT_NOT_FOUND');",
+            "});",
+            "pm.test('debugMessage menciona id', () => pm.expect(pm.response.json().debugMessage).to.include('9999'));"
+          ]}}],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/session-invitations/9999", "host": ["{{baseUrl}}"], "path": ["session-invitations", "9999"] } }
+        }
+      ]
+    },
+    {
+      "name": "9. End-to-End Flow (CRUD via API)",
+      "item": [
+        {
+          "name": "[E2E 1/5] Register new user",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "const u = pm.response.json();",
+            "pm.test('UserResult creado', () => {",
+            "    pm.expect(u).to.have.property('id').that.is.a('number');",
+            "    pm.expect(u).to.have.property('email').that.includes('e2e-');",
+            "    pm.expect(u).to.have.property('firstName', 'E2E');",
+            "    pm.expect(u).to.have.property('lastName', 'Flow');",
+            "});",
+            "pm.test('enabled es true', () => pm.expect(u.enabled).to.be.true);",
+            "pm.test('rating inicia en 0', () => pm.expect(u.rating).to.equal(0));",
+            "",
+            "pm.collectionVariables.set('e2eEmail', u.email);",
+            "pm.collectionVariables.set('e2eUserId', String(u.id));"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"e2e-{{$timestamp}}@dexter.app\",\n  \"password\": \"e2e-pass-1234\",\n  \"firstName\": \"E2E\",\n  \"lastName\": \"Flow\",\n  \"country\": \"CR\",\n  \"skillsToTeach\": [],\n  \"skillsToLearn\": []\n}" }, "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] } }
+        },
+        {
+          "name": "[E2E 2/5] Login con el nuevo user",
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('Status 200', () => pm.response.to.have.status(200));",
+            "pm.test('JWT en header', () => pm.expect(pm.response.headers.get('Authorization')).to.match(/^Bearer\\s+/));",
+            "pm.test('Email coincide', () => pm.expect(pm.response.json().email).to.equal(pm.collectionVariables.get('e2eEmail')));",
+            "",
+            "const auth = pm.response.headers.get('Authorization');",
+            "if (auth) pm.collectionVariables.set('e2eToken', auth.replace(/^Bearer\\s+/i, '').trim());"
+          ]}}],
+          "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"username\": \"{{e2eEmail}}\",\n  \"password\": \"e2e-pass-1234\"\n}" }, "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] } }
+        },
+        {
+          "name": "[E2E 3/5] GET su profile",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["const e2eToken = pm.collectionVariables.get('e2eToken'); if (e2eToken) pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + e2eToken });"] }},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Nombre es E2E Flow', () => {",
+              "    pm.expect(pm.response.json().firstName).to.equal('E2E');",
+              "    pm.expect(pm.response.json().lastName).to.equal('Flow');",
+              "});",
+              "pm.test('Skills vacías', () => {",
+              "    pm.expect(pm.response.json().skillsOffered).to.be.an('array').that.is.empty;",
+              "    pm.expect(pm.response.json().skillsSought).to.be.an('array').that.is.empty;",
+              "});",
+              "pm.test('Reviews vacías', () => pm.expect(pm.response.json().reviews).to.be.an('array').that.is.empty);"
+            ]}}
+          ],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId={{e2eUserId}}", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "{{e2eUserId}}" }] } }
+        },
+        {
+          "name": "[E2E 4/5] PUT actualizar bio",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["const e2eToken = pm.collectionVariables.get('e2eToken'); if (e2eToken) pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + e2eToken });"] }},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Bio actualizada', () => pm.expect(pm.response.json().bio).to.equal('Soy el user del flujo end-to-end'));",
+              "pm.test('Country cambiado a AR', () => pm.expect(pm.response.json().country).to.equal('AR'));"
+            ]}}
+          ],
+          "request": { "method": "PUT", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"bio\": \"Soy el user del flujo end-to-end\",\n  \"country\": \"AR\",\n  \"avatarUrl\": null\n}" }, "url": { "raw": "{{baseUrl}}/profile-summary?userId={{e2eUserId}}", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "{{e2eUserId}}" }] } }
+        },
+        {
+          "name": "[E2E 5/5] Verificar persistencia",
+          "event": [
+            { "listen": "prerequest", "script": { "type": "text/javascript", "exec": ["const e2eToken = pm.collectionVariables.get('e2eToken'); if (e2eToken) pm.request.headers.upsert({ key: 'Authorization', value: 'Bearer ' + e2eToken });"] }},
+            { "listen": "test", "script": { "type": "text/javascript", "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Bio persiste', () => pm.expect(pm.response.json().bio).to.equal('Soy el user del flujo end-to-end'));",
+              "pm.test('Country persiste como AR', () => pm.expect(pm.response.json().country).to.equal('AR'));",
+              "pm.test('Initials son EF', () => pm.expect(pm.response.json().initials).to.equal('EF'));"
+            ]}}
+          ],
+          "request": { "method": "GET", "header": [], "url": { "raw": "{{baseUrl}}/profile-summary?userId={{e2eUserId}}", "host": ["{{baseUrl}}"], "path": ["profile-summary"], "query": [{ "key": "userId", "value": "{{e2eUserId}}" }] } }
+        }
+      ]
+    }
+  ]
+}

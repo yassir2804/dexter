@@ -1,0 +1,239 @@
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
+import os
+import json
+import re
+from datetime import date, timedelta
+from typing import Optional
+
+load_dotenv(override=True)
+
+# Múltiples keys — se prueban en orden hasta que uno funcione
+_RAW_KEYS = [
+    os.getenv("GEMINI_API_KEY"),
+    os.getenv("GEMINI_API_KEY_2"),
+    os.getenv("GEMINI_API_KEY_3"),
+]
+API_KEYS = [k for k in _RAW_KEYS if k and k.startswith("AIza")]
+
+# Contenido educativo de intercambio de habilidades — desactivamos los filtros
+# de seguridad para que nombres de skills (ej. "odio", "defensa personal") no se bloqueen.
+SAFETY_SETTINGS = [
+    types.SafetySetting(category="HARM_CATEGORY_HARASSMENT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_HATE_SPEECH", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold="BLOCK_NONE"),
+    types.SafetySetting(category="HARM_CATEGORY_DANGEROUS_CONTENT", threshold="BLOCK_NONE"),
+]
+
+def generate_with_fallback(prompt: str) -> str:
+    """Intenta generar contenido con cada key disponible hasta que una funcione."""
+    last_error = None
+    for key in API_KEYS:
+        try:
+            c = genai.Client(api_key=key)
+            response = c.models.generate_content(
+                model=MODEL,
+                contents=prompt,
+                config=types.GenerateContentConfig(safety_settings=SAFETY_SETTINGS),
+            )
+            text = response.text
+            # Si Gemini bloqueó/devolvió vacío, lanzar para que el backend use su fallback.
+            if not text or not text.strip():
+                raise ValueError("Gemini devolvió respuesta vacía (posible bloqueo de seguridad)")
+            return text
+        except Exception as e:
+            last_error = e
+            continue
+    raise last_error or Exception("No hay API keys disponibles")
+
+app = FastAPI(title="Dexter AI Service")
+
+DAY_NAMES_ES = {1: "Lunes", 2: "Martes", 3: "Miércoles", 4: "Jueves", 5: "Viernes", 6: "Sábado", 7: "Domingo"}
+DAY_SHORT_ES = {1: "Lun", 2: "Mar", 3: "Mié", 4: "Jue", 5: "Vie", 6: "Sáb", 7: "Dom"}
+MONTH_SHORT_ES = {1:"ene",2:"feb",3:"mar",4:"abr",5:"may",6:"jun",7:"jul",8:"ago",9:"sep",10:"oct",11:"nov",12:"dic"}
+
+
+def next_dates_for_days(day_numbers: list[int], count: int) -> list[str]:
+    """Devuelve las próximas `count` fechas que caigan en alguno de los días ISO dados (1=Lun..7=Dom)."""
+    if not day_numbers:
+        return []
+    results = []
+    today = date.today()
+    cursor = today + timedelta(days=1)
+    while len(results) < count:
+        iso_wd = cursor.isoweekday()
+        if iso_wd in day_numbers:
+            short = f"{DAY_SHORT_ES.get(iso_wd, '')} {cursor.day} {MONTH_SHORT_ES.get(cursor.month, '')}"
+            results.append(short)
+        cursor += timedelta(days=1)
+    return results
+
+
+def round_robin_dates(days_a: list[int], days_b: list[int], count: int) -> list[str]:
+    """
+    Sin solapamiento: alterna entre los días de A y B en round-robin.
+    Sesiones impares (B enseña) → próximo día disponible de B.
+    Sesiones pares  (A enseña) → próximo día disponible de A.
+    """
+    results = []
+    today = date.today()
+    cursor_a = today + timedelta(days=1)
+    cursor_b = today + timedelta(days=1)
+
+    def next_date_for(days: list[int], cursor: date) -> tuple[str, date]:
+        while cursor.isoweekday() not in days:
+            cursor += timedelta(days=1)
+        short = f"{DAY_SHORT_ES.get(cursor.isoweekday(), '')} {cursor.day} {MONTH_SHORT_ES.get(cursor.month, '')}"
+        return short, cursor + timedelta(days=1)
+
+    for i in range(1, count + 1):
+        if i % 2 == 1:  # impar → B enseña
+            if days_b:
+                d, cursor_b = next_date_for(days_b, cursor_b)
+                results.append(d)
+            else:
+                results.append(None)
+        else:            # par → A enseña
+            if days_a:
+                d, cursor_a = next_date_for(days_a, cursor_a)
+                results.append(d)
+            else:
+                results.append(None)
+    return results
+
+
+# ── Request / Response models ─────────────────────────────────────────────────
+
+class PlanRequest(BaseModel):
+    userAName: str
+    userAOffers: list[str]
+    userBName: str
+    userBOffers: list[str]
+    availableDays: list[str]           # nombres de días — legacy
+    overlapDayNumbers: list[int] = []  # días ISO donde ambos coinciden
+    userADayNumbers: list[int] = []    # días ISO solo de A (iniciador)
+    userBDayNumbers: list[int] = []    # días ISO solo de B (receptor)
+    timezone: Optional[str] = None     # ej. "America/Costa_Rica"
+
+
+class SessionPlan(BaseModel):
+    sessionNumber: int
+    title: str
+    description: str
+    skill: str
+    scheduledDate: Optional[str] = None  # ej. "Lun 9 jun"
+
+
+
+# ── Helpers ───────────────────────────────────────────────────────────────────
+
+def extract_json(text: str) -> str:
+    """Extrae el JSON aunque Gemini lo envuelva en bloques ```json ... ```."""
+    match = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
+    if match:
+        return match.group(1).strip()
+    return text.strip()
+
+
+# ── Endpoints ─────────────────────────────────────────────────────────────────
+
+MODEL = "gemini-2.5-flash-lite"
+
+@app.get("/health")
+def health():
+    return {"status": "ok", "model": MODEL}
+
+
+@app.post("/generate-plan", response_model=list[SessionPlan])
+def generate_plan(req: PlanRequest):
+    all_a_skills = req.userAOffers
+    all_b_skills = req.userBOffers
+
+    # Calcular fechas sugeridas:
+    # 1. Si hay solapamiento → fechas en días comunes
+    # 2. Si no hay solapamiento pero hay disponibilidad individual → round-robin por usuario
+    # 3. Si no hay disponibilidad → null
+    if req.overlapDayNumbers:
+        suggested_dates = next_dates_for_days(req.overlapDayNumbers, 6)
+    elif req.userADayNumbers or req.userBDayNumbers:
+        suggested_dates = round_robin_dates(req.userADayNumbers, req.userBDayNumbers, 6)
+    else:
+        suggested_dates = []
+    has_dates = len(suggested_dates) == 6 and all(d is not None for d in suggested_dates)
+
+    # Asignación de skills por sesión
+    session_skill_hints = []
+    for i in range(1, 7):
+        if i % 2 == 1:  # odd → B teaches
+            skill = all_b_skills[(i // 2) % len(all_b_skills)] if all_b_skills else (all_a_skills[0] if all_a_skills else "habilidad")
+            teacher = req.userBName
+        else:  # even → A teaches
+            skill = all_a_skills[(i // 2 - 1) % len(all_a_skills)] if all_a_skills else (all_b_skills[0] if all_b_skills else "habilidad")
+            teacher = req.userAName
+        date_hint = f", fecha sugerida: \"{suggested_dates[i-1]}\"" if has_dates else ""
+        session_skill_hints.append(f"Sesión {i}: {teacher} enseña «{skill}» — skill=\"{skill}\"{date_hint}")
+
+    hints_text = "\n".join(session_skill_hints)
+    days_text = ", ".join(req.availableDays) if req.availableDays else ("días de solapamiento: " + ", ".join(DAY_NAMES_ES.get(d, str(d)) for d in req.overlapDayNumbers) if req.overlapDayNumbers else "horario flexible")
+    tz_text = f"Zona horaria: {req.timezone}" if req.timezone else ""
+    today_text = f"Fecha de hoy: {date.today().strftime('%d/%m/%Y')}"
+
+    scheduled_field = '"scheduledDate": "fecha sugerida exactamente como aparece arriba",' if has_dates else '"scheduledDate": null,'
+
+    # Detectar idioma dominante a partir de los nombres de habilidades
+    all_skill_names = req.userAOffers + req.userBOffers + [req.userAName, req.userBName]
+    lang_hint = "Responde en el mismo idioma que los nombres de habilidades proporcionados. Si las habilidades están en inglés, responde en inglés; si están en español, responde en español; si están en portugués, responde en portugués."
+
+    prompt = f"""You are a learning plan generator for a skill-exchange app.
+{lang_hint}
+
+{today_text}
+{tz_text}
+Available days for both users: {days_text}
+
+SKILLS (use EXACTLY these strings in the "skill" field — do NOT translate them):
+- {req.userAName} teaches: {", ".join(f'"{s}"' for s in req.userAOffers)}
+- {req.userBName} teaches: {", ".join(f'"{s}"' for s in req.userBOffers)}
+
+MANDATORY SESSION ASSIGNMENT:
+{hints_text}
+
+RULES:
+- "skill" MUST be exactly the string shown above, unchanged.
+- "scheduledDate": use the suggested date if provided; otherwise null.
+- "title": specific, motivating, related to that skill.
+- "description": what will be practiced (1-2 sentences).
+- Do NOT include time or duration (users set those later).
+- Respond in the same language as the skill names.
+
+Respond ONLY with a valid JSON array:
+[
+  {{
+    "sessionNumber": 1,
+    "title": "specific title",
+    "description": "session description",
+    "skill": "exact name as shown above",
+    {scheduled_field}
+  }}
+]"""
+
+    try:
+        raw = extract_json(generate_with_fallback(prompt))
+        plans = json.loads(raw)
+
+        if not isinstance(plans, list) or len(plans) != 6:
+            raise ValueError(f"Se esperaban 6 sesiones, se recibieron {len(plans) if isinstance(plans, list) else 0}")
+
+        return plans
+
+    except json.JSONDecodeError as e:
+        raise HTTPException(status_code=500, detail=f"Gemini devolvió JSON inválido: {e}")
+    except ValueError as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al generar plan: {str(e)}")
+
+
