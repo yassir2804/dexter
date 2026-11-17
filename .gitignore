@@ -1,0 +1,28 @@
+# IDE / OS
+.idea/
+.vscode/
+.claude/
+.kotlin/
+.DS_Store
+
+# Build
+build/
+.gradle/
+out/
+*.apk
+*.aab
+
+# Local config & secrets
+local.properties
+.env
+google-services.json
+*.jks
+*.keystore
+
+# Python
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+backend_log.txt
